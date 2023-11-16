@@ -1,0 +1,66 @@
+IMPLEMENTATIION PLANS:
+
+HIGH-LEVEL WORKFLOW OVERVIEW:
+1. Create a functional P2P system that communicates and sends requests with no encryption
+2. Implement encryption techniques
+3. Implement Apache server and encoding of IP bootstrap node via stegatography
+
+SECTIONAL WORKFLOW OVERVIEW:
+1. Creating a basic, functional P2P system:
+  - Implement ability to understand XML-RPC requests
+  - Implement linked-list connection between nodes
+  - Implement design decisions for dynamically adding/removing nodes
+  - Implement ability for any client to send/receive requests
+
+2. Implementing encryption techniques:
+  - SETTING UP REQUEST PATH:
+    1. Node 0 wants to send an encrypted request
+    2. Node 0 chooses a random path length between 3 and 8
+    3. Node 0 sends to successor:
+      1. count = path length
+      2. 0’s IP address
+      3. Probability for other nodes of either accepting or passing IP
+    Note: may not scale well as requests will be passed locally compared to 1000 node ring. Iterating over nodes takes time, so may improve in future versions.
+    1. Node 0 waits for a public key sent from exit node
+    2. In Node 1: 
+    1. if prob == true:
+        1. Store 0’s IP address
+        2. Decrement counter by 1
+        3. Send probability, new count, and 1’s IP address to successor
+    3. In successor nodes n:
+        1. If count == 0:
+            1. Store sent IP address
+            2. Designate n as exit node
+            3. Send public key to newly stored IP
+        2. if prob == true:
+            1. Store sent IP address
+            2. Decrement counter by 1
+            3. Send probability, new count, and n’s IP address to successor
+    4. Node 0 receives a public key from the exit node, indicating the path is complete.
+
+    SENDING REQUEST:
+    ***NOTE*** In this section, nodes 0-n are describing only the nodes in the newly created path ******
+    1. Node 0 encrypts request and own public key with exit node’s public key
+    2. Node 0 sends request to Node 1 for Node 1’s public key
+    3. Node 1 sends Node 0 its public key
+        1. Node 0 encrypts request with Node 1’s public key
+        2. Node 0 sends encrypted request to Node 1
+    4. Repeat encryption and decryption through path until exit node receives request
+    5. Exit node decrypts initial encryption performed by Node 0Node 0 with exit node’s public key
+    6. Exit node sends request + waits for response
+
+    RECEIVING REQUEST:
+    1. Exit node receives response from website server. 
+    2. Exit node encrypts response with Node 0’s public key that was obtained during sending process
+    3. Exit node sends the request back through the chain using already described handshake
+    4. Node 0 decrypts the response and displays.
+
+3. Implementing Apache server and stegatography:
+  - Set up Apache server with a single image
+  - Write functions giving ability to decode an IP address from the image
+  - Store IP address of designated Bootstrap server encoded within an image in a remote server
+    - Remote server pings Bootstrap server in intervals to ensure it is still running
+  - When a client wants to connect, it will send request to remote server
+  - Remote server sends back encoded image
+  - Client decodes IP from image, then sends connection request to Bootstrap server
+  - Bootstrap server accepts and adds client to architecture

@@ -1,4 +1,3 @@
-package AntHill;
 import org.apache.xmlrpc.webserver.ServletWebServer;
 import org.apache.xmlrpc.webserver.XmlRpcServlet;
 import javax.servlet.http.HttpServlet;

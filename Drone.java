@@ -1,9 +1,9 @@
-package AntHill;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer; 
-//import AntHill.DroneServlet;
+import org.apache.xmlrpc.webserver.ServletWebServer;
+//import Anthill.DroneServlet;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import java.net.MalformedURLException;
@@ -38,49 +38,55 @@ public class Drone {
    *Index 3: 2^3 nodes around ring
    *Index 4: 2^4 nodes around ring
    */
-   private static String[] colonyTable = new String[COL_SIZE];
+  private static String[] colonyTable = new String[COL_SIZE];
 
-   public Drone(){
+  public Drone(){
     
     // default
-   }
-   public boolean ping(){
-      return true;
-   }
+  }
+  
+  public boolean ping() {
+    return true;
+  }
 
-   public String getSuccessor(){
-        XmlRpcClient succClient = new XmlRpcClient();
-        XmlRpcClientConfigImpl configSucc = new XmlRpcClientConfigImpl();
-        configSucc.setEnabledForExtensions(true);
-        succClient.setConfig(configSucc);
-        try{
-           configSucc.setServerURL(new URL("http://" + successor + ":" + PORT));
-	} catch(MalformedURLException e){
-	   System.out.println("invalid successor url");
+  public String getSuccessor() {
+    XmlRpcClient succClient = new XmlRpcClient();
+    XmlRpcClientConfigImpl configSucc = new XmlRpcClientConfigImpl();
+    configSucc.setEnabledForExtensions(true);
+    succClient.setConfig(configSucc);
+    try {
+      configSucc.setServerURL(new URL("http://" + successor + ":" + PORT));
+	  } catch(MalformedURLException e) {
+	    System.out.println("Invalid successor URL.");
+	  } 
+    
+    try {
+      succClient.execute("Drone.ping", new Object[]{});
+
+      //If the Successor is online
+
+      String temp_succ = successor;
+	    successor = droneServe.getClientIpAddress();
+	    return temp_succ;	
+    } catch(Exception e) {
+      System.out.println("Did not get a response from successor ping.");
+    }
+    //If successor is not on line
+    //TODO
+      //check that successor is valid
+      //if valid
+        //send successor
+        //assign requestor as successor
+      //else check
+      //if next successor is valid
+       //send
+       //assign requestor as successor
+      //else
+       //try index 2 on colony, cutting 1 out of chain
+       //if this addr is invalid, exit and request new BS node
+    return "";
+
 	}
-        if(succClient.execute("Drone.ping", new Object[]{})){
-	   //If the Successor is on line
-	   String temp_succ = successor;
-	   successor = droneServe.getClientIpAddress();
-	   return temp_succ;	
-	}
-	else{
-	   //If successor is not on line
-           //TODO
-	}
-        //check that successor is valid
-        //if valid
-           //send successor
-           //assign requestor as successor
-        //else check
-           //if next successor is valid
-             //send
-             //assign requestor as successor
-           //else
-             //try index 2 on colony, cutting 1 out of chain
-             //if this addr is invalid, exit and request new BS node
-     return "";
-     }
 
      public String getColonyMember(int index){
              //returns member of colony table at index

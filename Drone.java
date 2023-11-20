@@ -50,7 +50,7 @@ public class Drone {
     return true;
    }
 
-   public String getNextLiveSuccessor(int colonyTableIndex, XmlRpcClient succClient, XmlRpcClientconfigImpl configSucc) {
+   public String getNextLiveSuccessor(int colonyTableIndex, XmlRpcClient succClient, XmlRpcClientConfigImpl configSucc) {
     // Checks if machine at specified colony table index is available
     // RETURNS IP address if available, and null if unavailable
 
@@ -66,6 +66,7 @@ public class Drone {
        return null;
    }
 }
+return null;
    }
 
    public String getSuccessor() {

@@ -272,7 +272,7 @@ public class Drone {
   }
   }
 
-  private void dumpColony(){
+  private static void dumpColony(){
      int nodeNumber = 1;
      for(int i = 0; i< colonyTable.length; i++){
 	System.out.println("Node " + nodeNumber  + ":" + colonyTable[i]);
@@ -291,8 +291,10 @@ public class Drone {
     debug = true;
     
     System.out.println(getPublicIP());
-
     
+    initializeNetwork();
+    dumpColony();
+
   }
 
 }

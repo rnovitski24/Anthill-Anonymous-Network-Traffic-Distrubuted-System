@@ -50,6 +50,25 @@ public class Drone {
     return true;
    }
 
+   public String getNextLiveSuccessor(int colonyTableIndex, XmlRpcClient succClient, XmlRpcClientConfigImpl configSucc) {
+    // Checks if machine at specified colony table index is available
+    // RETURNS IP address if available, and null if unavailable
+
+    String potentialSuccessor = colonyTable[colonyTableIndex];
+    if (potentialSuccessor != null && !potentialSuccessor.equals(successor)) {
+     try {
+      configSucc.setServerURL(new URL("http://" + potentialSuccessor + ":" + PORT));
+                succClient.execute("Drone.ping", new Object[]{});
+                // If ping is successful, update successor
+                successor = potentialSuccessor;
+                return successor;
+      } catch (Exception ex) {
+       return null;
+   }
+}
+return null;
+   }
+
    public String getSuccessor() {
 
     XmlRpcClient succClient = new XmlRpcClient();
@@ -66,44 +85,25 @@ public class Drone {
      succClient.execute("Drone.ping", new Object[]{});
 
       //If the Successor is online
-      String temp_succ = successor;
+      String tempSuccessor = successor;
 	    successor = droneServe.getClientIpAddress();
-	    return temp_succ;	
+	    return tempSuccessor;	
     } catch(Exception e) {
       System.out.println("Did not get a response from successor ping.");
     }
-
-    //If successor is not online, try second entry in colonyTable(2^1 nodes around ring)
-    String potentialSuccessor = colonyTable[1];
-    if (potentialSuccessor != null && !potentialSuccessor.equals(successor)) {
-     try {
-      configSucc.setServerURL(new URL("http://" + potentialSuccessor + ":" + PORT));
-      succClient.execute("Drone.ping", new Object[]{});
-      
-      // If ping is successful, update successor
-      successor = potentialSuccessor;
-      return successor;
-     } catch (Exception e) {
-       // second node around ring is not reachable.  Now try third entry in colonyTable(2^2 nodes around ring)
-       potentialSuccessor = colonyTable[2];
-       if (potentialSuccessor != null && !potentialSuccessor.equals(successor)) {
-        try {
-         configSucc.setServerURL(new URL("http://" + potentialSuccessor + ":" + PORT));
-         succClient.execute("Drone.ping", new Object[]{});
-         // If ping is successful, update successor
-         successor = potentialSuccessor;
-         return successor;
-         } catch (Exception ex) {
-
-          // If ping is unsuccessful, ring needs to be fully reset
-          System.out.println("New bootstrap node needed; ring must be reset.  Exiting.");
-          System.exit(1);
-         }
-       }
-    
-
-    }
+    String tempSuccessor = successor;
+    tempSuccessor = getNextLiveSuccessor(1, succClient, configSucc);
+    // If successor is not online, try second entry in colonyTable(2^1 nodes around ring)
+    if (tempSuccessor == null) {
+     
+     // second node around ring is not reachable.  Now try third entry in colonyTable(2^2 nodes around ring)
+     tempSuccessor = getNextLiveSuccessor(2, succClient, configSucc);
+     if (tempSuccessor == null) {
+      System.out.println("New bootstrap node needed; ring must be reset.  Exiting.");
+      System.exit(1);
+     }
    }
+   return tempSuccessor;
     //TODO
       //check that successor is valid
       //if valid
@@ -116,8 +116,6 @@ public class Drone {
       //else
        //try index 2 on colony, cutting 1 out of chain
        //if this addr is invalid, exit and request new BS node
-    return "";
-
 	}
 
      public String getColonyMember(int index) {

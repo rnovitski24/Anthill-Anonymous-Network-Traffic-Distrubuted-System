@@ -1,6 +1,6 @@
 JFLAGS = -g -Xlint:unchecked
 
-CLASSPATH=lib/javax.servlet-api-4.0.1.jar:/usr/share/java/xmlrpc-client.jar:/usr/share/java/xmlrpc-server.jar:/usr/share/java/xmlrpc-common.jar:/usr/share/java/ws-commons-util.jar:/usr/share/java/apache-commons-logging.jar:.
+CLASSPATH=lib/commons-logging-1.2.jar:lib/javax.servlet-api-4.0.1.jar:/usr/share/java/xmlrpc-client.jar:/usr/share/java/xmlrpc-server.jar:/usr/share/java/xmlrpc-common.jar:/usr/share/java/ws-commons-util.jar:/usr/share/java/commons-logging.jar:.
 
 
 JC = javac

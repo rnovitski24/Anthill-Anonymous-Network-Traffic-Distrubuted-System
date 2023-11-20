@@ -3,16 +3,13 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer; 
 import org.apache.xmlrpc.webserver.ServletWebServer;
-//import Anthill.DroneServlet;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import java.net.MalformedURLException;
 import javax.servlet.*;
 import java.util.*;
 import java.io.*;
-
 import java.net.InetAddress;
-
 import java.net.URL;
 
 
@@ -22,7 +19,8 @@ public class Drone {
   
   private static DroneServlet droneServe;
   private static XmlRpcServer xmlRpcServer;
-  
+  private static ServletWebServer server;
+	
   private static boolean debug; 
 
   private static final int PORT = 2054;
@@ -126,12 +124,35 @@ return null;
 
   private static boolean initializeNetwork(){
      //Load successor and colony table with own IP addr
+     
      String IP = getPublicIP();
      successor = IP;
-     for(int i = 0; i > colonyTable.length; i++){
-        colonyTable[i]=IP;
-
+     System.out.println(IP);
+     for(int i = 0; i <  colonyTable.length; i++){
+        colonyTable[i]= IP;
      }
+     try{
+      //Setup for server. Still needs to be fixed.
+      //Don't know how the servlet architecture maps on XML Rpc
+      //But must be used to get the client IP
+      //See DroneServlet.java
+      //FIXME
+      PropertyHandlerMapping phm = new PropertyHandlerMapping();
+      WebServer server  = new WebServer(PORT); // may have to change port
+      xmlRpcServer = server.getXmlRpcServer();
+      XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
+      serverConfig.setEnabledForExtensions(true);
+      phm.addHandler("Drone", Drone.class);
+      xmlRpcServer.setHandlerMapping(phm);
+      server.start();
+
+    } catch (Exception e) {
+      // Handle any exceptions during server setup
+      System.err.println("Server Initialization Exception: " + e.toString());
+      e.printStackTrace();
+      System.exit(1);
+    }
+
      return false;
   }
 

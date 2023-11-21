@@ -19,7 +19,7 @@ public class Drone {
   
   private static DroneServlet droneServe;
   private static XmlRpcServer xmlRpcServer;
-  private static ServletWebServer server;
+  private static WebServer server;
 	
   private static boolean debug; 
 
@@ -48,7 +48,7 @@ public class Drone {
     return true;
    }
 
-   public String getNextLiveSuccessor(int colonyTableIndex, XmlRpcClient succClient, XmlRpcClientConfigImpl configSucc) {
+   private String getNextLiveSuccessor(int colonyTableIndex, XmlRpcClient succClient, XmlRpcClientConfigImpl configSucc) {
     // Checks if machine at specified colony table index is available
     // RETURNS IP address if available, and null if unavailable
 
@@ -132,11 +132,6 @@ return null;
         colonyTable[i]= IP;
      }
      try{
-      //Setup for server. Still needs to be fixed.
-      //Don't know how the servlet architecture maps on XML Rpc
-      //But must be used to get the client IP
-      //See DroneServlet.java
-      //FIXME
       PropertyHandlerMapping phm = new PropertyHandlerMapping();
       WebServer server  = new WebServer(PORT); // may have to change port
       xmlRpcServer = server.getXmlRpcServer();

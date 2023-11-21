@@ -133,7 +133,7 @@ return null;
   private static boolean initializeNetwork(){
      //Load successor and colony table with own IP addr
      
-     String IP = getPublicIP();
+     String IP = getPrivateIP();
      successor = IP;
      System.out.println(IP);
      for(int i = 0; i <  colonyTable.length; i++){

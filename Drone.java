@@ -324,21 +324,29 @@ public static String getPrivateIP() {
   }
 
   public static void main(String[] args) {
-    /*Scanner usrIn = new Scanner(System.in);
-    System.out.println("Enter Bootstrap IP");
-    String boot_ip = usrIn.nextLine();
-
-    initializeConnection(args[1]);
-    dumpColony();
-    */
+    
     debug = true;
+    Scanner usrIn = new Scanner(System.in);
+    System.out.println("Join or Initialize Network");
+    String mode = usrIn.nextLine();
+    if(mode.toLowerCase().equals("join")){
+       System.out.println("Enter Bootstrap IP");
+       String boot_ip = usrIn.nextLine();
+       joinNetwork(boot_ip);
+    } else if(mode.toLowerCase().equals("initialize")){
+       initializeNetwork();
+    } else{
+       System.out.println("Invalid command exiting");
+       System.exit(1);
+    }
+    dumpColony();
     
     System.out.println(getPublicIP());
     
    
-    joinNetwork("172.31.40.145");
+    //joinNetwork("172.31.40.145");
     System.out.println("Network joined!");
-    dumpColony();
+    //dumpColony();
 
   }
 

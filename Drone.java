@@ -12,14 +12,21 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.URL;
 
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+
 
 public class Drone {
 
   //private static XmlRpcClient DroneClient;
   
   private static DroneServlet droneServe;
+  private static XmlRpcServer droneRpcServer;
   private static XmlRpcServer xmlRpcServer;
   private static WebServer server;
+
+  private static XmlRpcClient bootstrapClient;
+  private static XmlRpcClient updateClient;
 	
   private static boolean debug; 
 
@@ -69,6 +76,7 @@ return null;
 
    public String getSuccessor() {
 
+    System.out.println("I got to the wrong method");
     XmlRpcClient succClient = new XmlRpcClient();
     XmlRpcClientConfigImpl configSucc = new XmlRpcClientConfigImpl();
     configSucc.setEnabledForExtensions(true);
@@ -163,23 +171,44 @@ return null;
 	return null;
      }
 }
+
+public static String getPrivateIP() {
+        try {
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (networkInterfaces.hasMoreElements()) {
+                NetworkInterface ni = networkInterfaces.nextElement();
+                Enumeration<InetAddress> inetAddresses = ni.getInetAddresses();
+                while (inetAddresses.hasMoreElements()) {
+                    InetAddress ia = inetAddresses.nextElement();
+                    if (!ia.isLoopbackAddress() && ia.isSiteLocalAddress()) {
+                        return ia.getHostAddress();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error getting private IP: " + e.getMessage());
+        }
+        return null;
+    }
   
   
 
-  private static boolean joinNetwork(String bootstrap_IP){
+  public static boolean joinNetwork(String bootstrapIP){
      //Start server
      //Connect to specefied peer or bootstrap
      //Set successor
      //Generate colony table
     //Connect to BS peer
     try{
-      XmlRpcClient bootstrapClient = new XmlRpcClient();
+      bootstrapClient = new XmlRpcClient();
       XmlRpcClientConfigImpl configBootstrap = new XmlRpcClientConfigImpl();
       configBootstrap.setEnabledForExtensions(true);
+      configBootstrap.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
       bootstrapClient.setConfig(configBootstrap);
-      configBootstrap.setServerURL(new URL("http://" + bootstrap_IP + ":" + PORT));
       //not sure how xml rpc calls work without params
       successor = (String) bootstrapClient.execute("Drone.getSuccessor", new Object[]{});
+      System.out.print("I got to joinNetwork\n");
+      System.out.print(successor);
       colonyTable[0] = successor;      
     } catch (Exception e) {
       if(debug){
@@ -192,14 +221,11 @@ return null;
     //build finger table
     //ask successor for their succesor (Index 0)
     //ask Index 0 for their 2 successor (Index 1)
-    if(bootstrap_IP == null){
+    if(bootstrapIP == null){
        initializeNetwork();
     }
     else{
-	    updateColony();
-    }
-
-    //Start up xml server. 
+      //Start up xml server. 
     try{
       //Setup for server. Still needs to be fixed. 
       //Don't know how the servlet architecture maps on XML Rpc
@@ -207,19 +233,19 @@ return null;
       //See DroneServlet.java
       //FIXME
       PropertyHandlerMapping phm = new PropertyHandlerMapping();
-      droneServe = new DroneServlet();
-      ServletWebServer server  = new ServletWebServer(droneServe, PORT); // may have to change port
-      xmlRpcServer = server.getXmlRpcServer();
-      XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
-      serverConfig.setEnabledForExtensions(true);
+      WebServer server  = new WebServer(PORT); // may have to change port
+      droneRpcServer = server.getXmlRpcServer();
+      XmlRpcServerConfigImpl droneServerConfig = (XmlRpcServerConfigImpl) droneRpcServer.getConfig();
+      droneServerConfig.setEnabledForExtensions(true);
       phm.addHandler("Drone", Drone.class);
-      xmlRpcServer.setHandlerMapping(phm);
+      droneRpcServer.setHandlerMapping(phm);
       server.start();
-
     } catch (Exception e) {
       // Handle any exceptions during server setup
       System.err.println("Server Initialization Exception: " + e);
       System.exit(1);
+    }
+	    updateColony();
     }
              
     return true;
@@ -233,7 +259,7 @@ return null;
 
   private static void updateColony(){
      try{
-     XmlRpcClient updateClient = new XmlRpcClient();
+     updateClient = new XmlRpcClient();
      XmlRpcClientConfigImpl configUpdate = new XmlRpcClientConfigImpl();
      configUpdate.setEnabledForExtensions(true);
      updateClient.setConfig(configUpdate);
@@ -249,27 +275,30 @@ return null;
           //Acquisition of next node fails
           //If its not the successor
           if(i>0){
-             System.out.println("Error: Unable to Find Colony for Node " + i + "\n Attempt 1 Failed");
+             System.out.println("Error: Unable to Find Colony for Node " + i + "\nAttempt 1 Failed");
              //Ask successor to determine node after dead node
              configUpdate.setServerURL(new URL("http://" + colonyTable[0] + ":" + PORT));
              try{
-                colonyTable[i+1] = colonyTable[i+1] = (String) updateClient.execute("Drone.getColonyMember", new Object[]{i});
+               colonyTable[i+1] = (String) updateClient.execute("Drone.getColonyMember", new Object[]{i});
              } catch (Exception f){
                 System.out.println("Attempt 2 Failed");
-                if(debug){
-                      System.out.print("Debug:\n"+f.toString());
-                }
+               //  if(debug){
+               //        System.out.print("Debug:\n"+f.toString());
+               //  }
                 //If this fails, ask successor's successor for the second dead node     
                 configUpdate.setServerURL(new URL("http://" + colonyTable[1] + ":" + PORT));
                 try{
-                   colonyTable[i+1] = colonyTable[i+1] = (String) updateClient.execute("Drone.getColonyMember", new Object[]{i});
+                  colonyTable[i+1] = (String) updateClient.execute("Drone.getColonyMember", new Object[]{i});
                 } catch(Exception g){
+                  if (i < colonyTable.length - 1) {
+                     colonyTable[i+1] = null;
+                  }
                    //If all fails, terminate or could jump to next valid node is succesor's colony (can add later)
-                   System.out.println("Attempt 3 Failed. Aborting... \n Unable to build colony. Try initializing connection with another seed/peer");
-                   if(debug){
-                      System.out.print("Debug:\n"+g.toString());
-                   }
-                   System.exit(0);
+                  //  System.out.println("Attempt 3 Failed. Aborting... \n Unable to build colony. Try initializing connection with another seed/peer");
+                  //  if(debug){
+                  //     System.out.print("Debug:\n"+g.toString());
+                  //  }
+                  //  System.exit(0);
                 }
              }
           }
@@ -306,7 +335,9 @@ return null;
     
     System.out.println(getPublicIP());
     
-    initializeNetwork();
+   
+    joinNetwork("172.31.40.145");
+    System.out.println("Network joined!");
     dumpColony();
 
   }

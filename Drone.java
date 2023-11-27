@@ -31,7 +31,8 @@ public class Drone {
    private static final int COL_SIZE = 5;
    //Variable that holds next link in chain
    private static String successor;
-  
+   
+   private static String localIP;
    /*
     *Colony Table
     *Index 0: 2^0 nodes around ring
@@ -273,6 +274,35 @@ public class Drone {
   }
   }
 
+
+  private static Object doExecute( String IP, String method, Object[] params){
+	  if(IP.equals(localIP)){
+		  IP = "localhost";
+	  }
+	  try{
+             globalConfig.setServerURL(new URL("http://" + IP + ":" + PORT));
+             return globalClient.execute(method, params);
+
+          } catch (Exception ex){
+             ex.printStackTrace();
+	  }
+	  return "Error";
+  }
+	     
+  private boolean doPing(String dest_IP){
+	  if(dest_IP.equals(localIP)){
+	     return true;
+	  }
+	  try{
+	     globalConfig.setServerURL(new URL("http://" + colonyTable[1] + ":" + PORT));
+             globalClient.execute("Drone.execute", new Object[]{});
+  
+	  } catch (Exception ex){
+             return false;
+	  }
+	  return true;
+  }
+
   private static void dumpColony(){
      int nodeNumber = 1;
      for(int i = 0; i< colonyTable.length; i++){
@@ -282,7 +312,7 @@ public class Drone {
   }
 
   public static void main(String[] args) {
-    
+    localIP = getPrivateIP();
     debug = true;
     Scanner usrIn = new Scanner(System.in);
     System.out.println("Join or Initialize Network");
@@ -300,9 +330,13 @@ public class Drone {
     dumpColony();
     updateColony();
     dumpColony();
-    System.out.println(getPublicIP());
-    
-   
+    System.out.println(localIP);
+    try{
+	    doExecute(localIP, "Drone.ping", new Object[]{});
+    } catch(Exception ex){
+	    System.out.println("Ping doesn't work on itself " + ex.toString());
+	    ex.printStackTrace(); 
+    }
     //joinNetwork("172.31.40.145");
     System.out.println("Network joined!");
     //dumpColony();

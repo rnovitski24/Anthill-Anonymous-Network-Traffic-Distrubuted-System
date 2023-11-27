@@ -67,7 +67,7 @@ public class Drone {
                 return potentialSuccessor;
              } catch (Exception ex) {
                 if(debug){
-		   System.out.println("Colony Member at Index " + i + " is Down. Got Error: " + ex.toString);
+		   System.out.println("Colony Member at Index " + i + " is Down. Got Error: " + ex.toString());
 		} 
              }  
           }
@@ -79,7 +79,7 @@ public class Drone {
    public String getSuccessor() {
       successor = getNextLiveSuccessor();
       //can return null if has no valid addr in col
-      return tempSuccessor;
+      return successor;
    }
    
    public String getColonyMember(int index) {
@@ -158,13 +158,13 @@ public class Drone {
      //Generate colony table
     //Connect to BS peer
     try{
-      bootstrapClient = new XmlRpcClient();
-      configBootstrap = new XmlRpcClientConfigImpl();
-      configBootstrap.setEnabledForExtensions(true);
-      configBootstrap.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
-      bootstrapClient.setConfig(configBootstrap);
+      globalClient = new XmlRpcClient();
+      globalConfig = new XmlRpcClientConfigImpl();
+      globalConfig.setEnabledForExtensions(true);
+      globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
+      globalClient.setConfig(globalConfig);
       //not sure how xml rpc calls work without params
-      successor = (String) bootstrapClient.execute("Drone.getSuccessor", new Object[]{});
+      successor = (String) globalClient.execute("Drone.getSuccessor", new Object[]{});
       System.out.print("I got to joinNetwork\n");
       System.out.print(successor);
       colonyTable[0] = successor;      
@@ -172,7 +172,7 @@ public class Drone {
       if(debug){
          System.err.println("Bootstrap Client exception: " + e);
       }else{
-	      System.out.println("Client Initalization Error");
+	 System.out.println("Client Initalization Error");
       }
       System.exit(1);
     }
@@ -217,15 +217,15 @@ public class Drone {
 
   private static void updateColony(){
      try{
-     updateClient = new XmlRpcClient();
-     XmlRpcClientConfigImpl configUpdate = new XmlRpcClientConfigImpl();
-     configUpdate.setEnabledForExtensions(true);
-     updateClient.setConfig(configUpdate);
+     globalClient = new XmlRpcClient();
+     globalConfig = new XmlRpcClientConfigImpl();
+     globalConfig.setEnabledForExtensions(true);
+     globalClient.setConfig(globalConfig);
      for(int i = 0; i < colonyTable.length; i++){
-       configUpdate.setServerURL(new URL("http://" + colonyTable[i] + ":" + PORT));
+       globalConfig.setServerURL(new URL("http://" + colonyTable[i] + ":" + PORT));
 
        try{
-          colonyTable[i+1] = (String) updateClient.execute("Drone.getColonyMember", new Object[]{i});
+          colonyTable[i+1] = (String) globalClient.execute("Drone.getColonyMember", new Object[]{i});
        } catch (Exception e){
           //Error or dead node
           //Try to contact nodes after
@@ -235,18 +235,18 @@ public class Drone {
           if(i>0){
              System.out.println("Error: Unable to Find Colony for Node " + i + "\nAttempt 1 Failed");
              //Ask successor to determine node after dead node
-             configUpdate.setServerURL(new URL("http://" + colonyTable[0] + ":" + PORT));
+             globalConfig.setServerURL(new URL("http://" + colonyTable[0] + ":" + PORT));
              try{
-               colonyTable[i+1] = (String) updateClient.execute("Drone.getColonyMember", new Object[]{i});
+               colonyTable[i+1] = (String) globalClient.execute("Drone.getColonyMember", new Object[]{i});
              } catch (Exception f){
                 System.out.println("Attempt 2 Failed");
                //  if(debug){
                //        System.out.print("Debug:\n"+f.toString());
                //  }
                 //If this fails, ask successor's successor for the second dead node     
-                configUpdate.setServerURL(new URL("http://" + colonyTable[1] + ":" + PORT));
+                globalConfig.setServerURL(new URL("http://" + colonyTable[1] + ":" + PORT));
                 try{
-                  colonyTable[i+1] = (String) updateClient.execute("Drone.getColonyMember", new Object[]{i});
+                  colonyTable[i+1] = (String) globalClient.execute("Drone.getColonyMember", new Object[]{i});
                 } catch(Exception g){
                   if (i < colonyTable.length - 1) {
                      colonyTable[i+1] = null;

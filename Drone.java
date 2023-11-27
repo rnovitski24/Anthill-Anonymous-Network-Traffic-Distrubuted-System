@@ -62,9 +62,8 @@ public class Drone {
           String potentialSuccessor = colonyTable[i];
           if (potentialSuccessor != null && !potentialSuccessor.equals(successor)) {
              try {
-                globalConfig.setServerURL(new URL("http://" + potentialSuccessor + ":" + PORT));
-                globalClient.execute("Drone.ping", new Object[]{});
-                // If ping is successful, update successor
+                doExecute(potentialSuccessor, "Drone.ping", new Object[]{});
+		// If ping is successful, update successor
                 return potentialSuccessor;
              } catch (Exception ex) {
                 if(debug){
@@ -165,7 +164,7 @@ public class Drone {
       globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
       globalClient.setConfig(globalConfig);
       //not sure how xml rpc calls work without params
-      successor = (String) globalClient.execute("Drone.getSuccessor", new Object[]{});
+      successor = (String) doExecute(bootstrapIP, "Drone.getSuccessor", new Object[]{});;
       System.out.print("I got to joinNetwork\n");
       System.out.print(successor);
       colonyTable[0] = successor;      
@@ -222,7 +221,7 @@ public class Drone {
      globalConfig = new XmlRpcClientConfigImpl();
      globalConfig.setEnabledForExtensions(true);
      globalClient.setConfig(globalConfig);
-     for(int i = 0; i < colonyTable.length; i++){
+     for(int i = 0; i < colonyTable.length - 1; i++){
        globalConfig.setServerURL(new URL("http://" + colonyTable[i] + ":" + PORT));
 
        try{
@@ -235,12 +234,18 @@ public class Drone {
           //If its not the successor
           if(i>0){
              System.out.println("Error: Unable to Find Colony for Node " + i + "\nAttempt 1 Failed");
-             //Ask successor to determine node after dead node
+             if(debug){
+		     e.printStackTrace();
+	     }
+	     //Ask successor to determine node after dead node
              globalConfig.setServerURL(new URL("http://" + colonyTable[0] + ":" + PORT));
              try{
                colonyTable[i+1] = (String) globalClient.execute("Drone.getColonyMember", new Object[]{i});
              } catch (Exception f){
                 System.out.println("Attempt 2 Failed");
+		if(debug){
+		   f.printStackTrace();
+		}
                //  if(debug){
                //        System.out.print("Debug:\n"+f.toString());
                //  }
@@ -249,6 +254,9 @@ public class Drone {
                 try{
                   colonyTable[i+1] = (String) globalClient.execute("Drone.getColonyMember", new Object[]{i});
                 } catch(Exception g){
+		  if(debug){
+		     g.printStackTrace();
+		  }	     
                   if (i < colonyTable.length - 1) {
                      colonyTable[i+1] = null;
                   }

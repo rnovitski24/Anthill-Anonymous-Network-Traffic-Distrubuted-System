@@ -225,7 +225,7 @@ public class Drone {
        globalConfig.setServerURL(new URL("http://" + colonyTable[i] + ":" + PORT));
 
        try{
-          colonyTable[i+1] = (String) globalClient.execute("Drone.getColonyMember", new Object[]{i});
+          colonyTable[i+1] = (String) doExecute(colonyTable[i],"Drone.getColonyMember", new Object[]{i});
        } catch (Exception e){
           //Error or dead node
           //Try to contact nodes after
@@ -238,21 +238,18 @@ public class Drone {
 		     e.printStackTrace();
 	     }
 	     //Ask successor to determine node after dead node
-             globalConfig.setServerURL(new URL("http://" + colonyTable[0] + ":" + PORT));
              try{
-               colonyTable[i+1] = (String) globalClient.execute("Drone.getColonyMember", new Object[]{i});
+               colonyTable[i+1] = (String) doExecute(colonyTable[0],"Drone.getColonyMember", new Object[]{i});
              } catch (Exception f){
                 System.out.println("Attempt 2 Failed");
 		if(debug){
 		   f.printStackTrace();
 		}
-               //  if(debug){
-               //        System.out.print("Debug:\n"+f.toString());
                //  }
                 //If this fails, ask successor's successor for the second dead node     
-                globalConfig.setServerURL(new URL("http://" + colonyTable[1] + ":" + PORT));
+                //globalConfig.setServerURL(new URL("http://" + colonyTable[1] + ":" + PORT));
                 try{
-                  colonyTable[i+1] = (String) globalClient.execute("Drone.getColonyMember", new Object[]{i});
+                  colonyTable[i+1] = (String) doExecute(colonyTable[1],"Drone.getColonyMember", new Object[]{i});
                 } catch(Exception g){
 		  if(debug){
 		     g.printStackTrace();

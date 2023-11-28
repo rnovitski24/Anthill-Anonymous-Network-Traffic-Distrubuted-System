@@ -98,6 +98,10 @@ public class Drone {
       for(int i = 0; i <  colonyTable.length; i++){
          colonyTable[i]= IP;
       }
+      globalClient = new XmlRpcClient();
+      globalConfig = new XmlRpcClientConfigImpl();
+      globalConfig.setEnabledForExtensions(true);
+      globalClient.setConfig(globalConfig);
       try{
          PropertyHandlerMapping phm = new PropertyHandlerMapping();
          WebServer server  = new WebServer(PORT); // may have to change port
@@ -298,7 +302,7 @@ public static boolean joinNetwork(String bootstrapIP){
 	  System.out.println(IP);
 	  try{
              globalConfig.setServerURL(new URL("http://" + IP + ":" + PORT));
-             globalClient.setConfig(globalConfig);
+             //globalClient.setConfig(globalConfig);
 	     Object response = globalClient.execute(method, params);
 	     if(debug){
                 System.out.println("Response:"+response);
@@ -308,22 +312,9 @@ public static boolean joinNetwork(String bootstrapIP){
           } catch (Exception ex){
              ex.printStackTrace();
 	  }
-	  return "Error";
+	  return null;
   }
 	     
-  private boolean doPing(String dest_IP){
-	  if(dest_IP.equals(localIP)){
-	     return true;
-	  }
-	  try{
-	     globalConfig.setServerURL(new URL("http://" + colonyTable[1] + ":" + PORT));
-             globalClient.execute("Drone.execute", new Object[]{});
-  
-	  } catch (Exception ex){
-             return false;
-	  }
-	  return true;
-  }
 
   private static void dumpColony(){
      int nodeNumber = 1;

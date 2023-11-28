@@ -56,7 +56,7 @@ public class Drone {
 
    /* ~~~~~~~~~~HELPER FUNCTIONS:~~~~~~~~~~ */
 
-   /* 
+   /*
     * Checks if machine at specified colony table index is available
     * RETURNS IP address if available, and null if unavailable
     */
@@ -82,10 +82,10 @@ public class Drone {
       return null;
    }
 
-    /*
+   /*
     * Returns the private IP of current machine, or null if error is encountered.
     */
-    private static String getPrivateIP() {
+   private static String getPrivateIP() {
       try {
          Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
          while (networkInterfaces.hasMoreElements()) {
@@ -150,12 +150,13 @@ public class Drone {
    /*
     * Server up confirmation function.
     */
-    public boolean ping() {
+   public boolean ping() {
       return true;
    }
 
    /*
-    * Gets first successor to respond and stores sender's IP as its own first successor.
+    * Gets first successor to respond and stores sender's IP as its own first
+    * successor.
     */
    public String getSuccessor(String senderIP) {
       String nextLiveSuccessor = getNextLiveSuccessor();
@@ -291,18 +292,16 @@ public class Drone {
          System.out.println("Ping doesn't work on itself " + ex.toString());
          ex.printStackTrace();
       }
-      // joinNetwork("172.31.40.145");
       System.out.println("Network joined!");
 
-      while(true){
-	      try{
-	      Thread.sleep(10000);
-	      }catch(Exception e){
-	      }
-	      dumpColony();
-	      updateColony();
+      while (true) {
+         try {
+            Thread.sleep(10000);
+         } catch (Exception e) {
+         }
+         dumpColony();
+         updateColony();
       }
-      // dumpColony();
 
    }
 

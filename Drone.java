@@ -76,10 +76,9 @@ public class Drone {
        return null;
    } 
 
-   public String getSuccessor() {
-      successor = getNextLiveSuccessor();
-      //can return null if has no valid addr in col
-      return successor;
+   public String getSuccessor(String senderIP) {
+      successor = senderIP;
+      return getNextLiveSuccessor();
    }
    
    public String getColonyMember(int index) {
@@ -164,7 +163,7 @@ public class Drone {
       globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
       globalClient.setConfig(globalConfig);
       //not sure how xml rpc calls work without params
-      successor = (String) doExecute(bootstrapIP, "Drone.getSuccessor", new Object[]{});;
+      successor = (String) doExecute(bootstrapIP, "Drone.getSuccessor", new Object[]{localIP});
       System.out.print("I got to joinNetwork\n");
       System.out.print(successor);
       colonyTable[0] = successor;      

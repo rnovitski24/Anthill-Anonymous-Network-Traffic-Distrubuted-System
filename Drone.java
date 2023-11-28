@@ -83,6 +83,7 @@ public class Drone {
    
    public String getColonyMember(int index) {
       //returns member of colony table at index
+      System.out.println("Sent IP:" +colonyTable[index]);
       return colonyTable[index];
    }
 
@@ -150,7 +151,7 @@ public class Drone {
   
   
 
-  public static boolean joinNetwork(String bootstrapIP){
+public static boolean joinNetwork(String bootstrapIP){
      //Start server
      //Connect to specefied peer or bootstrap
      //Set successor
@@ -207,7 +208,7 @@ public class Drone {
       System.err.println("Server Initialization Exception: " + e);
       System.exit(1);
     }
-	    updateColony();
+      updateColony();
     }
              
     return true;
@@ -269,7 +270,8 @@ public class Drone {
                   //  if(debug){
                   //     System.out.print("Debug:\n"+g.toString());
                   //  }
-                  //  System.exit(0);
+           :q
+    //  System.exit(0);
                 }
              }
           }
@@ -288,12 +290,19 @@ public class Drone {
 
 
   private static Object doExecute( String IP, String method, Object[] params){
+	  System.out.println(IP);
 	  if(IP.equals(localIP)){
 		  IP = "localhost";
 	  }
+	  System.out.println(IP);
 	  try{
              globalConfig.setServerURL(new URL("http://" + IP + ":" + PORT));
-             return globalClient.execute(method, params);
+             globalClient.setConfig(globalConfig);
+	     Object response = globalClient.execute(method, params);
+	     if(debug){
+                System.out.println("Response:"+response);
+	     }	
+	     return response;
 
           } catch (Exception ex){
              ex.printStackTrace();

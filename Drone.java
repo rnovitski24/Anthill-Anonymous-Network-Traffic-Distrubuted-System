@@ -77,8 +77,9 @@ public class Drone {
    } 
 
    public String getSuccessor(String senderIP) {
-      successor = senderIP;
-      return getNextLiveSuccessor();
+      String nextLiveSuccessor = getNextLiveSuccessor();
+      colonyTable[0] = senderIP;    
+      return nextLiveSuccessor;
    }
    
    public String getColonyMember(int index) {

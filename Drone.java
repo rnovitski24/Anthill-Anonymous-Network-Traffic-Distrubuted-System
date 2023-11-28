@@ -176,7 +176,12 @@ public class Drone {
       }
       System.exit(1);
     }
-    //build finger table
+    //populate Colony with bs table
+    for(int i = 0; i < COL_SIZE; i++){
+	    colonyTable[i] = (String) doExecute(bootstrapIP, "Drone.getColonyMember", new Object[]{i});
+    }
+
+
     //ask successor for their succesor (Index 0)
     //ask Index 0 for their 2 successor (Index 1)
     if(bootstrapIP == null){
@@ -222,16 +227,9 @@ public class Drone {
      globalConfig.setEnabledForExtensions(true);
      globalClient.setConfig(globalConfig);
      for(int i = 0; i < colonyTable.length - 1; i++){
-       globalConfig.setServerURL(new URL("http://" + colonyTable[i] + ":" + PORT));
-
        try{
           colonyTable[i+1] = (String) doExecute(colonyTable[i],"Drone.getColonyMember", new Object[]{i});
        } catch (Exception e){
-          //Error or dead node
-          //Try to contact nodes after
-
-          //Acquisition of next node fails
-          //If its not the successor
           if(i>0){
              System.out.println("Error: Unable to Find Colony for Node " + i + "\nAttempt 1 Failed");
              if(debug){

@@ -294,7 +294,7 @@ public class Drone {
       System.out.println(IP);
       try {
          globalConfig.setServerURL(new URL("http://" + IP + ":" + PORT));
-         // globalClient.setConfig(globalConfig);
+         globalClient.setConfig(globalConfig);
          Object response = globalClient.execute(method, params);
          if (debug) {
             System.out.println("Response:" + response);

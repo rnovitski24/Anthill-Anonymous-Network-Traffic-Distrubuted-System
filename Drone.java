@@ -60,7 +60,10 @@ public class Drone {
        // RETURNS IP address if available, and null if unavailable
        for(int i = 0; i < COL_SIZE; i++){
           String potentialSuccessor = colonyTable[i];
-          if (potentialSuccessor != null && !potentialSuccessor.equals(successor)) {
+          if (potentialSuccessor != null) {
+	     if(potentialSuccessor.equals(colonyTable[0])){
+		     return colonyTable[0];
+	     }	  
              try {
                 doExecute(potentialSuccessor, "Drone.ping", new Object[]{});
 		// If ping is successful, update successor
@@ -182,7 +185,7 @@ public static boolean joinNetwork(String bootstrapIP){
       System.exit(1);
     }
     //populate Colony with bs table
-    for(int i = 0; i < COL_SIZE; i++){
+    for(int i = 1; i < COL_SIZE; i++){
 	    colonyTable[i] = (String) doExecute(bootstrapIP, "Drone.getColonyMember", new Object[]{i});
     }
 

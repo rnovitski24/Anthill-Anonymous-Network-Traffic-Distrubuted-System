@@ -221,7 +221,17 @@ public class Drone {
 
 
   private static void updateColony(){
-     try{
+    for( int i = 0; i < COL_SIZE-1; i++){
+       colonyTable[i+1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
+    }
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  /* try{
      globalClient = new XmlRpcClient();
      globalConfig = new XmlRpcClientConfigImpl();
      globalConfig.setEnabledForExtensions(true);
@@ -272,9 +282,9 @@ public class Drone {
 	  }    
        }
  
-  }} catch(MalformedURLException e){
+  }} catch(Exception e){
 	  System.out.println("Malformed URL");
-  }
+  }*/
   }
 
 

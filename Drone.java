@@ -343,6 +343,14 @@ public class Drone {
       }
       // joinNetwork("172.31.40.145");
       System.out.println("Network joined!");
+
+      while(true){
+	      try{
+	      Thread.sleep(10000);
+	      }catch(Exception e){
+	      }
+	      dumpColony();
+      }
       // dumpColony();
 
    }

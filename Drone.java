@@ -350,6 +350,7 @@ public class Drone {
 	      }catch(Exception e){
 	      }
 	      dumpColony();
+	      updateColony();
       }
       // dumpColony();
 

@@ -11,9 +11,19 @@ import java.util.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.URL;
-
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.Arrays;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 public class Drone {
 
@@ -133,6 +143,41 @@ public class Drone {
       }
       return null;
    }
+
+   /*
+    * Fullfills request and returns html text or binary of response
+    */
+   private static String fullfillHttpReq(String url, String Method) throws Exception{
+    String finalString = null;
+    try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+    ClassicHttpRequest httpGet = ClassicRequestBuilder.get(url)
+            .build();
+    // The underlying HTTP connection is still held by the response object
+    // to allow the response content to be streamed directly from the network socket.
+    // In order to ensure correct deallocation of system resources
+    // the user MUST call CloseableHttpResponse#close() from a finally clause.
+    // Please note that if response content is not fully consumed the underlying
+    // connection cannot be safely re-used and will be shut down and discarded
+    // by the connection manager.
+    finalString = httpclient.execute(httpGet, response -> {
+        System.out.println(response.getCode() + " " + response.getReasonPhrase());
+        final HttpEntity entity1 = response.getEntity();
+	ByteArrayOutputStream stream = new ByteArrayOutputStream();
+	entity1.writeTo(stream);
+	String inter = new String(stream.toByteArray());
+        // do something useful with the response body
+        // and ensure it is fully consumed
+        EntityUtils.consume(entity1);
+        //System.out.println(finalString);
+        return inter;
+    });
+    }
+    return finalString;
+   }
+
+
+
+
 
    /*
     * Dumps colonyTable values
@@ -267,7 +312,7 @@ public class Drone {
    /* ~~~~~~~~~~MAIN METHOD:~~~~~~~~~~ */
 
    public static void main(String[] args) {
-      localIP = getPrivateIP();
+    /*  localIP = getPrivateIP();
       debug = true;
       Scanner usrIn = new Scanner(System.in);
       System.out.println("Join or Initialize Network");
@@ -301,8 +346,18 @@ public class Drone {
          }
          dumpColony();
          updateColony();
-      }
+      }*/
+	try{ 
+	String path = "/home/rgrundy/p4-final-r-2/output.htm";	
+        String webpage = fullfillHttpReq("http://en.wikipedia.org/wiki/Main_Page", "");	   
+	System.out.println(webpage.length());
+	Files.write(Paths.get(path), webpage.getBytes());
+        PageDisplay.createWindow("wikipedia", path);
 
+	}
+	catch(Exception e){
+	e.printStackTrace();
+	}
    }
 
 }

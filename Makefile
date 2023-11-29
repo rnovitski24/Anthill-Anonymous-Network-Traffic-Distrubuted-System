@@ -1,6 +1,6 @@
 JFLAGS = -g -Xlint:unchecked
 
-CLASSPATH=lib/commons-logging-1.2.jar:lib/javax.servlet-api-4.0.1.jar:/usr/share/java/xmlrpc-client.jar:/usr/share/java/xmlrpc-server.jar:/usr/share/java/xmlrpc-common.jar:/usr/share/java/ws-commons-util.jar:/usr/share/java/commons-logging.jar:.
+CLASSPATH= lib/*:/usr/share/java/*:/usr/share/java/xmlrpc-client.jar:/usr/share/java/xmlrpc-server.jar:/usr/share/java/xmlrpc-common.jar:/usr/share/java/ws-commons-util.jar:/usr/share/java/commons-logging.jar:.
 
 
 JC = javac
@@ -15,6 +15,7 @@ JC = javac
 CLASSES = \
         DroneServlet.java \
 	Drone.java \
+	PageDisplay.java \
 
 default: classes
 
@@ -22,6 +23,8 @@ DroneServlet.class: DroneServlet.java
 	javac $(JFLAGS) -cp $(CLASSPATH) DroneServlet.java
 Drone.class: Drone.java
 	javac $(JFLAGS) -cp $(CLASSPATH) Drone.java
+PageDisplay.class: PageDisplay.java
+	javac $(JFLAGS) -cp $(CLASSPATH) PageDisplay.java
 classes: $(CLASSES:.java=.class)
 
 clean:

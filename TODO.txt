@@ -1,0 +1,22 @@
+TODO
+1. Write Exit Node Configuration
+   a) Basic Http
+   b) Parameters
+   c) Cookies?
+   d) How to store non-text objects?
+2. Test Join for 20 nodes
+   a) Script intializing all nodes and joining at bootstrap
+   b) What if multiple nodes join simul. need to solve
+   c) make sure all are organized
+3. Write Message Forwarding Protocol
+   a) Message passing
+   b) path length
+   c) exit node communications
+4. Write Dead Node Replacement Protocol
+
+5. Write CLI
+
+Wishlist
+1. HTTPS
+2. P2P Encryption
+3. Extensive Logging

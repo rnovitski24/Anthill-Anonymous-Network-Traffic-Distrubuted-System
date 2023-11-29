@@ -348,11 +348,11 @@ public class Drone {
          updateColony();
       }*/
 	try{ 
-	String path = "/home/rgrundy/p4-final-r-2/output.htm";	
+	String path = "output.htm";	
         String webpage = fullfillHttpReq("http://en.wikipedia.org/wiki/Main_Page", "");	   
 	System.out.println(webpage.length());
 	Files.write(Paths.get(path), webpage.getBytes());
-        PageDisplay.createWindow("wikipedia", path);
+        PageDisplay.createWindow("wikipedia", "output.htm");
 
 	}
 	catch(Exception e){

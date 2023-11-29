@@ -13,14 +13,11 @@ JC = javac
 # If your version of make can't handle the leading tabs on each
 # line, just remove them (these are also just added for readability).
 CLASSES = \
-        DroneServlet.java \
 	Drone.java \
 	PageDisplay.java \
 
 default: classes
 
-DroneServlet.class: DroneServlet.java
-	javac $(JFLAGS) -cp $(CLASSPATH) DroneServlet.java
 Drone.class: Drone.java
 	javac $(JFLAGS) -cp $(CLASSPATH) Drone.java
 PageDisplay.class: PageDisplay.java

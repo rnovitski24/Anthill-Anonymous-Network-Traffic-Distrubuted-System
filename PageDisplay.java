@@ -32,7 +32,8 @@ public class PageDisplay {
       JEditorPane jEditorPane = new JEditorPane();
       jEditorPane.setEditable(false);   
       URL url= PageDisplay.class.getResource(fileName);
-      try {   
+      try {
+         System.out.println(url.toString());   
          jEditorPane.setPage(url);
       } catch (IOException e) { 
          jEditorPane.setContentType("text/html");

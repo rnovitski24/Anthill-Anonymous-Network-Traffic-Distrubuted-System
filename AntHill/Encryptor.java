@@ -1,4 +1,4 @@
-package Anthill;
+package AntHill;
 
 // Imports HERE
 
@@ -7,7 +7,10 @@ package Anthill;
 /*
  * Constructor for Encryptor class.
  */
-public Encryptor() {
+public class Encryptor {
+
+    public Encryptor(){
+    }
     // default constructor
 }
 

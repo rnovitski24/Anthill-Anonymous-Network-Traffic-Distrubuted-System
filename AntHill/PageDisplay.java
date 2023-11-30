@@ -1,10 +1,12 @@
+package AntHill;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.LayoutManager;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.io.InputStream;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -30,8 +32,13 @@ public class PageDisplay {
       panel.setLayout(layout);       
 
       JEditorPane jEditorPane = new JEditorPane();
-      jEditorPane.setEditable(false);   
-      URL url= PageDisplay.class.getResource(fileName);
+      jEditorPane.setEditable(false);
+      URL url = null;
+      try {
+         url = new File("AntHill/resources/" + fileName).toURL();
+      } catch(Exception e){
+
+      }
       try {
          System.out.println(url.toString());   
          jEditorPane.setPage(url);

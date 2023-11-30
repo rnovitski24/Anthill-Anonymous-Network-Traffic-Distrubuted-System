@@ -14,14 +14,14 @@ JC = javac
 # line, just remove them (these are also just added for readability).
 CLASSES = \
 	Drone.java \
-	PageDisplay.java \
+	AntHill.PageDisplay.java \
 
 default: classes
 
 Drone.class: Drone.java
 	javac $(JFLAGS) -cp $(CLASSPATH) Drone.java
-PageDisplay.class: PageDisplay.java
-	javac $(JFLAGS) -cp $(CLASSPATH) PageDisplay.java
+AntHill.PageDisplay.class: AntHill.PageDisplay.java
+	javac $(JFLAGS) -cp $(CLASSPATH) AntHill.PageDisplay.java
 classes: $(CLASSES:.java=.class)
 
 clean:

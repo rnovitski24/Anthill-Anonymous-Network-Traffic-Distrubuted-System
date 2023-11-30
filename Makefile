@@ -6,19 +6,19 @@ CLASSPATH= lib/*:/usr/share/java/*:/usr/share/java/xmlrpc-client.jar:/usr/share/
 JC = javac
 .SUFFIXES: .java .class
 .java.class:
-	$(JC) $(JFLAGS) $*.java
+	$(JC) $(JFLAGS) -cp $(CLASSPATH) $*.java
 
 # This uses the line continuation character (\) for readability
 # You can list these all on a single line, separated by a space instead.
 # If your version of make can't handle the leading tabs on each
 # line, just remove them (these are also just added for readability).
 CLASSES = \
-	Drone.java \
-	AntHill.PageDisplay.java \
+	AntHill/Drone.java \
+	AntHill/PageDisplay.java \
 
 default: classes
 
-Drone.class: Drone.java
+Drone.class: AntHill.Drone.java
 	javac $(JFLAGS) -cp $(CLASSPATH) Drone.java
 AntHill.PageDisplay.class: AntHill.PageDisplay.java
 	javac $(JFLAGS) -cp $(CLASSPATH) AntHill.PageDisplay.java

@@ -36,6 +36,7 @@ do
 
     git clone "git@github.com:bowdoin-dsys/p4-final-r-2.git"
     cd p4-final-r-2
+    git pull
     make
 
     if [ -z "$BOOTSTRAP_IP" ]; then # First IP in list is initializer

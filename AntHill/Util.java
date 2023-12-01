@@ -13,16 +13,33 @@ import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.HashMap;
 
-public class util {
-    public static class Response<T> {
+public class Util {
+    public static class Response {
         public final String dataType;
+
+        public final String url;
         public final byte[] data;
         public final int code;
 
-        public Response(int code, String dataType, byte[] data) {
+        public Response(int code, String url,  String dataType, byte[] data) {
             this.dataType = dataType;
+            this.url = url;
             this.data = data;
             this.code = code;
+        }
+    }
+
+    public class RequestParam{
+        public final int pathLength;
+        public final String path;
+        public final String method;
+        public final HashMap<String, String> parameters;
+
+        public RequestParam(int pathLength, String url, String method, HashMap<String, String> parameters){
+            this.pathLength = pathLength;
+            this.path = url;
+            this.method = method;
+            this.parameters = parameters;
         }
     }
 
@@ -68,7 +85,7 @@ public class util {
                 // and ensure it is fully consumed
                 EntityUtils.consume(entity1);
                 //System.out.println(finalString);
-                return new Response(code, dataType, inter);
+                return new Response (code, url,  dataType, inter);
             });
         }
 

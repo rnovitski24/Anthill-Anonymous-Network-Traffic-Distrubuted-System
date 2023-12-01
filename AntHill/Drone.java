@@ -1,4 +1,5 @@
 package AntHill;
+import AntHill.Util.Response;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
@@ -21,7 +22,7 @@ public class Drone {
     private static XmlRpcClientConfigImpl globalConfig;
 
     // Debugging Boolean
-    private static boolean debug;
+    public static boolean debug;
 
     // Constants
     private static final int PORT = 2054;
@@ -109,7 +110,9 @@ public class Drone {
         }
         return null;
     }
-
+    private Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
+       return null;
+    }
 
 
 
@@ -126,11 +129,16 @@ public class Drone {
 
     /* ~~~~~~~~~~XML-RPC FUNCTIONS~~~~~~~~~~ */
 
+
+    public Response passRequest(Util.RequestParam request){
+       return null;
+    }
     /*
      * Server up confirmation function.
      */
     public boolean ping() {
         return true;
+
     }
 
     /*
@@ -160,7 +168,7 @@ public class Drone {
     private static boolean initializeNetwork() {
         // Load successor and colony table with own IP addr
 
-        String IP = util.getPrivateIP();
+        String IP = Util.getPrivateIP();
         successor = IP;
         System.out.println(IP);
         for (int i = 0; i < colonyTable.length; i++) {
@@ -281,16 +289,23 @@ public class Drone {
          dumpColony();
          updateColony();
       }*/
+        debug = true;
         try {
-            String path = "AntHill/resources/output.htm";
-            util.Response webpage = util.fullfillHttpReq("http://en.wikipedia.org/wiki/Main_Page",
+            //"https://cds.cern.ch/record/2725767/files/dimuons.png"
+            Response webpage = Util.fullfillHttpReq("https://cds.cern.ch/record/2725767/files/dimuons.png",
                     "get", new HashMap<String, String>());
-            System.out.println(webpage.dataType.toString());
-            System.out.println(webpage.code);
+            System.out.println(webpage.dataType);
 
-            Files.write(Paths.get(path), webpage.data);
-            PageDisplay.createWindow("wikipedia", "output.htm");
-            Files.delete(Paths.get(path));
+            String filename = webpage.url.substring(webpage.url.lastIndexOf('/') + 1);
+            String dataType = webpage.dataType.substring(webpage.dataType.indexOf('/')+1);
+            if(!PageDisplay.savePhoto(dataType, filename, webpage.data)){
+                System.out.println("Save failed");
+                System.exit(0);
+            }
+
+            //Files.write(Paths.get(path), webpage.data);
+            //PageDisplay.createWindow("wikipedia", filename);
+            //Files.delete(Paths.get(filename));
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -31,8 +31,15 @@ do
 
     scp -i "$SSH_KEY" ~/.ssh/$username-keypair* "$SSH_USER@$ip_address:~/.ssh/"
     scp -i "$SSH_KEY" ~/.ssh/id_rsa* "$SSH_USER@$ip_address:~/.ssh/"
+    
 
-    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" "./remoteSetup.sh $BOOTSTRAP_IP $ip_address"
+
+
+    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" "chmod 600 ~/.ssh/$username-keypair* && 
+        chmod 600 ~/.ssh/id_rsa* &&
+        ssh-add ~/.ssh/$username-keypair &&
+        git clone "git@github.com:bowdoin-dsys/p4-final-r-2.git" && 
+        ./remoteSetup.sh $BOOTSTRAP_IP $ip_address"
     
 done < "$IP_LIST"
 

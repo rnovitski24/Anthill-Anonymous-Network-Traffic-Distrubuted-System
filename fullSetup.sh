@@ -32,22 +32,9 @@ do
     scp ~/.ssh/$username-keypair* $ip_address:~/.ssh/
     scp ~/.ssh/id_rsa* $ip_address:~/.ssh/	
 
-    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address"
-
-    git clone "git@github.com:bowdoin-dsys/p4-final-r-2.git"
-    cd p4-final-r-2
-    git pull
-    make
-
-    if [ -z "$BOOTSTRAP_IP" ]; then # First IP in list is initializer
-        java anthill.Drone --initialize # runs initializeNetwork()
-        BOOTSTRAP_IP=$ip_address
-
-    else 
-        # if bootstrap is already set, join network
-        java anthill.Drone --join $BOOTSTRAP_IP # runs joinNetwork(bootstrapIP)
-        
-    fi
+    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" "git clone "git@github.com:bowdoin-dsys/p4-final-r-2.git" && cd p4-final-r-2 && git pull && ./remoteSetup.sh $BOOTSTRAP_IP $ip_address"
+    
+    
 done < "$IP_LIST"
 
 # Paris IP addresses

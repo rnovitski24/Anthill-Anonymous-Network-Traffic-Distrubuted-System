@@ -349,7 +349,7 @@ public class Drone {
          dumpColony();
          updateColony();
       }*/
-
+        localIP = getPublicIP();
         if (args.length > 0) {
             if ("--initialize".equals(args[0])) {
                 ant.initializeNetwork();
@@ -379,13 +379,17 @@ public class Drone {
         } catch (Exception e) {
             e.printStackTrace();
         }*/
-        /*
+        ant.initializeNetwork();
         System.out.println(getPublicIP());
         ant.dumpColony();
         Response response = ant.sendRequest(2, "https://cds.cern.ch/record/2725767/files/dimuons.png",
                 "get", new HashMap<String, String>());
-        PageDisplay.savePhoto(response.dataType, response.url, response.data);
-        */
+        System.out.println(response.dataType);
+
+        String filename = response.url.substring(response.url.lastIndexOf('/') + 1);
+
+        System.out.println(PageDisplay.savePhoto(response.dataType, filename, response.data));
+        System.exit(0);
     }
 
 }

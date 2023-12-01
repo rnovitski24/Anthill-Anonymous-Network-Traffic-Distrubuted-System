@@ -97,6 +97,7 @@ public class Util {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 entity1.writeTo(stream);
                 byte[] inter = stream.toByteArray();
+
                 // do something useful with the response body
                 // and ensure it is fully consumed
                 EntityUtils.consume(entity1);

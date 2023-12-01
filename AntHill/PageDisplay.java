@@ -39,6 +39,7 @@ public class PageDisplay {
       ByteArrayInputStream bis = new ByteArrayInputStream(data);
       try{
          BufferedImage bImage2 = ImageIO.read(bis);
+         datatype = datatype.substring(datatype.indexOf('/')+1);
          ImageIO.write(bImage2, datatype, new File(filename));
          return true;
       } catch(Exception e){
@@ -70,7 +71,7 @@ public class PageDisplay {
       try {
          url = new File("AntHill/" + fileName).toURL();
       } catch(Exception e){
-
+         e.printStackTrace();
       }
       try {
          System.out.println(url.toString());   

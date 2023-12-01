@@ -7,14 +7,19 @@ import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
+import java.io.Serializable;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 
 public class Util {
-    public static class Response {
+    public static class Response implements Serializable {
         public final String dataType;
 
         public final String url;
@@ -34,7 +39,7 @@ public class Util {
         }
     }
 
-    public static class RequestParam{
+    public static class RequestParam implements Serializable{
         public int pathLength;
         public final String url;
         public final String method;
@@ -122,5 +127,16 @@ public class Util {
             System.err.println("Error getting private IP: " + e.getMessage());
         }
         return null;
+    }
+    public static String getPublicIP(){
+        String urlString = "http://checkip.amazonaws.com/";
+        try {
+            URL url = new URL(urlString);
+            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+            return br.readLine();
+        }catch(Exception e){
+            System.out.print("Unable to contact IP server");
+            return null;
+        }
     }
 }

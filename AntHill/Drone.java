@@ -12,6 +12,9 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 
+import static AntHill.Util.getPrivateIP;
+import static AntHill.Util.getPublicIP;
+
 
 public class Drone {
 
@@ -25,10 +28,10 @@ public class Drone {
     // Debugging Boolean
     public static boolean debug;
 
-    public Random rand = new Random();
+    public static Random rand = new Random();
 
     // Constants
-    private static final int PORT = 8560;
+    private static final int PORT = 8080;
     private static final int COL_SIZE = 5;
 
     // Variable that holds next link in chain
@@ -84,7 +87,7 @@ public class Drone {
 
 
 
-    private static void updateColony() {
+    private void updateColony() {
         for (int i = 0; i < COL_SIZE - 1; i++) {
             colonyTable[i + 1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
         }
@@ -93,7 +96,7 @@ public class Drone {
     /*
      * Generalized wrapper to send XML-RPC requests between nodes.
      */
-    private static Object doExecute(String IP, String method, Object[] params) {
+    private Object doExecute(String IP, String method, Object[] params) {
         System.out.println(IP);
         if (IP.equals(localIP)) {
             IP = "localhost";
@@ -118,7 +121,22 @@ public class Drone {
      * 
      */
     private Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
-       return null;
+       RequestParam request = new RequestParam(pathLength, url, method, parameters);
+        url = colonyTable[rand.nextInt(COL_SIZE)];
+        Response response = null;
+        try{
+            // forward the request
+            response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
+            // if the response is "skip me"
+            while (response.code == 308) {
+                //Send to responder IP
+                response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
+            }
+            return response;
+        } catch( Exception e){
+            e.printStackTrace();
+        }
+       return response;
     }
 
 
@@ -126,7 +144,7 @@ public class Drone {
     /*
      * Dumps colonyTable values
      */
-    private static void dumpColony() {
+    private void dumpColony() {
         int nodeNumber = 1;
         for (int i = 0; i < colonyTable.length; i++) {
             System.out.println("Node " + nodeNumber + ":" + colonyTable[i]);
@@ -138,6 +156,7 @@ public class Drone {
 
 
     public Response passRequest(RequestParam request){
+        System.out.println("Passing request");
         String url = "";
         //Calculate whether node should skip
         if(rand.nextInt() > 0.5){
@@ -153,11 +172,11 @@ public class Drone {
             url = colonyTable[rand.nextInt(COL_SIZE)];
             try{
                 // forward the request
-                Response response = (Response) doExecute(url, "passRequest", new Object[]{request});
+                Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
                 while (response.code == 308) {
                     //Send to responder IP
-                    response = (Response) doExecute(response.url, "passRequest", new Object[]{request});
+                    response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
                 }
                 return response;
             } catch( Exception e){
@@ -205,10 +224,10 @@ public class Drone {
     /*
      * Starts server when system has no current clients.
      */
-    private static boolean initializeNetwork() {
+    private boolean initializeNetwork() {
         // Load successor and colony table with own IP addr
 
-        String IP = Util.getPrivateIP();
+        String IP = getPublicIP();
         successor = IP;
         System.out.println(IP);
         for (int i = 0; i < colonyTable.length; i++) {
@@ -241,7 +260,7 @@ public class Drone {
     /*
      * Starts server and populates colonyTable when system has > 1 client.
      */
-    public static boolean joinNetwork(String bootstrapIP) {
+    public boolean joinNetwork(String bootstrapIP) {
         try {
             globalClient = new XmlRpcClient();
             globalConfig = new XmlRpcClientConfigImpl();
@@ -294,6 +313,7 @@ public class Drone {
     /* ~~~~~~~~~~MAIN METHOD:~~~~~~~~~~ */
 
     public static void main(String[] args) {
+        Drone ant = new Drone();
     /*  localIP = getPrivateIP();
       debug = true;
       Scanner usrIn = new Scanner(System.in);
@@ -332,13 +352,13 @@ public class Drone {
 
         if (args.length > 0) {
             if ("--initialize".equals(args[0])) {
-                initializeNetwork();
+                ant.initializeNetwork();
             } else if ("--join".equals(args[0]) && args.length > 1) {
-                joinNetwork(args[1]); // assuming the second argument is the IP address to join
+                ant.joinNetwork(args[1]); // assuming the second argument is the IP address to join
             }
         }
         debug = true;
-        try {
+        /*try {
             //"https://cds.cern.ch/record/2725767/files/dimuons.png"
             Util.RequestParam request = new RequestParam(2, "https://cds.cern.ch/record/2725767/files/dimuons.png",
                     "get", new HashMap<String, String>());
@@ -358,7 +378,14 @@ public class Drone {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
+        
+        System.out.println(getPublicIP());
+        ant.dumpColony();
+        Response response = ant.sendRequest(2, "https://cds.cern.ch/record/2725767/files/dimuons.png",
+                "get", new HashMap<String, String>());
+        PageDisplay.savePhoto(response.dataType, response.url, response.data);
+
     }
 
 }

@@ -227,7 +227,7 @@ public class Drone {
     private boolean initializeNetwork() {
         // Load successor and colony table with own IP addr
 
-        String IP = getPublicIP();
+        String IP = util.getPublicIP();
         successor = IP;
         System.out.println(IP);
         for (int i = 0; i < colonyTable.length; i++) {
@@ -349,7 +349,7 @@ public class Drone {
          dumpColony();
          updateColony();
       }*/
-        localIP = getPublicIP();
+        localIP = util.getPublicIP();
         if (args.length > 0) {
             if ("--initialize".equals(args[0])) {
                 ant.initializeNetwork();
@@ -380,7 +380,7 @@ public class Drone {
             e.printStackTrace();
         }*/
         ant.initializeNetwork();
-        System.out.println(getPublicIP());
+        System.out.println(util.getPublicIP());
         ant.dumpColony();
         Response response = ant.sendRequest(2, "https://cds.cern.ch/record/2725767/files/dimuons.png",
                 "get", new HashMap<String, String>());

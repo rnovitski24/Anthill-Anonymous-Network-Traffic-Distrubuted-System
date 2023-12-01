@@ -329,6 +329,14 @@ public class Drone {
          dumpColony();
          updateColony();
       }*/
+
+        if (args.length > 0) {
+            if ("--initialize".equals(args[0])) {
+                initializeNetwork();
+            } else if ("--join".equals(args[0]) && args.length > 1) {
+                joinNetwork(args[1]); // assuming the second argument is the IP address to join
+            }
+        }
         debug = true;
         try {
             //"https://cds.cern.ch/record/2725767/files/dimuons.png"

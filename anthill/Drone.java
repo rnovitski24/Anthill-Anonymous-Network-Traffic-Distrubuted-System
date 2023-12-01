@@ -1,6 +1,6 @@
-package AntHill;
-import AntHill.Util.Response;
-import AntHill.Util.RequestParam;
+package anthill;
+import anthill.util.Response;
+import anthill.util.RequestParam;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
@@ -12,8 +12,8 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 
-import static AntHill.Util.getPrivateIP;
-import static AntHill.Util.getPublicIP;
+import static anthill.util.getPrivateIP;
+import static anthill.util.getPublicIP;
 
 
 public class Drone {
@@ -185,7 +185,7 @@ public class Drone {
         }
         else{
             try {
-                return Util.fullfillHttpReq(request);
+                return util.fullfillHttpReq(request);
             } catch(Exception e){
                 e.printStackTrace();
             }

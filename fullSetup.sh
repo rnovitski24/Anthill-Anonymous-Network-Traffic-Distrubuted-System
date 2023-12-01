@@ -18,28 +18,37 @@ while true; do
     fi
 done
 
+echo "Success! SSH keypair of user '$username' was set."
 # TAKES IN AN IP_LIST.TXT FILE OF IP ADDRESSES TO CONNECT
+
 IP_LIST="IPList.txt"
 BOOTSTRAP_IP="" # Reserved for first node
 
-while IFS= read -r ip_address
+while read -r ip_address
 do
 
     echo "Setting up node at IP: $ip_address"
 
-    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" "git clone git@github.com:bowdoin-dsys/p4-final-r-2.git"
+    scp ~/.ssh/$username-keypair* $ip_address:~/.ssh/
+    scp ~/.ssh/id_rsa* $ip_address:~/.ssh/	
+
+    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address"
+
+    git clone "git@github.com:bowdoin-dsys/p4-final-r-2.git"
     cd p4-final-r-2
+    git pull
     make
 
     if [ -z "$BOOTSTRAP_IP" ]; then # First IP in list is initializer
-        java Drone --initialize # runs initializeNetwork()
+        java anthill.Drone --initialize # runs initializeNetwork()
         BOOTSTRAP_IP=$ip_address
 
     else 
         # if bootstrap is already set, join network
-        java Drone --join $BOOTSTRAP_IP # runs joinNetwork(bootstrapIP)
+        java anthill.Drone --join $BOOTSTRAP_IP # runs joinNetwork(bootstrapIP)
         
-
+    fi
+done < "$IP_LIST"
 
 # Paris IP addresses
 # 52.47.75.71

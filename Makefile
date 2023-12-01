@@ -13,15 +13,15 @@ JC = javac
 # If your version of make can't handle the leading tabs on each
 # line, just remove them (these are also just added for readability).
 CLASSES = \
-	AntHill/Drone.java \
-	AntHill/PageDisplay.java \
+	anthill/Drone.java \
+	anthill/PageDisplay.java \
 
 default: classes
 
-Drone.class: AntHill.Drone.java
+Drone.class: anthill.Drone.java
 	javac $(JFLAGS) -cp $(CLASSPATH) Drone.java
-AntHill.PageDisplay.class: AntHill.PageDisplay.java
-	javac $(JFLAGS) -cp $(CLASSPATH) AntHill.PageDisplay.java
+anthill.PageDisplay.class: anthill.PageDisplay.java
+	javac $(JFLAGS) -cp $(CLASSPATH) anthill.PageDisplay.java
 classes: $(CLASSES:.java=.class)
 
 clean:

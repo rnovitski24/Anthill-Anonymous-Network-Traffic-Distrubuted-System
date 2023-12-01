@@ -29,10 +29,10 @@ do
 
     echo "Setting up node at IP: $ip_address"
 
-    scp ~/.ssh/$username-keypair* $ip_address:~/.ssh/
-    scp ~/.ssh/id_rsa* $ip_address:~/.ssh/	
+    scp -i "$SSH_KEY" ~/.ssh/$username-keypair* "$SSH_USER@$ip_address:~/.ssh/"
+    scp -i "$SSH_KEY" ~/.ssh/id_rsa* "$SSH_USER@$ip_address:~/.ssh/"
 
-    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" "git clone "git@github.com:bowdoin-dsys/p4-final-r-2.git" && cd p4-final-r-2 && git pull && ./remoteSetup.sh $BOOTSTRAP_IP $ip_address"
+    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" "./remoteSetup.sh $BOOTSTRAP_IP $ip_address"
     
     
 done < "$IP_LIST"

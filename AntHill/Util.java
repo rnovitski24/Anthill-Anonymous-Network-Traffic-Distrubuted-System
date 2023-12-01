@@ -24,9 +24,7 @@ public class Util {
         /*
          * Empty constructor method
          */
-        public Response() {
-            // default
-        }
+
 
         public Response(int code, String url,  String dataType, byte[] data) {
             this.dataType = dataType;
@@ -36,18 +34,13 @@ public class Util {
         }
     }
 
-    public class RequestParam{
-        public final int pathLength;
-        public final String path;
+    public static class RequestParam{
+        public int pathLength;
+        public final String url;
         public final String method;
         public final HashMap<String, String> parameters;
 
-        /*
-         * Empty constructor method
-         */
-        public RequestParam() {
-            // default
-        }
+
 
 
         /*
@@ -55,7 +48,7 @@ public class Util {
          */
         public RequestParam(int pathLength, String url, String method, HashMap<String, String> parameters){
             this.pathLength = pathLength;
-            this.path = url;
+            this.url = url;
             this.method = method;
             this.parameters = parameters;
         }
@@ -64,30 +57,30 @@ public class Util {
     /*
      * Fullfills request and returns html text or binary of response
      */
-    public static Response fullfillHttpReq(String url, String method, HashMap<String, String> parameters) throws Exception {
+    public static Response fullfillHttpReq(RequestParam requestParam) throws Exception {
         //byte[] finalData = null;
         //final String dataType;
         Response responseData;
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             ClassicRequestBuilder requestBuild;
-            if (method.equals("get")) {
-                requestBuild = ClassicRequestBuilder.get(url);
-            } else if (method.equals("post")) {
-                requestBuild = ClassicRequestBuilder.post(url);
-            } else if (method.equals("head")) {
-                requestBuild = ClassicRequestBuilder.head(url);
-            } else if (method.equals("delete")) {
-                requestBuild = ClassicRequestBuilder.delete(url);
-            } else if (method.equals("put")) {
-                requestBuild = ClassicRequestBuilder.put(url);
-            } else if (method.equals("patch")) {
-                requestBuild = ClassicRequestBuilder.patch(url);
+            if (requestParam.method.equals("get")) {
+                requestBuild = ClassicRequestBuilder.get(requestParam.url);
+            } else if (requestParam.method.equals("post")) {
+                requestBuild = ClassicRequestBuilder.post(requestParam.url);
+            } else if (requestParam.method.equals("head")) {
+                requestBuild = ClassicRequestBuilder.head(requestParam.url);
+            } else if (requestParam.method.equals("delete")) {
+                requestBuild = ClassicRequestBuilder.delete(requestParam.url);
+            } else if (requestParam.method.equals("put")) {
+                requestBuild = ClassicRequestBuilder.put(requestParam.url);
+            } else if (requestParam.method.equals("patch")) {
+                requestBuild = ClassicRequestBuilder.patch(requestParam.url);
             } else {
-                throw new MethodNotSupportedException("Method " + method + " is not supported.");
+                throw new MethodNotSupportedException("Method " + requestParam.method + " is not supported.");
             }
             //Add Parameters
-            for (String param : parameters.keySet()) {
-                requestBuild.addParameter(param, parameters.get(param));
+            for (String param : requestParam.parameters.keySet()) {
+                requestBuild.addParameter(param, requestParam.parameters.get(param));
             }
             ClassicHttpRequest request = requestBuild.build();
 
@@ -103,7 +96,7 @@ public class Util {
                 // and ensure it is fully consumed
                 EntityUtils.consume(entity1);
                 //System.out.println(finalString);
-                return new Response (code, url,  dataType, inter);
+                return new Response (code, requestParam.url,  dataType, inter);
             });
         }
 

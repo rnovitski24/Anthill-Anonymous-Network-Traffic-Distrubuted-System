@@ -1,5 +1,6 @@
 package AntHill;
 import AntHill.Util.Response;
+import AntHill.Util.RequestParam;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
@@ -23,6 +24,8 @@ public class Drone {
 
     // Debugging Boolean
     public static boolean debug;
+
+    public Random rand = new Random();
 
     // Constants
     private static final int PORT = 2054;
@@ -134,8 +137,41 @@ public class Drone {
     /* ~~~~~~~~~~XML-RPC FUNCTIONS~~~~~~~~~~ */
 
 
-    public Response passRequest(Util.RequestParam request){
-       return null;
+    public Response passRequest(RequestParam request){
+        String url = "";
+        //Calculate whether node should skip
+        if(rand.nextInt() > 0.5){
+            //Then select random next in table to return
+            url = colonyTable[rand.nextInt(COL_SIZE)];
+            return new Response(308, url, "text/IP", null);
+        }
+        //if there is still path length
+        if(request.pathLength > 0){
+            //Decriment it
+            request.pathLength -= 1;
+            //Select random successor
+            url = colonyTable[rand.nextInt(COL_SIZE)];
+            try{
+                // forward the request
+                Response response = (Response) doExecute(url, "passRequest", new Object[]{request});
+                // if the response is "skip me"
+                while (response.code == 308) {
+                    //Send to responder IP
+                    response = (Response) doExecute(response.url, "passRequest", new Object[]{request});
+                }
+                return response;
+            } catch( Exception e){
+                e.printStackTrace();
+            }
+        }
+        else{
+            try {
+                return Util.fullfillHttpReq(request);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
     /*
      * Server up confirmation function.
@@ -296,8 +332,9 @@ public class Drone {
         debug = true;
         try {
             //"https://cds.cern.ch/record/2725767/files/dimuons.png"
-            Response webpage = Util.fullfillHttpReq("https://cds.cern.ch/record/2725767/files/dimuons.png",
+            Util.RequestParam request = new RequestParam(2, "https://cds.cern.ch/record/2725767/files/dimuons.png",
                     "get", new HashMap<String, String>());
+            Response webpage = Util.fullfillHttpReq(request);
             System.out.println(webpage.dataType);
 
             String filename = webpage.url.substring(webpage.url.lastIndexOf('/') + 1);

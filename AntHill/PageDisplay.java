@@ -22,7 +22,6 @@ import javax.imageio.ImageIO;
 public class PageDisplay {
 
 
-
    public static boolean saveHtml(String filename, byte[] data ){
       Path filePath = Paths.get("AntHill/" + filename);
       try {

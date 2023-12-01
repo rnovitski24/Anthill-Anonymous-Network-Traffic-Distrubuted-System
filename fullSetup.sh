@@ -32,12 +32,7 @@ do
     scp -i "$SSH_KEY" ~/.ssh/$username-keypair* "$SSH_USER@$ip_address:~/.ssh/"
     scp -i "$SSH_KEY" ~/.ssh/id_rsa* "$SSH_USER@$ip_address:~/.ssh/"
 
-<<<<<<< HEAD
     ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" "./remoteSetup.sh $BOOTSTRAP_IP $ip_address"
-=======
-    ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" "eval '$(ssh-agent -s)'&&ssh-add ~/.ssh/rgrundy-keypair.pem && git clone "git@github.com:bowdoin-dsys/p4-final-r-2.git" && cd p4-final-r-2 && git pull && ./remoteSetup.sh $BOOTSTRAP_IP $ip_address"
->>>>>>> 9dfd1c469e3e7777a3f69f5064c18f60253ef565
-    
     
 done < "$IP_LIST"
 

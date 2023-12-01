@@ -6,3 +6,7 @@
 *.so
 *.swp
 *.htm
+/out
+/.idea
+.DS_STORE
+*.iml

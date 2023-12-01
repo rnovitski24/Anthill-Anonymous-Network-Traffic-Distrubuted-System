@@ -9,10 +9,9 @@ import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import java.util.*;
 import java.net.URL;
-import java.nio.file.Paths;
-import java.nio.file.Files;
 
-import static anthill.util.getPrivateIP;
+
+
 import static anthill.util.getPublicIP;
 
 
@@ -314,41 +313,7 @@ public class Drone {
 
     public static void main(String[] args) {
         Drone ant = new Drone();
-    /*  localIP = getPrivateIP();
-      debug = true;
-      Scanner usrIn = new Scanner(System.in);
-      System.out.println("Join or Initialize Network");
-      String mode = usrIn.nextLine();
-      if (mode.toLowerCase().equals("join")) {
-         System.out.println("Enter Bootstrap IP");
-         String boot_ip = usrIn.nextLine();
-         joinNetwork(boot_ip);
-      } else if (mode.toLowerCase().equals("initialize")) {
-         initializeNetwork();
-      } else {
-         System.out.println("Invalid command exiting");
-         System.exit(1);
-      }
-      dumpColony();
-      updateColony();
-      dumpColony();
-      System.out.println(localIP);
-      try {
-         doExecute(localIP, "Drone.ping", new Object[] {});
-      } catch (Exception ex) {
-         System.out.println("Ping doesn't work on itself " + ex.toString());
-         ex.printStackTrace();
-      }
-      System.out.println("Network joined!");
 
-      while (true) {
-         try {
-            Thread.sleep(10000);
-         } catch (Exception e) {
-         }
-         dumpColony();
-         updateColony();
-      }*/
         localIP = util.getPublicIP();
         if (args.length > 0) {
             if ("--initialize".equals(args[0])) {
@@ -358,31 +323,11 @@ public class Drone {
             }
         }
         debug = true;
-        /*try {
-            //"https://cds.cern.ch/record/2725767/files/dimuons.png"
-            Util.RequestParam request = new RequestParam(2, "https://cds.cern.ch/record/2725767/files/dimuons.png",
-                    "get", new HashMap<String, String>());
-            Response webpage = Util.fullfillHttpReq(request);
-            System.out.println(webpage.dataType);
 
-            String filename = webpage.url.substring(webpage.url.lastIndexOf('/') + 1);
-            String dataType = webpage.dataType.substring(webpage.dataType.indexOf('/')+1);
-            if(!PageDisplay.savePhoto(dataType, filename, webpage.data)){
-                System.out.println("Save failed");
-                System.exit(0);
-            }
-
-            //Files.write(Paths.get(path), webpage.data);
-            //PageDisplay.createWindow("wikipedia", filename);
-            //Files.delete(Paths.get(filename));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-        ant.initializeNetwork();
+        // ant.initializeNetwork();
         System.out.println(util.getPublicIP());
         ant.dumpColony();
-        Response response = ant.sendRequest(2, "https://cds.cern.ch/record/2725767/files/dimuons.png",
+        Response response = ant.sendRequest(6, "https://cds.cern.ch/record/2725767/files/dimuons.png",
                 "get", new HashMap<String, String>());
         System.out.println(response.dataType);
 

@@ -23,7 +23,7 @@ public class PageDisplay {
 
 
    public static boolean saveHtml(String filename, byte[] data ){
-      Path filePath = Paths.get("AntHill/" + filename);
+      Path filePath = Paths.get("anthill/" + filename);
       try {
          Files.write(filePath, data);
          return true;
@@ -69,7 +69,7 @@ public class PageDisplay {
       //Could try to make links clickable within framework
       URL url = null;
       try {
-         url = new File("AntHill/" + fileName).toURL();
+         url = new File("anthill/" + fileName).toURL();
       } catch(Exception e){
          e.printStackTrace();
       }

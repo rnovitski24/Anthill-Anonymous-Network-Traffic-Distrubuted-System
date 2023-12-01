@@ -1,4 +1,4 @@
-package AntHill;
+package anthill;
 
 // Imports HERE
 

@@ -88,7 +88,7 @@ public class Drone {
     }
 
     /*
-     * Generalized wrapper to send XML-RPC requests.
+     * Generalized wrapper to send XML-RPC requests between nodes.
      */
     private static Object doExecute(String IP, String method, Object[] params) {
         System.out.println(IP);
@@ -110,6 +110,10 @@ public class Drone {
         }
         return null;
     }
+
+    /*
+     * 
+     */
     private Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
        return null;
     }

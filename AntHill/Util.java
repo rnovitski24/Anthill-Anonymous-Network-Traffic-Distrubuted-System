@@ -21,6 +21,13 @@ public class Util {
         public final byte[] data;
         public final int code;
 
+        /*
+         * Empty constructor method
+         */
+        public Response() {
+            // default
+        }
+
         public Response(int code, String url,  String dataType, byte[] data) {
             this.dataType = dataType;
             this.url = url;
@@ -35,6 +42,17 @@ public class Util {
         public final String method;
         public final HashMap<String, String> parameters;
 
+        /*
+         * Empty constructor method
+         */
+        public RequestParam() {
+            // default
+        }
+
+
+        /*
+         * RequestParam constructor sets the request's path length, url, method, and parameters
+         */
         public RequestParam(int pathLength, String url, String method, HashMap<String, String> parameters){
             this.pathLength = pathLength;
             this.path = url;

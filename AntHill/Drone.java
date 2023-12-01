@@ -379,13 +379,13 @@ public class Drone {
         } catch (Exception e) {
             e.printStackTrace();
         }*/
-        
+        /*
         System.out.println(getPublicIP());
         ant.dumpColony();
         Response response = ant.sendRequest(2, "https://cds.cern.ch/record/2725767/files/dimuons.png",
                 "get", new HashMap<String, String>());
         PageDisplay.savePhoto(response.dataType, response.url, response.data);
-
+        */
     }
 
 }

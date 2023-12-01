@@ -24,7 +24,7 @@ echo "Success! SSH keypair of user '$username' was set."
 IP_LIST="IPList.txt"
 BOOTSTRAP_IP="" # Reserved for first node
 
-while read -r ip_address
+while IFS=read -r ip_address
 do
 
     echo "Setting up node at IP: $ip_address"

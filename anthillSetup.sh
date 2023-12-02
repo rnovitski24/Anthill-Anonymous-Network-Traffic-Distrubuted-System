@@ -29,6 +29,7 @@ do
     if [ -z "$BOOTSTRAP_IP" ]; then
         echo "Setting up Queen node at IP $ip_address:"
         BOOTSTRAP_IP=$ip_address
+        echo "$BOOTSTRAP_IP"
         ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" 'cd p4-final-r-2 && java -cp lib/*:. anthill.Drone --initialize &'
     else   
         echo "Setting up Drone node at IP $ip_address:"

@@ -5,24 +5,24 @@
         <meta name="Description" content="Front End functionality for Anthill." />
         <meta name="Author" content="Ross Grundy & Ryan Novitski" />
         <style>
-            /* Add basic styling here */
+            
             body {
                 font-family: Arial, sans-serif;
-                background-color: #f4f4f4;
+                background-color: #a6a57a; /* Earthy background color */
                 margin: 0;
                 padding: 0;
             }
             .container {
-                width: 80%;
+                width: 85%;
                 margin: auto;
                 overflow: hidden;
             }
             header {
-                background: #50b3a2;
+                background: #6b8e23; /* Olive green header */
                 color: white;
                 padding-top: 30px;
                 min-height: 70px;
-                border-bottom: #e8491d 3px solid;
+                border-bottom: #3d4d20 3px solid; /* Darker green border */
             }
             header a {
                 color: #ffffff;
@@ -52,106 +52,156 @@
                 margin-top: 10px;
             }
             header .highlight, header .current a {
-                color: #e8491d;
+                color: #3d4d20; /* Dark green for highlights */
                 font-weight: bold;
             }
             header a:hover {
                 color: #ffffff;
                 font-weight: bold;
             }
+            html, body {
+            height: 100%;
+            margin: 0;
+            }
+            .wrapper {
+                min-height: 100%;
+                margin-bottom: -40px; /* Equal to footer height */
+            }
+            .wrapper:after {
+                content: '';
+                display: block;
+                height: 50px; /* Equal to footer height */
+            }
+
             /* Styling for anonymous request section */
             section#main {
-                background-color: #fff;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            background-color: #e6e6fa; 
+            padding: 27px; 
+            border-radius: 20px; 
+            box-shadow: 0px 5px 15px 0px rgba(0,0,0,0.15); 
+            max-width: 600px;
+            margin: 30px auto; /* Centering the section */
             }
             section#main h2 {
-                color: #333;
-                text-align: center; /* Center align the header */
+                color: #50642b; /* Darker color for the header */
+                margin-top: 1px;
+                margin-bottom: 20px; /* Added margin for better spacing */
+                text-align: center;
+            }
+            section#main input[type="text"] {
+                width: 95%; /* Adjusting width to fit better */
+                max-width: 500px; /* Maximum width for larger screens */
             }
             section#main form {
                 display: flex;
                 flex-direction: column;
-                align-items: center; /* Center align form items */
+                align-items: flex-start;
             }
-            section#main input[type="text"] {
-                padding: 10px;
-                margin-bottom: 10px;
-                border-radius: 5px;
-                border: 1px solid #ddd;
+            section#main input[type="submit"] {
+                align-self: flex-end;
+                margin-top: 10px;
             }
             section#main input[type="submit"] {
                 padding: 10px;
-                background-color: #50b3a2;
+                background-color: #6b8e23; /* Dark sea green for buttons */
                 color: white;
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
+                
             }
             section#main input[type="submit"]:hover {
-                background-color: #429384;
+                color: #99cc32;
+                background-color: #3d4d20; /* Slightly darker green for hover */
+            }
+            section#disconnect button#disconnectButton {
+                max-width: 650px;
+                width: 100%; /* Full width of the section */
+                padding: 10px;
+                background-color: #6b8e23;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                margin: 20px auto; 
+                text-align: center; /* Center the text inside the button */
+                display: block; /* Make the button a block-level element */
+            }
+            
+            section#disconnect button#disconnectButton:hover {
+                color: #99cc32;
+                background-color: #3d4d20; /* Slightly darker green for hover */
             }
 
             footer {
+                font-family: courier;
+                font-size: 14px;
                 text-align: center;
-                padding: 20px 0;
-                background-color: #f4f4f4;
+                padding: 1px 0;
+                background-color: #3d4d20;
+                color: #99cc32;
             }
+            
         </style>
     </head>
     <body>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                // Elements
-                const urlInput = document.querySelector('input[name="url"]');
-                const sendRequestButton = document.querySelector('input[type="submit"]');
-        
-                // Event Listener for Send Request Button
-                sendRequestButton.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const url = urlInput.value;
-                    if (url) {
-                        sendAnonymizedRequest(url);
-                    } else {
-                        alert('Please enter a URL');
+        <div class="wrapper">
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Elements
+                    const urlInput = document.querySelector('input[name="url"]');
+                    const sendRequestButton = document.querySelector('input[type="submit"]');
+            
+                    // Event Listener for Send Request Button
+                    sendRequestButton.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        const url = urlInput.value;
+                        if (url) {
+                            sendAnonymizedRequest(url);
+                        } else {
+                            alert('Please enter a URL');
+                        }
+                    });
+            
+                    // Function to send an anonymized request
+                    function sendAnonymizedRequest(url) {
+                        // INTEGRATE BACKEND HERE
+                        
                     }
                 });
-        
-                // Function to send an anonymized request
-                function sendAnonymizedRequest(url) {
-                    // INTEGRATE BACKEND HERE
-                    
-                }
-            });
-        </script>
-        <header>
-            <div class="container">
-                <div id="branding">
-                    <h1><span class="highlight">Anthill</span> Network</h1>
+            </script>
+            <header>
+                <div class="container">
+                    <div id="branding">
+                        <h1><span class="highlight">Anthill</span> Network</h1>
+                    </div>
+                    <nav>
+                        <ul>
+                            <li class="current"><a href="#">Home</a></li>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </nav>
                 </div>
-                <nav>
-                    <ul>
-                        <li class="current"><a href="#">Home</a></li>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Contact</a></li>
-                    </ul>
-                </nav>
+            </header>
+
+            <div class="container">
+                <!-- Main content -->
+                <section id="main">
+                    <h2>Send Anonymous Request</h2>
+                    <form>
+                        <input type="text" name="url" placeholder="Enter URL...">
+                        <input type="submit" value="Send Request">
+                    </form>
+                </section>
+                <section id="disconnect">
+                    <button id="disconnectButton">Disconnect from Colony
+                    </button>
+                </section>
+    
+                <!-- Additional sections can be added here -->
+    
             </div>
-        </header>
-
-        <div class="container">
-            <!-- Main content -->
-            <section id="main">
-                <h2>Send Anonymous Request</h2>
-                <form>
-                    <input type="text" name="url" placeholder="Enter URL...">
-                    <input type="submit" value="Send Request">
-                </form>
-            </section>
-
-            <!-- Additional sections can be added here -->
-
         </div>
 
         <footer>

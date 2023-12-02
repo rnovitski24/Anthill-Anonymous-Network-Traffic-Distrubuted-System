@@ -1,6 +1,6 @@
 JFLAGS = -g -Xlint:unchecked
 
-CLASSPATH= lib/*:/usr/share/java/*:/usr/share/java/xmlrpc-client.jar:/usr/share/java/xmlrpc-server.jar:/usr/share/java/xmlrpc-common.jar:/usr/share/java/ws-commons-util.jar:/usr/share/java/commons-logging.jar:.
+CLASSPATH= lib/*:.
 
 
 JC = javac

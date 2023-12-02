@@ -10,7 +10,7 @@ ip_address=$2
 make
 
 if [ -z "$BOOTSTRAP_IP" ]; then # First IP in list is initializer
-        $BOOTSTRAP_IP=$ip_address
+        BOOTSTRAP_IP=$ip_address
         java -cp lib/*:. anthill.Drone --initialize & # runs initializeNetwork()
 
 

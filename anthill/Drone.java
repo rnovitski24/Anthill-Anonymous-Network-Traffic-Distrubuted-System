@@ -30,7 +30,7 @@ public class Drone {
     public static Random rand = new Random();
 
     // Constants
-    private static final int PORT = 8080;
+    private static final int PORT = 8560;
     private static final int COL_SIZE = 5;
 
     // Variable that holds next link in chain

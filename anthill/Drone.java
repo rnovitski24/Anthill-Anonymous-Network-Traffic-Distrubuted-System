@@ -327,14 +327,23 @@ public class Drone {
         // ant.initializeNetwork();
         System.out.println(util.getPublicIP());
         ant.dumpColony();
-        Response response = ant.sendRequest(6, "https://cds.cern.ch/record/2725767/files/dimuons.png",
-                "get", new HashMap<String, String>());
-        System.out.println(response.dataType);
+        //Response response = ant.sendRequest(6, "https://cds.cern.ch/record/2725767/files/dimuons.png",
+                //"get", new HashMap<String, String>());
+        //System.out.println(response.dataType);
 
-        String filename = response.url.substring(response.url.lastIndexOf('/') + 1);
+        //String filename = response.url.substring(response.url.lastIndexOf('/') + 1);
 
-        System.out.println(PageDisplay.savePhoto(response.dataType, filename, response.data));
-        System.exit(0);
+        //System.out.println(PageDisplay.savePhoto(response.dataType, filename, response.data));
+        //System.exit(0);
+        while(true){
+            try {
+                Thread.sleep(10000);
+            } catch (Exception e){
+                System.out.println("No Sleep");
+            }
+            ant.updateColony();
+            ant.dumpColony();
+        }
     }
 
 }

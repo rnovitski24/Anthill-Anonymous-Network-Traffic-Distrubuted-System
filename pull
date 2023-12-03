@@ -64,7 +64,7 @@ cat << 'EOF'
                     /      |               ^
                    ^       |
                            ^
-Welcome to the Colony!
+ANTHILL NETWORK
 
 EOF
 

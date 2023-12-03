@@ -34,13 +34,13 @@ do
     else
         echo "Bootstrap: $BOOTSTRAP_IP"
         echo "Setting up Drone node at IP $ip_address:"
-        ssh -i "$SSH_KEY" "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && java -cp lib/*:. anthill.Drone --join $BOOTSTRAP_IP &'
+        ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && java -cp lib/*:. anthill.Drone --join $BOOTSTRAP_IP &'
     fi
     
 done #<"$IP_LIST"
 
 cat << 'EOF'
-              ,
+               ,
       _,-'\   /|   .    .    /`.
   _,-'     \_/_|_  |\   |`. /   `._,--===--.__
  ^       _/"/  " \ : \__|_ /.   ,'    :.  :. .`-._
@@ -57,4 +57,3 @@ cat << 'EOF'
 Welcome to the Colony!
 
 EOF
-sleep 4

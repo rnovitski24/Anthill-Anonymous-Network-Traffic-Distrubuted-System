@@ -38,6 +38,7 @@ for ip_address in "${IP_LIST[@]:1}"; do
 done #<"$IP_LIST"
 
 wait
+clear
 echo "All Drones have been accepted by the Queen."
 
 cat << 'EOF'

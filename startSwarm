@@ -34,7 +34,7 @@ do
     else
         echo "Bootstrap: $BOOTSTRAP_IP"
         echo "Setting up Drone node at IP $ip_address:"
-        ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && java -cp lib/*:. anthill.Drone --join $BOOTSTRAP_IP &'
+        ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && nohup java -cp lib/*:. anthill.Drone --join $BOOTSTRAP_IP > /dev/null 2>&1 &'
     fi
     
 done #<"$IP_LIST"

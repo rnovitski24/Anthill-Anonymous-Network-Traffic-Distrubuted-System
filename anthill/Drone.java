@@ -86,7 +86,7 @@ public class Drone {
 
 
 
-    private void updateColony() {
+    private synchronized void updateColony() {
         for (int i = 0; i < COL_SIZE - 1; i++) {
             colonyTable[i + 1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
         }
@@ -222,7 +222,7 @@ public class Drone {
      * Updates bootstrap node whenever a new node joins. Only called via queen
      */
     public synchronized void updateQueenTable(String newDroneIP) {
-        if (bootstrapIP.equals(localIP) {
+        if (newDroneIP.equals(localIP)) {
             updateColony();
             System.out.println("Boostrap colony updated.");
         }

@@ -31,10 +31,10 @@ ssh -i "$SSH_KEY" -f "$SSH_USER@$BOOTSTRAP_IP" 'cd p4-final-r-2 && make && nohup
 
 PING_BS=false
 PING_COUNT=0
-while [[ "$PING_BS" == false && "$PING_COUNT" < 3]]; do
+while [[ "$PING_BS" == false && "$PING_COUNT" -lt 3 ]]; do
     echo "Checking if Queen node is ready..."
     if ssh -i "$SSH_KEY" "$SSH_USER@$BOOTSTRAP_IP" 'java -cp p4-final-r-2/lib/*: p4-final-r-2/Drone ping'; then
-        QUEEN_READY=true
+        PING_BS=true
         echo "Queen node is ready."
     else
         sleep 5
@@ -42,7 +42,7 @@ while [[ "$PING_BS" == false && "$PING_COUNT" < 3]]; do
     fi
 done
 
-if [$PING_COUNT >= 3]; then
+if [ $PING_COUNT -ge 3 ]; then
     echo "Could not ping Queen node."
     exit 1
 fi

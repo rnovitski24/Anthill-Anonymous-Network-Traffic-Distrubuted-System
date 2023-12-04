@@ -30,7 +30,7 @@ public class LogServer {
                 InputStream is = socket.getInputStream();
                 String host = socket.getInetAddress().getHostName();
 
-                FileWriter fw = new FileWriter("ServerLogs/" + host, true);
+                FileWriter fw = new FileWriter("ServerLogs/" + host +".log", true);
                 BufferedWriter writer = new BufferedWriter(fw);
                 BufferedReader br = new BufferedReader(
                         new InputStreamReader(is, "US-ASCII"));

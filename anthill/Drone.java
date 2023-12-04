@@ -320,6 +320,8 @@ public class Drone {
                 ant.initializeNetwork();
             } else if ("--join".equals(args[0]) && args.length > 1) {
                 ant.joinNetwork(args[1]); // assuming the second argument is the IP address to join
+            } else if ("--ping".equals(args[0])) {
+                ant.ping();
             }
         }
         debug = true;

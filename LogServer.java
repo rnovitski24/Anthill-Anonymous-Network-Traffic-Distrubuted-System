@@ -36,6 +36,7 @@ public class LogServer {
                         new InputStreamReader(is, "US-ASCII"));
                 String line = null;
                 while ((line = br.readLine()) != null) {
+                    System.out.println(line);
                     writer.write(line);
                 }
             } catch (IOException exception) {
@@ -46,6 +47,7 @@ public class LogServer {
                     try {
                         socket.close();
                     } catch (IOException ignored) {
+                        ignored.printStackTrace();
                     }
                 }
             }

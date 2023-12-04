@@ -27,13 +27,13 @@ BOOTSTRAP_IP="" # Reserved for first node
 
 BOOTSTRAP_IP=${IP_LIST[0]}
 echo "Setting up Queen node at IP $BOOTSTRAP_IP:"
-ssh -i "$SSH_KEY" "$SSH_USER@$BOOTSTRAP_IP" 'cd p4-final-r-2 && make && java -cp lib/*:. anthill.Drone --initialize'
+ssh -i "$SSH_KEY" -f "$SSH_USER@$BOOTSTRAP_IP" 'cd p4-final-r-2 && make && nohup java -cp lib/*:. anthill.Drone --initialize &' # replace '&' with ' > /dev/null 2>&1 &' to throw away output
 
 for ip_address in "${IP_LIST[@]:1}"; do
     (
         echo "Bootstrap: $BOOTSTRAP_IP"
         echo "Setting up Drone node at IP $ip_address:"
-        ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && nohup java -cp lib/*:. anthill.Drone --join $BOOTSTRAP_IP > /dev/null 2>&1 &'
+        ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && nohup java -cp lib/*:. anthill.Drone --join $BOOTSTRAP_IP &' # replace '&' with ' > /dev/null 2>&1 &' to throw away output
     ) &
 done 
 

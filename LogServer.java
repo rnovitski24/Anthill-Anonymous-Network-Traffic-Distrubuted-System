@@ -24,27 +24,33 @@ public class LogServer {
         System.out.printf("LogServer running on port: %s%n", PORT_NUM);
         while (true) {
             Socket socket = null;
+            PrintWriter pw = null;
             try {
                 socket = serverSocket.accept();
-                System.out.println("Got log");
+                //System.out.println("Got log");
                 InputStream is = socket.getInputStream();
                 String host = socket.getInetAddress().getHostName();
+                BufferedReader br = new BufferedReader(new InputStreamReader(is, "US-ASCII"));
 
                 FileWriter fw = new FileWriter("ServerLogs/" + host +".log", true);
                 BufferedWriter writer = new BufferedWriter(fw);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is, "US-ASCII"));
-                PrintWriter pw = new PrintWriter(writer);
+                pw = new PrintWriter(writer);
+
+
+
                 String line = null;
                 while ((line = br.readLine()) != null) {
-                    System.out.println(line);
-                    pw.println(line);
+                    System.out.println(host + line);
+                    pw.println(host + line);
                 }
             } catch (IOException exception) {
                 exception.printStackTrace();
                 // Just handle next request.
             } finally {
+
                 if (socket != null) {
                     try {
+                        pw.close();
                         socket.close();
                     } catch (IOException ignored) {
                         ignored.printStackTrace();

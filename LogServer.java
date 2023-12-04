@@ -25,6 +25,7 @@ public class LogServer {
         while (true) {
             Socket socket = null;
             try {
+                System.out.println("Got log");
                 socket = serverSocket.accept();
                 InputStream is = socket.getInputStream();
                 String host = socket.getInetAddress().getHostAddress();
@@ -38,6 +39,7 @@ public class LogServer {
                     writer.write(line);
                 }
             } catch (IOException exception) {
+                exception.printStackTrace();
                 // Just handle next request.
             } finally {
                 if (socket != null) {

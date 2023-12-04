@@ -137,7 +137,8 @@ public class Drone {
      * 
      */
     private util.Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
-       util.RequestParam request = new util.RequestParam(pathLength, url, method, parameters);
+        LOGGER.log(Level.INFO, "Sending Request to " + url);
+        util.RequestParam request = new util.RequestParam(pathLength, url, method, parameters);
         url = colonyTable[rand.nextInt(COL_SIZE)];
         util.Response response = null;
         try{
@@ -150,7 +151,7 @@ public class Drone {
             }
             return response;
         } catch( Exception e){
-            LOGGER.log(Level.SEVERE, "Error in passRequest", e);
+            LOGGER.log(Level.SEVERE, "Error in sendRequest", e);
         }
        return response;
     }
@@ -161,6 +162,7 @@ public class Drone {
      * Dumps colonyTable values
      */
     private void dumpColony() {
+        LOGGER.log(Level.FINE, "Dumped Colony");
         int nodeNumber = 1;
         for (int i = 0; i < colonyTable.length; i++) {
             System.out.println("Node " + nodeNumber + ":" + colonyTable[i]);
@@ -172,7 +174,7 @@ public class Drone {
 
 
     public Response passRequest(RequestParam request){
-        System.out.println("Passing request");
+        LOGGER.log(Level.INFO, "Passing Request");
         String url = "";
         //Calculate whether node should skip
         if(rand.nextInt() > 0.5){
@@ -231,8 +233,8 @@ public class Drone {
      * Gets the colonyTable value at specified index.
      */
     public String getColonyMember(int index) {
+        LOGGER.log(Level.FINE , "Gave Colony Member at Index " + index);
         // returns member of colony table at index
-        System.out.println("Sent IP:" + colonyTable[index]);
         return colonyTable[index];
     }
 
@@ -256,14 +258,15 @@ public class Drone {
      */
     private boolean initializeNetwork() {
         // Load successor and colony table with own IP addr
+        LOGGER.log(Level.FINE , "Initializing Network");
         String IP = null;
         try{
             IP = util.getPublicIP();
         } catch (Exception e){
             LOGGER.log(Level.SEVERE, "Unable to Obtain Local IP", e);
+            System.exit(1);
         }
         successor = IP;
-        System.out.println(IP);
         for (int i = 0; i < colonyTable.length; i++) {
             colonyTable[i] = IP;
         }
@@ -294,6 +297,7 @@ public class Drone {
      * Starts server and populates colonyTable when system has > 1 client.
      */
     public boolean joinNetwork(String bootstrapIP) {
+        LOGGER.log(Level.FINE , "Joining Network at " + bootstrapIP);
 
         if (!bootstrapIP.equals(localIP)) {
             try {
@@ -310,11 +314,9 @@ public class Drone {
             globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
             globalClient.setConfig(globalConfig);
             successor = (String) doExecute(bootstrapIP, "Drone.getSuccessor", new Object[]{localIP});
-            System.out.print("I got to joinNetwork\n");
-            System.out.print(successor);
+            LOGGER.log(Level.FINE , "Got Successor " + successor);
             colonyTable[0] = successor;
         } catch (Exception e) {
-
             LOGGER.log(Level.SEVERE, "Bootstrap Client Exception" , e);
             System.exit(1);
         }
@@ -366,7 +368,7 @@ public class Drone {
         }
         fileHandler.setFormatter(new SimpleFormatter());
         //setting custom filter for FileHandler
-        fileHandler.setLevel(Level.FINEST);
+        fileHandler.setLevel(Level.ALL);
 
         LOGGER.addHandler(fileHandler);
         LOGGER.setUseParentHandlers(false);

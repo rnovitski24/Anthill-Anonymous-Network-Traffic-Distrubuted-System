@@ -36,7 +36,7 @@ public class LogServer {
                         new InputStreamReader(is, "US-ASCII"));
                 String line = null;
                 while ((line = br.readLine()) != null) {
-                    System.out.println(line);
+                    System.out.println("Host: " + line);
                     writer.write(line);
                 }
             } catch (IOException exception) {

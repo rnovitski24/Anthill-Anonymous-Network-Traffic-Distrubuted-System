@@ -138,7 +138,7 @@ public class Drone {
      */
     private util.Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
         LOGGER.log(Level.INFO, "Sending Request to " + url);
-        util.RequestParam request = new util.RequestParam(pathLength, url, method, parameters);
+        RequestParam request = new RequestParam(pathLength, url, method, parameters);
         url = colonyTable[rand.nextInt(COL_SIZE)];
         util.Response response = null;
         try{
@@ -423,5 +423,4 @@ public class Drone {
             ant.dumpColony();
         }
     }
-
 }

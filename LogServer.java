@@ -32,12 +32,12 @@ public class LogServer {
 
                 FileWriter fw = new FileWriter("ServerLogs/" + host +".log", true);
                 BufferedWriter writer = new BufferedWriter(fw);
-                BufferedReader br = new BufferedReader(
-                        new InputStreamReader(is, "US-ASCII"));
+                BufferedReader br = new BufferedReader(new InputStreamReader(is, "US-ASCII"));
+                PrintWriter pw = new PrintWriter(writer);
                 String line = null;
                 while ((line = br.readLine()) != null) {
-                    System.out.println("Host: " + line);
-                    writer.write(line);
+                    System.out.println(line);
+                    pw.println(line);
                 }
             } catch (IOException exception) {
                 exception.printStackTrace();

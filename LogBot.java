@@ -15,7 +15,7 @@ public class LogBot {
 
         try {
 
-            socketHandler = new SocketHandler("hopper.bowdoin.edu", 8809);
+            socketHandler = new SocketHandler(args[0], 8809);
             System.out.println("Connecting to logServer on port 8809");
 
         } catch(Exception e ){

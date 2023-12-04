@@ -218,6 +218,19 @@ public class Drone {
         return colonyTable[index];
     }
 
+    /*
+     * Updates bootstrap node whenever a new node joins. Only called via queen
+     */
+    public synchronized void updateQueenTable(String newDroneIP) {
+        if (bootstrapIP.equals(localIP) {
+            updateColony();
+            System.out.println("Boostrap colony updated.");
+        }
+        else {
+            System.out.println("Given IP was not the Queen node.");
+        }
+    }
+
     /* ~~~~~~~~~~INITIALIZATION FUNCTIONS:~~~~~~~~~~ */
 
     /*
@@ -260,6 +273,11 @@ public class Drone {
      * Starts server and populates colonyTable when system has > 1 client.
      */
     public boolean joinNetwork(String bootstrapIP) {
+
+        if (!bootstrapIP.equals(localIP)) { 
+            doExecute(bootstrapIP, "Drone.updateQueenTable", new Object[]{localIP});
+        }
+
         try {
             globalClient = new XmlRpcClient();
             globalConfig = new XmlRpcClientConfigImpl();

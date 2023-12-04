@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp lib/*:. anthill/Drone --initialize $1 &
+java -cp lib/*:. anthill/Drone --join $1 &

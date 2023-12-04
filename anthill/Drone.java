@@ -379,6 +379,7 @@ public class Drone {
 
         LOGGER.addHandler(fileHandler);
         LOGGER.addHandler(socketHandler);
+        LOGGER.setLevel(Level.ALL);
         LOGGER.setUseParentHandlers(false);
 
 
@@ -386,7 +387,8 @@ public class Drone {
         try {
             localIP = util.getPublicIP();
         } catch(Exception e){
-            LOGGER.log(Level.WARNING, "Unable to Get Local IP", e);
+            LOGGER.log(Level.SEVERE, "Unable to Get Local IP", e);
+            System.exit(1);
         }
         if (args.length > 0) {
             if ("--initialize".equals(args[0])) {

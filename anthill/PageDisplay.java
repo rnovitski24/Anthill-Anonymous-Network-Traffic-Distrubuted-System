@@ -34,22 +34,17 @@ public class PageDisplay {
          return false;
       }
    }
-   public static boolean savePhoto(String datatype, String filename, byte[] data){
+   public static boolean savePhoto(String datatype, String filename, byte[] data) throws Exception{
 
       ByteArrayInputStream bis = new ByteArrayInputStream(data);
-      try{
+
          BufferedImage bImage2 = ImageIO.read(bis);
          datatype = datatype.substring(datatype.indexOf('/')+1);
          ImageIO.write(bImage2, datatype, new File(filename));
          return true;
-      } catch(Exception e){
-         if(Drone.debug){
-            e.printStackTrace();
-         }
-         return false;
-      }
+
    }
-   public static void createWindow(String url, String fileName) {
+   public static void createWindow(String url, String fileName) throws Exception {
       System.out.println(fileName);
       JFrame frame = new JFrame(url);
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -59,7 +54,7 @@ public class PageDisplay {
       frame.setVisible(true);
    }
 
-   private static void createUI(final JFrame frame, String fileName){  
+   private static void createUI(final JFrame frame, String fileName) throws Exception{
       JPanel panel = new JPanel();
       LayoutManager layout = new FlowLayout();  
       panel.setLayout(layout);       
@@ -68,18 +63,17 @@ public class PageDisplay {
       jEditorPane.setEditable(false);
       //Could try to make links clickable within framework
       URL url = null;
-      try {
+
          url = new File("anthill/" + fileName).toURL();
-      } catch(Exception e){
-         e.printStackTrace();
-      }
-      try {
+
+
+
          System.out.println(url.toString());   
          jEditorPane.setPage(url);
-      } catch (IOException e) { 
+
          jEditorPane.setContentType("text/html");
          jEditorPane.setText("<html>Page not found.</html>");
-      }
+
 
       JScrollPane jScrollPane = new JScrollPane(jEditorPane);
       jScrollPane.setPreferredSize(new Dimension(540,400));      

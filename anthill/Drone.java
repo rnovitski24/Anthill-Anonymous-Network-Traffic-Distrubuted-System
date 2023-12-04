@@ -1,6 +1,11 @@
 package anthill;
 import anthill.util.Response;
 import anthill.util.RequestParam;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.*;
+
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
@@ -16,6 +21,8 @@ import static anthill.util.getPublicIP;
 
 
 public class Drone {
+
+    private static final Logger LOGGER = Logger.getLogger(Drone.class.getName());
 
     // Global Server Variables
     private static XmlRpcServer droneRpcServer;
@@ -75,54 +82,64 @@ public class Drone {
                     return potentialSuccessor;
                 } catch (Exception ex) {
                     if (debug) {
-                        System.out.println("Colony Member at Index " + i + " is Down. Got Error: " + ex.toString());
+                        LOGGER.log(Level.WARNING, "Colony Member at Index " + i + " is Down.", ex);
+
                     }
                 }
             }
         }
-        System.out.println("All Nodes Invalid. Reinitalize Network.");
+        if (debug) {
+            LOGGER.log(Level.SEVERE, "All Nodes Invalid. Reinitalize Network.");
+            System.exit(0);
+        }
         return null;
     }
 
 
 
     private synchronized void updateColony() {
+        LOGGER.log(Level.INFO, "Updating Colony");
         for (int i = 0; i < COL_SIZE - 1; i++) {
-            colonyTable[i + 1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
+            try {
+                colonyTable[i + 1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Error Updating Colony Member " + (i + 1), e);
+                // Do replacement
+            }
+
+            LOGGER.log(Level.FINEST, "Updated Colony Table:" + colonyTable.toString());
         }
     }
 
     /*
      * Generalized wrapper to send XML-RPC requests between nodes.
      */
-    private Object doExecute(String IP, String method, Object[] params) {
-        System.out.println(IP);
+    private Object doExecute(String IP, String method, Object[] params) throws Exception {
+        LOGGER.log(Level.FINE, "Executing " + method + " At " + IP);
         if (IP.equals(localIP)) {
             IP = "localhost";
         }
-        System.out.println(IP);
+        LOGGER.log(Level.FINE, "Sending request to localhost");
         try {
             globalConfig.setServerURL(new URL("http://" + IP + ":" + PORT));
             globalClient.setConfig(globalConfig);
             Object response = globalClient.execute(method, params);
-            if (debug) {
-                System.out.println("Response:" + response);
-            }
             return response;
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER.log(Level.WARNING, "Failed to Execute "+ method + " At " + IP, ex);
+            throw ex;
         }
-        return null;
+
     }
 
     /*
      * 
      */
-    private Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
-       RequestParam request = new RequestParam(pathLength, url, method, parameters);
+    private util.Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
+       util.RequestParam request = new util.RequestParam(pathLength, url, method, parameters);
         url = colonyTable[rand.nextInt(COL_SIZE)];
-        Response response = null;
+        util.Response response = null;
         try{
             // forward the request
             response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
@@ -133,7 +150,7 @@ public class Drone {
             }
             return response;
         } catch( Exception e){
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Error in passRequest", e);
         }
        return response;
     }
@@ -179,14 +196,14 @@ public class Drone {
                 }
                 return response;
             } catch( Exception e){
-                e.printStackTrace();
+                LOGGER.log(Level.WARNING, "Unable to Forward Request", e);
             }
         }
         else{
             try {
                 return util.fullfillHttpReq(request);
             } catch(Exception e){
-                e.printStackTrace();
+                LOGGER.log(Level.WARNING, "Unable to Complete Request", e);
             }
         }
         return null;
@@ -204,6 +221,7 @@ public class Drone {
      * successor.
      */
     public String getSuccessor(String senderIP) {
+        LOGGER.log(Level.FINE , "Gave Successor To" + senderIP);
         String nextLiveSuccessor = getNextLiveSuccessor();
         colonyTable[0] = senderIP;
         return nextLiveSuccessor;
@@ -238,8 +256,12 @@ public class Drone {
      */
     private boolean initializeNetwork() {
         // Load successor and colony table with own IP addr
-
-        String IP = util.getPublicIP();
+        String IP = null;
+        try{
+            IP = util.getPublicIP();
+        } catch (Exception e){
+            LOGGER.log(Level.SEVERE, "Unable to Obtain Local IP", e);
+        }
         successor = IP;
         System.out.println(IP);
         for (int i = 0; i < colonyTable.length; i++) {
@@ -261,8 +283,7 @@ public class Drone {
 
         } catch (Exception e) {
             // Handle any exceptions during server setup
-            System.err.println("Server Initialization Exception: " + e.toString());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
             System.exit(1);
         }
 
@@ -274,8 +295,12 @@ public class Drone {
      */
     public boolean joinNetwork(String bootstrapIP) {
 
-        if (!bootstrapIP.equals(localIP)) { 
-            doExecute(bootstrapIP, "Drone.updateQueenTable", new Object[]{localIP});
+        if (!bootstrapIP.equals(localIP)) {
+            try {
+                doExecute(bootstrapIP, "Drone.updateQueenTable", new Object[]{localIP});
+            }catch (Exception e){
+                LOGGER.log(Level.SEVERE, "Unable to Update Queen Table", e);
+            }
         }
 
         try {
@@ -289,16 +314,17 @@ public class Drone {
             System.out.print(successor);
             colonyTable[0] = successor;
         } catch (Exception e) {
-            if (debug) {
-                System.err.println("Bootstrap Client exception: " + e);
-            } else {
-                System.out.println("Client Initalization Error");
-            }
+
+            LOGGER.log(Level.SEVERE, "Bootstrap Client Exception" , e);
             System.exit(1);
         }
         // populate colonyTable with bootstrap's table
-        for (int i = 1; i < COL_SIZE; i++) {
-            colonyTable[i] = (String) doExecute(bootstrapIP, "Drone.getColonyMember", new Object[]{i});
+        try{
+            for (int i = 1; i < COL_SIZE; i++) {
+                colonyTable[i] = (String) doExecute(bootstrapIP, "Drone.getColonyMember", new Object[]{i});
+            }
+        }catch (Exception e){
+            LOGGER.log(Level.SEVERE, "Bootstrap Transfer Error", e );
         }
 
         // ask successor for their succesor (Index 0)
@@ -318,7 +344,7 @@ public class Drone {
                 server.start();
             } catch (Exception e) {
                 // Handle any exceptions during server setup
-                System.err.println("Server Initialization Exception: " + e);
+                LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
                 System.exit(1);
             }
             updateColony();
@@ -327,12 +353,30 @@ public class Drone {
         return true;
     }
 
+
+
     /* ~~~~~~~~~~MAIN METHOD:~~~~~~~~~~ */
 
     public static void main(String[] args) {
-        Drone ant = new Drone();
+        Handler fileHandler = null;
+        try {
+             fileHandler = new FileHandler("Drone%u.log", 0, 5);
+        } catch(Exception e ){
+            e.printStackTrace();
+        }
+        fileHandler.setFormatter(new SimpleFormatter());
+        //setting custom filter for FileHandler
 
-        localIP = util.getPublicIP();
+        LOGGER.addHandler(fileHandler);
+        LOGGER.setUseParentHandlers(false);
+
+
+        Drone ant = new Drone();
+        try {
+            localIP = util.getPublicIP();
+        } catch(Exception e){
+            LOGGER.log(Level.WARNING, "Unable to Get Local IP", e);
+        }
         if (args.length > 0) {
             if ("--initialize".equals(args[0])) {
                 ant.initializeNetwork();
@@ -341,11 +385,12 @@ public class Drone {
             } else if ("--ping".equals(args[0])) {
                 ant.ping();
             }
+        } else {
+            System.exit(0);
         }
-        debug = true;
 
         // ant.initializeNetwork();
-        System.out.println(util.getPublicIP());
+
         ant.dumpColony();
         //Response response = ant.sendRequest(6, "https://cds.cern.ch/record/2725767/files/dimuons.png",
                 //"get", new HashMap<String, String>());

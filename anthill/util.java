@@ -111,8 +111,8 @@ public class util {
     /*
      * Returns the private IP of current machine, or null if error is encountered.
      */
-    public static String getPrivateIP() {
-        try{
+    public static String getPrivateIP() throws Exception {
+
             Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
             while (networkInterfaces.hasMoreElements()) {
                 NetworkInterface ni = networkInterfaces.nextElement();
@@ -124,20 +124,17 @@ public class util {
                     }
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Error getting private IP: " + e.getMessage());
-        }
         return null;
     }
-    public static String getPublicIP(){
+    public static String getPublicIP() throws Exception{
         String urlString = "http://checkip.amazonaws.com/";
-        try {
-            URL url = new URL(urlString);
-            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-            return br.readLine();
-        }catch(Exception e){
-            System.out.print("Unable to contact IP server");
-            return null;
-        }
+        URL url = new URL(urlString);
+        BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+        return br.readLine();
+
+
+
+
+
     }
 }

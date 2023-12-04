@@ -1,4 +1,4 @@
-JFLAGS = -g -Xlint:unchecked
+JFLAGS = -Xlint:unchecked
 
 CLASSPATH= lib/*:.
 
@@ -19,7 +19,7 @@ CLASSES = \
 default: classes
 
 Drone.class: anthill.Drone.java
-	javac $(JFLAGS) -cp $(CLASSPATH) Drone.java
+	javac $(JFLAGS) -cp $(CLASSPATH) anthill.Drone.java
 anthill.PageDisplay.class: anthill.PageDisplay.java
 	javac $(JFLAGS) -cp $(CLASSPATH) anthill.PageDisplay.java
 classes: $(CLASSES:.java=.class)

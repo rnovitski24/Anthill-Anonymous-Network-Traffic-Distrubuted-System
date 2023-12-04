@@ -25,10 +25,10 @@ public class LogServer {
         while (true) {
             Socket socket = null;
             try {
-                System.out.println("Got log");
                 socket = serverSocket.accept();
+                System.out.println("Got log");
                 InputStream is = socket.getInputStream();
-                String host = socket.getInetAddress().getHostAddress();
+                String host = socket.getInetAddress().getHostName();
 
                 FileWriter fw = new FileWriter("ServerLogs/" + host, true);
                 BufferedWriter writer = new BufferedWriter(fw);

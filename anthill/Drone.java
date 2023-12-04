@@ -362,9 +362,11 @@ public class Drone {
     public static void main(String[] args) {
         Handler fileHandler = null;
         Handler socketHandler = null;
+
         try {
              fileHandler = new FileHandler("logs/Drone%u.log", 0,10);
-             socketHandler = new SocketHandler("139.140.201.53", 8809);
+             socketHandler = new SocketHandler("", 8809);
+             System.out.println("Connecting to logServer on port 8809");
 
         } catch(Exception e ){
             e.printStackTrace();

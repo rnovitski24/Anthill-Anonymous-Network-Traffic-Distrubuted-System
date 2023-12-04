@@ -33,7 +33,7 @@ COUNTER=0
 for ip_address in "${IP_LIST[@]}";
 do (
     echo "Pulling remote repository at IP $ip_address:"
-    ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && git pull > /dev/null 2>&1' # Replace '> /dev/null 2>&1' with '&' to show output
+    ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && mkdir logs && git pull > /dev/null 2>&1' # Replace '> /dev/null 2>&1' with '&' to show output
     echo "Most recent repo sucessfully pulled at IP $ip_address"
     ) &
     

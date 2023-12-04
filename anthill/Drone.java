@@ -98,7 +98,7 @@ public class Drone {
 
 
     private synchronized void updateColony() {
-        LOGGER.log(Level.INFO, "Updating Colony");
+        LOGGER.log(Level.FINE, "Updating Colony");
         for (int i = 0; i < COL_SIZE - 1; i++) {
             try {
                 colonyTable[i + 1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
@@ -362,7 +362,7 @@ public class Drone {
     public static void main(String[] args) {
         Handler fileHandler = null;
         try {
-             fileHandler = new FileHandler("logs/Drone%u.log", 0,1);
+             fileHandler = new FileHandler("logs/Drone%u.log", 0,10);
         } catch(Exception e ){
             e.printStackTrace();
         }

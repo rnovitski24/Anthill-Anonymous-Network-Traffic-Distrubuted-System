@@ -37,7 +37,7 @@ do (
     echo "Most recent repo sucessfully pulled at IP $ip_address"
     ) &
     
-    ((COUNTER++))
+    ((COUNTER++)) # Incrememt counter to add another job to current list
 
     if [ "$COUNTER" -ge "$MAX_JOBS" ]; then
         wait

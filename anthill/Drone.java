@@ -361,16 +361,22 @@ public class Drone {
 
     public static void main(String[] args) {
         Handler fileHandler = null;
+        Handler socketHandler = null;
         try {
              fileHandler = new FileHandler("logs/Drone%u.log", 0,10);
+             socketHandler = new SocketHandler("hopper.bowdoin.edu", 8809);
+
         } catch(Exception e ){
             e.printStackTrace();
         }
         fileHandler.setFormatter(new SimpleFormatter());
+        socketHandler.setFormatter(new SimpleFormatter());
         //setting custom filter for FileHandler
         fileHandler.setLevel(Level.ALL);
+        socketHandler.setLevel(Level.ALL);
 
         LOGGER.addHandler(fileHandler);
+        LOGGER.addHandler(socketHandler);
         LOGGER.setUseParentHandlers(false);
 
 

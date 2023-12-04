@@ -366,6 +366,7 @@ public class Drone {
         }
         fileHandler.setFormatter(new SimpleFormatter());
         //setting custom filter for FileHandler
+        fileHandler.setLevel(Level.FINEST);
 
         LOGGER.addHandler(fileHandler);
         LOGGER.setUseParentHandlers(false);

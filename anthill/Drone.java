@@ -360,7 +360,7 @@ public class Drone {
     public static void main(String[] args) {
         Handler fileHandler = null;
         try {
-             fileHandler = new FileHandler("Drone%u.log", 0, 5);
+             fileHandler = new FileHandler("logs/Drone%u.log", 0,1);
         } catch(Exception e ){
             e.printStackTrace();
         }

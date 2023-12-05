@@ -176,12 +176,12 @@ public class Drone {
         }
     }
 
-    static class Updater extends Thread {
+    private static class Updater implements Runnable {
         private final Drone ant;
         public Updater(Drone ant) {
             this.ant = ant;
         }
-        public static void run(Drone ant) {
+        public void run() {
             while (true) {
                 try {
                     Thread.sleep(30000);
@@ -461,7 +461,7 @@ public class Drone {
         ant.dumpColony();
         Scanner scan = new Scanner(System.in);
         Updater updater = new Updater(ant);
-        updater.start();
+        new Thread(updater).start();
         while (true) {
             System.out.println("Send Request of Format: [path len], [url], [method], [parameter], [value], [parameter], [value]");
             String command = scan.nextLine();

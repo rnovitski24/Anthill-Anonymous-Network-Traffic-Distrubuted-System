@@ -10,6 +10,47 @@ import java.nio.file.Paths;
 
 public class LogServer {
     private static final int PORT_NUM = 8889;
+
+    private static class ClientHandler implements Runnable{
+        private final Socket socket;
+
+        public ClientHandler(Socket socket){
+            this.socket = socket;
+        }
+        public void run(){
+            PrintWriter pw = null;
+            try {
+                InputStream is = socket.getInputStream();
+                String host = socket.getInetAddress().getHostName();
+                BufferedReader br = new BufferedReader(new InputStreamReader(is, "US-ASCII"));
+
+                FileWriter fw = new FileWriter("ServerLogs/" + host + ".log", true);
+                BufferedWriter writer = new BufferedWriter(fw);
+                pw = new PrintWriter(writer);
+
+
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(host + ":" + "[" + line + "]");
+                    pw.println(host + ":" + "[" + line + "]");
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            }  finally {
+
+                if (socket != null) {
+                    try {
+                        pw.close();
+                        socket.close();
+                    } catch (IOException ignored) {
+                        ignored.printStackTrace();
+                    }
+                }
+
+        }
+
+
+    }
     public static void main(String args[]) {
         ServerSocketFactory serverSocketFactory =
                 ServerSocketFactory.getDefault();
@@ -24,11 +65,17 @@ public class LogServer {
         System.out.printf("LogServer running on port: %s%n", PORT_NUM);
         while (true) {
             Socket socket = null;
-            PrintWriter pw = null;
             try {
                 socket = serverSocket.accept();
+                ClientHandler handle = new ClientHandler(socket);
+                new Thread(handle).start();
+
+            } catch(Exception e){
+                e.printStackTrace();
+                System.exit(1);
+            }
                 //System.out.println("Got log");
-                InputStream is = socket.getInputStream();
+                /*InputStream is = socket.getInputStream();
                 String host = socket.getInetAddress().getHostName();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is, "US-ASCII"));
 
@@ -56,7 +103,7 @@ public class LogServer {
                         ignored.printStackTrace();
                     }
                 }
-            }
+            }*/
         }
     }
 }

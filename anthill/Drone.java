@@ -389,6 +389,7 @@ public class Drone {
         boolean init = false;
         boolean join = false;
         boolean log = false;
+        boolean background = false;
         String boot = "";
         String logIP = "";
         for (int i = 0; i < args.length; i++) {
@@ -405,6 +406,8 @@ public class Drone {
                 log = true;
                 logIP = args[i + 1];
                 i++;
+            } else if ("--background".equals(args[i])) {
+                background = true;
             } else {
                 System.out.println("Invalid Parameter");
                 System.exit(0);
@@ -462,7 +465,7 @@ public class Drone {
         Scanner scan = new Scanner(System.in);
         Updater updater = new Updater(ant);
         new Thread(updater).start();
-        while (true) {
+        while (!background) {
             System.out.println("Send Request of Format: [path len], [url], [method], [parameter], [value], [parameter], [value]");
             String command;
             try {
@@ -493,6 +496,13 @@ public class Drone {
                 PageDisplay.savePhoto(rep.dataType, name, rep.data);
             } catch(Exception e){
                 //do nothing
+            }
+        }
+        while(true){
+            try {
+                Thread.sleep(1000);
+            } catch(Exception y){
+                y.printStackTrace();
             }
         }
 

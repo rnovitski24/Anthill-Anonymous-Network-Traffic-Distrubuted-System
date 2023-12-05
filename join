@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp "lib/*:." anthill/Drone --join 3.89.231.167 --log 54.82.69.8 &
+java -cp "lib/*:." anthill/Drone --join 3.89.231.167 --log 54.82.69.8 --background &

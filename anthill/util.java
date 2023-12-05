@@ -19,17 +19,14 @@ import java.util.Enumeration;
 import java.util.HashMap;
 
 public class util {
+    /**
+     * Class designed to assist with the passing of both response data and important typing
+     */
     public static class Response implements Serializable {
         public final String dataType;
-
         public final String url;
         public final byte[] data;
         public final int code;
-
-        /*
-         * Empty constructor method
-         */
-
 
         public Response(int code, String url,  String dataType, byte[] data) {
             this.dataType = dataType;
@@ -39,6 +36,9 @@ public class util {
         }
     }
 
+    /**
+     * Class to help pass requests from server to server.
+     */
     public static class RequestParam implements Serializable{
         public int pathLength;
         public final String url;
@@ -48,7 +48,7 @@ public class util {
 
 
 
-        /*
+        /**
          * RequestParam constructor sets the request's path length, url, method, and parameters
          */
         public RequestParam(int pathLength, String url, String method, HashMap<String, String> parameters){
@@ -59,14 +59,15 @@ public class util {
         }
     }
 
-    /*
-     * Fullfills request and returns html text or binary of response
+    /**
+     * Fullfills request and returns full Response object
      */
     public static Response fullfillHttpReq(RequestParam requestParam) throws Exception {
         //byte[] finalData = null;
         //final String dataType;
         Response responseData;
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            // Assign correct method
             ClassicRequestBuilder requestBuild;
             if (requestParam.method.equals("get")) {
                 requestBuild = ClassicRequestBuilder.get(requestParam.url);
@@ -87,19 +88,17 @@ public class util {
             for (String param : requestParam.parameters.keySet()) {
                 requestBuild.addParameter(param, requestParam.parameters.get(param));
             }
+            //Assemble request
             ClassicHttpRequest request = requestBuild.build();
-
+            //Execute request
             responseData = httpclient.execute(request, response -> {
-                //System.out.println(response.getCode() + " " + response.getReasonPhrase());
                 String dataType = response.getHeader("content-type").getValue();
                 int code = response.getCode();
                 final HttpEntity entity1 = response.getEntity();
+                // Write response data to string, then create response object with data
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 entity1.writeTo(stream);
                 byte[] inter = stream.toByteArray();
-
-                // do something useful with the response body
-                // and ensure it is fully consumed
                 EntityUtils.consume(entity1);
                 //System.out.println(finalString);
                 return new Response (code, requestParam.url,  dataType, inter);
@@ -108,7 +107,7 @@ public class util {
 
         return responseData;
     }
-    /*
+    /**
      * Returns the private IP of current machine, or null if error is encountered.
      */
     public static String getPrivateIP() throws Exception {
@@ -126,15 +125,17 @@ public class util {
             }
         return null;
     }
+
+    /**
+     * Returns public IP of current machine
+     * @return
+     * @throws Exception
+     */
     public static String getPublicIP() throws Exception{
         String urlString = "http://checkip.amazonaws.com/";
         URL url = new URL(urlString);
         BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
         return br.readLine();
-
-
-
-
 
     }
 }

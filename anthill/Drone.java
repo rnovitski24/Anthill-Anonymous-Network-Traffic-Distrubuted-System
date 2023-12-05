@@ -1,11 +1,8 @@
 package anthill;
 import anthill.util.Response;
 import anthill.util.RequestParam;
-
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.*;
-
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
@@ -15,27 +12,20 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import java.util.*;
 import java.net.URL;
 
-
-
-import static anthill.util.getPublicIP;
-
-
+/**
+ * General Class That Runs A Node Operating in the AntHill Framework
+ */
 public class Drone {
-
+    // Initialize Logger
     private static final Logger LOGGER = Logger.getLogger(Drone.class.getName());
-
     private static final int LOG_PORT = 8056;
 
     // Global Server Variables
     private static XmlRpcServer droneRpcServer;
     private static XmlRpcServer xmlRpcServer;
-    private static WebServer server;
     private static XmlRpcClient globalClient;
     private static XmlRpcClientConfigImpl globalConfig;
-
-    // Debugging Boolean
-    public static boolean debug;
-
+    // Random Class for Pass Request
     public static Random rand = new Random();
 
     // Constants
@@ -58,7 +48,7 @@ public class Drone {
      */
     private static String[] colonyTable = new String[COL_SIZE];
 
-    /*
+    /**
      * Constructor for Drone class
      */
     public Drone() {
@@ -67,7 +57,7 @@ public class Drone {
 
     /* ~~~~~~~~~~HELPER FUNCTIONS:~~~~~~~~~~ */
 
-    /*
+    /**
      * Checks if machine at specified colony table index is available
      * RETURNS IP address if available, and null if unavailable
      */
@@ -83,22 +73,19 @@ public class Drone {
                     // If ping is successful, update successor
                     return potentialSuccessor;
                 } catch (Exception ex) {
-                    if (debug) {
-                        LOGGER.log(Level.WARNING, "Colony Member at Index " + i + " is Down.", ex);
-
-                    }
+                    LOGGER.log(Level.WARNING, "Colony Member at Index " + i + " is Down.", ex);
                 }
             }
         }
-        if (debug) {
-            LOGGER.log(Level.SEVERE, "All Nodes Invalid. Reinitalize Network.");
-            System.exit(0);
-        }
+        LOGGER.log(Level.SEVERE, "All Nodes Invalid. Reinitalize Network.");
+        System.exit(0);
         return null;
     }
 
 
-
+    /**
+    Update Colony
+     */
     private synchronized void updateColony() {
         LOGGER.log(Level.FINEST, "Updating Colony");
         for (int i = 0; i < COL_SIZE - 1; i++) {
@@ -119,9 +106,9 @@ public class Drone {
         }
     }
 
-    /*
+    /**
      * Generalized wrapper to send XML-RPC requests between nodes.
-     */
+     **/
     private synchronized Object doExecute(String IP, String method, Object[] params) throws Exception {
         LOGGER.log(Level.FINEST, "Executing " + method + " At " + IP);
         if (IP.equals(localIP)) {
@@ -141,8 +128,8 @@ public class Drone {
 
     }
 
-    /*
-     * 
+    /**
+     * Initiates sending a request through the AntHill Network
      */
     private synchronized Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
         LOGGER.log(Level.INFO, "Sending Request to " + url);
@@ -166,7 +153,7 @@ public class Drone {
 
 
 
-    /*
+    /**
      * Dumps colonyTable values
      */
     private void dumpColony() {
@@ -178,11 +165,18 @@ public class Drone {
         }
     }
 
+    /**
+     * Runnable thread that updates the colony table in the background while the server is running
+     */
     private static class Updater implements Runnable {
         private final Drone ant;
         public Updater(Drone ant) {
             this.ant = ant;
         }
+
+        /**
+         * Updates the colony table every 30 secs
+         */
         public void run() {
             while (true) {
                 try {
@@ -198,7 +192,13 @@ public class Drone {
 
     /* ~~~~~~~~~~XML-RPC FUNCTIONS~~~~~~~~~~ */
 
-
+    /**
+     * Receives request and either responds with the response in form Response or returns IP that request should be sent to
+     * instead. When the request is actually processed, the server can either pass the request or fullfill it depending
+     * on path length
+     * @param request
+     * @return Response
+     */
     public synchronized Response passRequest(RequestParam request){
         LOGGER.log(Level.INFO, "Passing Request");
         String url = "";
@@ -236,7 +236,7 @@ public class Drone {
         }
         return null;
     }
-    /*
+    /**
      * Server up confirmation function.
      */
     public boolean ping() {
@@ -244,7 +244,7 @@ public class Drone {
 
     }
 
-    /*
+    /**
      * Gets first successor to respond and stores sender's IP as its own first
      * successor.
      */
@@ -255,7 +255,7 @@ public class Drone {
         return nextLiveSuccessor;
     }
 
-    /*
+    /**
      * Gets the colonyTable value at specified index.
      */
     public synchronized String getColonyMember(int index) {
@@ -264,22 +264,10 @@ public class Drone {
         return colonyTable[index];
     }
 
-    /*
-     * Updates bootstrap node whenever a new node joins. Only called via queen
-     */
-    public synchronized void updateQueenTable(String newDroneIP) {
-        if (newDroneIP.equals(localIP)) {
-            updateColony();
-            System.out.println("Boostrap colony updated.");
-        }
-        else {
-            System.out.println("Given IP was not the Queen node.");
-        }
-    }
 
     /* ~~~~~~~~~~INITIALIZATION FUNCTIONS:~~~~~~~~~~ */
 
-    /*
+    /**
      * Starts server when system has no current clients.
      */
     private boolean initializeNetwork() {
@@ -319,21 +307,11 @@ public class Drone {
         return false;
     }
 
-    /*
+    /**
      * Starts server and populates colonyTable when system has > 1 client.
      */
     public boolean joinNetwork(String bootstrapIP) {
         LOGGER.log(Level.FINE , "Joining Network at " + bootstrapIP);
-        /*
-        if (!bootstrapIP.equals(localIP)) {
-            try {
-                doExecute(bootstrapIP, "Drone.updateQueenTable", new Object[]{localIP});
-            }catch (Exception e){
-                LOGGER.log(Level.SEVERE, "Unable to Update Queen Table", e);
-            }
-        }
-        */
-
         try {
             globalClient = new XmlRpcClient();
             globalConfig = new XmlRpcClientConfigImpl();
@@ -395,6 +373,7 @@ public class Drone {
         boolean background = false;
         String boot = "";
         String logIP = "";
+        // Parse command line args
         for (int i = 0; i < args.length; i++) {
             if ("--initialize".equals(args[i])) {
                 init = true;
@@ -412,7 +391,7 @@ public class Drone {
             } else if ("--background".equals(args[i])) {
                 background = true;
             } else {
-                System.out.println("Invalid Parameter");
+                System.out.println("Invalid Parameters");
                 System.exit(0);
             }
         }
@@ -439,13 +418,12 @@ public class Drone {
 
             } catch (Exception e) {
                 e.printStackTrace();
+                System.exit(1);
             }
-            assert socketHandler != null;
             socketHandler.setFormatter(new SimpleFormatter());
             socketHandler.setLevel(Level.ALL);
             LOGGER.addHandler(socketHandler);
         }
-
         LOGGER.setLevel(Level.FINE);
         LOGGER.setUseParentHandlers(false);
 
@@ -463,11 +441,13 @@ public class Drone {
         if (join) {
             ant.joinNetwork(boot);
         }
+        if(!background) ant.dumpColony();
 
-        ant.dumpColony();
-        Scanner scan = new Scanner(System.in);
+        // Starts background updater
         Updater updater = new Updater(ant);
         new Thread(updater).start();
+
+        Scanner scan = new Scanner(System.in);
         while (!background) {
             System.out.println("Send Request of Format: [path len], [url], [method], [parameter], [value], [parameter], [value]");
             String command;
@@ -508,10 +488,6 @@ public class Drone {
                 y.printStackTrace();
             }
         }
-
-
-
-            //ant.dumpColony();
 
     }
 }

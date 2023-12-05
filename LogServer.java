@@ -9,15 +9,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class LogServer {
+    /**
+     * Port number that loggers communicate on
+     */
     private static final int PORT_NUM = 8056;
 
     private static class ClientHandler implements Runnable {
         private final Socket socket;
 
+        /**
+         * Helper Class to enable multithreading of log Server
+         * @param socket
+         */
         public ClientHandler(Socket socket) {
             this.socket = socket;
         }
 
+        /**
+         * Helper method that allows the server to display and log all the data all at once on multiple threads.
+         */
         public void run() {
             PrintWriter pw = null;
             try {
@@ -76,36 +86,7 @@ public class LogServer {
                 e.printStackTrace();
                 System.exit(1);
             }
-                //System.out.println("Got log");
-                /*InputStream is = socket.getInputStream();
-                String host = socket.getInetAddress().getHostName();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is, "US-ASCII"));
 
-                FileWriter fw = new FileWriter("ServerLogs/" + host +".log", true);
-                BufferedWriter writer = new BufferedWriter(fw);
-                pw = new PrintWriter(writer);
-
-
-
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    System.out.println(host + ":" + "["+line+"]");
-                    pw.println(host + ":" + "[" + line + "]");
-                }
-            } catch (IOException exception) {
-                exception.printStackTrace();
-                // Just handle next request.
-            } finally {
-
-                if (socket != null) {
-                    try {
-                        pw.close();
-                        socket.close();
-                    } catch (IOException ignored) {
-                        ignored.printStackTrace();
-                    }
-                }
-            }*/
         }
     }
 }

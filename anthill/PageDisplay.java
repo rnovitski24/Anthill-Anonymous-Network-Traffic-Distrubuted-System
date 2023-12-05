@@ -21,19 +21,27 @@ import javax.imageio.ImageIO;
 
 public class PageDisplay {
 
-
-   public static boolean saveHtml(String filename, byte[] data ){
+   /**
+    * Saves an Array of bytes to local memory as an html file
+    * @param filename
+    * @param data
+    * @return
+    * @throws Exception
+    */
+   public static boolean saveHtml(String filename, byte[] data) throws Exception{
       Path filePath = Paths.get("anthill/" + filename);
-      try {
-         Files.write(filePath, data);
-         return true;
-      }catch(Exception e){
-         if(Drone.debug) {
-            e.printStackTrace();
-         }
-         return false;
-      }
+      Files.write(filePath, data);
+      return true;
    }
+
+   /**
+    * Saves array of bytes to memory as photo of type dataType
+    * @param datatype
+    * @param filename
+    * @param data
+    * @return
+    * @throws Exception
+    */
    public static boolean savePhoto(String datatype, String filename, byte[] data) throws Exception{
 
       ByteArrayInputStream bis = new ByteArrayInputStream(data);
@@ -44,6 +52,13 @@ public class PageDisplay {
          return true;
 
    }
+
+   /**
+    * Displays html page with title url based on html file fileName
+    * @param url
+    * @param fileName
+    * @throws Exception
+    */
    public static void createWindow(String url, String fileName) throws Exception {
       System.out.println(fileName);
       JFrame frame = new JFrame(url);
@@ -54,6 +69,12 @@ public class PageDisplay {
       frame.setVisible(true);
    }
 
+   /**
+    * Helper method of create window that actually creates the window
+    * @param frame
+    * @param fileName
+    * @throws Exception
+    */
    private static void createUI(final JFrame frame, String fileName) throws Exception{
       JPanel panel = new JPanel();
       LayoutManager layout = new FlowLayout();  
@@ -62,18 +83,14 @@ public class PageDisplay {
       JEditorPane jEditorPane = new JEditorPane();
       jEditorPane.setEditable(false);
       //Could try to make links clickable within framework
+      // URLs are also not just for webpages apparently, can point to files
       URL url = null;
-
-         url = new File("anthill/" + fileName).toURL();
-
-
-
-         System.out.println(url.toString());   
-         jEditorPane.setPage(url);
-
-         jEditorPane.setContentType("text/html");
-         jEditorPane.setText("<html>Page not found.</html>");
-
+      url = new File("anthill/" + fileName).toURL();
+      //System.out.println(url.toString());
+      // Set url call assigns html file as input for the output UI
+      jEditorPane.setPage(url);
+         //jEditorPane.setContentType("text/html");
+         //jEditorPane.setText("<html>Page not found.</html>");
 
       JScrollPane jScrollPane = new JScrollPane(jEditorPane);
       jScrollPane.setPreferredSize(new Dimension(540,400));      

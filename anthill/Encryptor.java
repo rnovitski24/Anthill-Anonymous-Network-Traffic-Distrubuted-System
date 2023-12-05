@@ -4,7 +4,7 @@ package anthill;
 
 // Global/Instance vars HERE
 
-/*
+/**
  * Constructor for Encryptor class.
  */
 public class Encryptor {

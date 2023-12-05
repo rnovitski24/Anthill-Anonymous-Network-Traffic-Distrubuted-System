@@ -24,7 +24,7 @@ IP_LIST=(54.204.131.69 54.147.28.130 3.128.204.116 3.135.204.68 54.241.136.136 5
 
 #IP_LIST="IPList.txt"
 
-BOOTSTRAP_IP=3.89.231.167 
+BOOTSTRAP_IP=3.89.231.167
 echo "Setting up Queen node at IP $BOOTSTRAP_IP:"
 (
 ssh -i "$SSH_KEY" -f "$SSH_USER@$BOOTSTRAP_IP" 'cd p4-final-r-2 && make && nohup ./init &' # replace '&' with ' > /dev/null 2>&1 &' to throw away output
@@ -59,7 +59,7 @@ for ip_address in "${IP_LIST[@]}";
 do
   echo "Bootstrap: $BOOTSTRAP_IP"
   echo "Setting up Drone node at IP $ip_address:"
-  ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && nohup ./join $BOOTSTRAP_IP > /dev/null 2>&1' # replace '&' with ' > /dev/null 2>&1 &' to throw away output
+  ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && nohup ./join $BOOTSTRAP_IP &' # replace '&' with ' > /dev/null 2>&1 &' to throw away output
   sleep 5
 done 
 

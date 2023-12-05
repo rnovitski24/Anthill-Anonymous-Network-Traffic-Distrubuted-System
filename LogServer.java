@@ -11,13 +11,14 @@ import java.nio.file.Paths;
 public class LogServer {
     private static final int PORT_NUM = 8889;
 
-    private static class ClientHandler implements Runnable{
+    private static class ClientHandler implements Runnable {
         private final Socket socket;
 
-        public ClientHandler(Socket socket){
+        public ClientHandler(Socket socket) {
             this.socket = socket;
         }
-        public void run(){
+
+        public void run() {
             PrintWriter pw = null;
             try {
                 InputStream is = socket.getInputStream();
@@ -34,9 +35,9 @@ public class LogServer {
                     System.out.println(host + ":" + "[" + line + "]");
                     pw.println(host + ":" + "[" + line + "]");
                 }
-            } catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
-            }  finally {
+            } finally {
 
                 if (socket != null) {
                     try {
@@ -47,9 +48,10 @@ public class LogServer {
                     }
                 }
 
+            }
+
+
         }
-
-
     }
     public static void main(String args[]) {
         ServerSocketFactory serverSocketFactory =

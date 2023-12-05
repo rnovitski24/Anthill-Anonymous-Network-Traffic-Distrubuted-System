@@ -464,7 +464,19 @@ public class Drone {
         new Thread(updater).start();
         while (true) {
             System.out.println("Send Request of Format: [path len], [url], [method], [parameter], [value], [parameter], [value]");
-            String command = scan.nextLine();
+            String command;
+            try {
+                command = scan.nextLine();
+            } catch(Exception e){
+                LOGGER.log(Level.INFO, "Running in Background");
+                while(true){
+                    try {
+                        Thread.sleep(1000);
+                    } catch(Exception y){
+                        y.printStackTrace();
+                    }
+                }
+            }
             String[] reqArr = command.split(",");
             int path = Integer.parseInt(reqArr[0]);
             String url = reqArr[1];

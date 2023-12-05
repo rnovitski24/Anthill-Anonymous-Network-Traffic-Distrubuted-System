@@ -55,7 +55,7 @@ sleep 3 # Gives time for setup
 #fi
 
 
-for ip_address in $(IP_LIST);
+for ip_address in "${IP_LIST[@]}";
 do
   echo "Bootstrap: $BOOTSTRAP_IP"
   echo "Setting up Drone node at IP $ip_address:"

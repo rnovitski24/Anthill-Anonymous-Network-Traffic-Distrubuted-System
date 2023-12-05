@@ -32,26 +32,27 @@ ssh -i "$SSH_KEY" -f "$SSH_USER@$BOOTSTRAP_IP" 'cd p4-final-r-2 && make && nohup
 wait
 PING_BS=false
 PING_COUNT=0
-sleep 3 # Gives time for setup
-while [[ "$PING_BS" == false && "$PING_COUNT" -lt 3 ]]; do
-    echo "Checking if Queen node is ready..."
-    (
-    ssh -i "$SSH_KEY" "$SSH_USER@$BOOTSTRAP_IP" 'cd p4-final-r-2 && java -cp lib/*:. anthill.Drone --ping'
-    ) &
-    wait
-    if [ $? -eq 0 ]; then
-        PING_BS=true
-        echo "Queen node is ready."
-    else
-        sleep 5
-        ((PING_COUNT++))
-    fi
-done
 
-if [ $PING_COUNT -ge 3 ]; then
-    echo "Could not ping Queen node."
-    exit 1
-fi
+sleep 3 # Gives time for setup
+#while [[ "$PING_BS" == false && "$PING_COUNT" -lt 3 ]]; do
+#    echo "Checking if Queen node is ready..."
+#    (
+#    ssh -i "$SSH_KEY" "$SSH_USER@$BOOTSTRAP_IP" 'cd p4-final-r-2 && java -cp lib/*:. anthill.Drone --ping --background &'
+#    ) &
+#    wait
+#    if [ $? -eq 0 ]; then
+#        PING_BS=true
+#        echo "Queen node is ready."
+#    else
+#        sleep 5
+#        ((PING_COUNT++))
+#    fi
+#done
+#
+#if [ $PING_COUNT -ge 3 ]; then
+#    echo "Could not ping Queen node."
+#    exit 1
+#fi
 
 
 for ip_address in "${IP_LIST[@]:1}"; do

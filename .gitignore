@@ -11,4 +11,4 @@
 .DS_STORE
 *.iml
 *.args
-*.log
+*.log*

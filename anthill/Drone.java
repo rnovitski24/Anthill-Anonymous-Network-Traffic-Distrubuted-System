@@ -107,7 +107,10 @@ public class Drone {
                 // Do replacement
             }
 
-            LOGGER.log(Level.FINEST, "Updated Colony Table:" + colonyTable.toString());
+            LOGGER.log(Level.FINE, "Updated Colony Table");
+            for(String s:colonyTable){
+                LOGGER.log(Level.FINEST, s);
+            }
         }
     }
 
@@ -360,59 +363,83 @@ public class Drone {
     /* ~~~~~~~~~~MAIN METHOD:~~~~~~~~~~ */
 
     public static void main(String[] args) {
+        Drone ant = new Drone();
+        // parse input
+        boolean init = false;
+        boolean join = false;
+        boolean log = false;
+        String boot = "";
+        String logIP = "";
+        for(int i = 0; i < args.length; i++ ) {
+            if ("--initialize".equals(args[i])) {
+                init = true;
+            } else if ("--join".equals(args[i])) {
+                join = true;
+                boot = args[i+1];
+                i++;
+                // assuming the second argument is the IP address to join
+            } else if ("--ping".equals(args[i])) {
+                ant.ping();
+            }else if ("--log".equals(args[i])){
+                log = true;
+                logIP = args[i+1];
+                i++;
+            } else {
+                System.out.println("Invalid Parameter");
+                System.exit(0);
+            }
+        }
+
+        // Setup Logging
         Handler fileHandler = null;
-        //Handler socketHandler = null;
+        Handler socketHandler = null;
 
         try {
              fileHandler = new FileHandler("logs/Drone%u.log", 0,10);
-             //socketHandler = new SocketHandler("", 8809);
              //System.out.println("Connecting to logServer on port 8809");
 
         } catch(Exception e ){
             e.printStackTrace();
         }
         fileHandler.setFormatter(new SimpleFormatter());
-        //socketHandler.setFormatter(new SimpleFormatter());
-        //setting custom filter for FileHandler
         fileHandler.setLevel(Level.ALL);
-        //socketHandler.setLevel(Level.ALL);
-
         LOGGER.addHandler(fileHandler);
-        //LOGGER.addHandler(socketHandler);
+
+        if(log){
+            try {
+                socketHandler = new SocketHandler(logIP, 8809);
+                System.out.println("Connecting to logServer at "+ logIP + "on port 8809");
+
+            } catch(Exception e ){
+                e.printStackTrace();
+            }
+            assert socketHandler != null;
+            socketHandler.setFormatter(new SimpleFormatter());
+            socketHandler.setLevel(Level.ALL);
+            LOGGER.addHandler(socketHandler);
+        }
+
         LOGGER.setLevel(Level.ALL);
         LOGGER.setUseParentHandlers(false);
 
 
-        Drone ant = new Drone();
+
         try {
             localIP = util.getPublicIP();
         } catch(Exception e){
             LOGGER.log(Level.SEVERE, "Unable to Get Local IP", e);
             System.exit(1);
         }
-        if (args.length > 0) {
-            if ("--initialize".equals(args[0])) {
-                ant.initializeNetwork();
-            } else if ("--join".equals(args[0]) && args.length > 1) {
-                ant.joinNetwork(args[1]); // assuming the second argument is the IP address to join
-            } else if ("--ping".equals(args[0])) {
-                ant.ping();
-            }
-        } else {
-            System.exit(0);
+
+        if(init) {
+            ant.initializeNetwork();
+        }
+        if(join){
+            ant.joinNetwork(boot);
         }
 
-        // ant.initializeNetwork();
-
         ant.dumpColony();
-        //Response response = ant.sendRequest(6, "https://cds.cern.ch/record/2725767/files/dimuons.png",
-                //"get", new HashMap<String, String>());
-        //System.out.println(response.dataType);
 
-        //String filename = response.url.substring(response.url.lastIndexOf('/') + 1);
-
-        //System.out.println(PageDisplay.savePhoto(response.dataType, filename, response.data));
-        //System.exit(0);
         while(true){
             try {
                 Thread.sleep(10000);

@@ -40,8 +40,8 @@ public class LogServer {
 
                 String line = null;
                 while ((line = br.readLine()) != null) {
-                    System.out.println(host + line);
-                    pw.println(host + line);
+                    System.out.println(host + ":" + "["+line+"]");
+                    pw.println(host + ":" + "[" + line + "]");
                 }
             } catch (IOException exception) {
                 exception.printStackTrace();

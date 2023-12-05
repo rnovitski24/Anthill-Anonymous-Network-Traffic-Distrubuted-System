@@ -100,7 +100,7 @@ public class Drone {
 
 
     private synchronized void updateColony() {
-        LOGGER.log(Level.FINE, "Updating Colony");
+        LOGGER.log(Level.FINEST, "Updating Colony");
         for (int i = 0; i < COL_SIZE - 1; i++) {
             try {
                 colonyTable[i + 1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
@@ -109,7 +109,7 @@ public class Drone {
                 // Do replacement
             }
 
-            LOGGER.log(Level.FINE, "Updated Colony Table");
+            LOGGER.log(Level.FINEST, "Updated Colony Table");
             StringBuilder stB = new StringBuilder();
             stB.append("Dumping Colony Table:\n");
             for(String s:colonyTable){
@@ -123,7 +123,7 @@ public class Drone {
      * Generalized wrapper to send XML-RPC requests between nodes.
      */
     private synchronized Object doExecute(String IP, String method, Object[] params) throws Exception {
-        LOGGER.log(Level.FINE, "Executing " + method + " At " + IP);
+        LOGGER.log(Level.FINEST, "Executing " + method + " At " + IP);
         if (IP.equals(localIP)) {
             IP = "localhost";
         }
@@ -249,7 +249,7 @@ public class Drone {
      * successor.
      */
     public String getSuccessor(String senderIP) {
-        LOGGER.log(Level.FINE , "Gave Successor To" + senderIP);
+        LOGGER.log(Level.FINEST , "Gave Successor To" + senderIP);
         String nextLiveSuccessor = getNextLiveSuccessor();
         colonyTable[0] = senderIP;
         return nextLiveSuccessor;
@@ -259,7 +259,7 @@ public class Drone {
      * Gets the colonyTable value at specified index.
      */
     public synchronized String getColonyMember(int index) {
-        LOGGER.log(Level.FINE , "Gave Colony Member at Index " + index);
+        LOGGER.log(Level.FINEST , "Gave Colony Member at Index " + index);
         // returns member of colony table at index
         return colonyTable[index];
     }
@@ -284,7 +284,7 @@ public class Drone {
      */
     private boolean initializeNetwork() {
         // Load successor and colony table with own IP addr
-        LOGGER.log(Level.FINE , "Initializing Network");
+        LOGGER.log(Level.INFO , "Initializing Network");
         String IP = null;
         try{
             IP = util.getPublicIP();
@@ -445,7 +445,7 @@ public class Drone {
             LOGGER.addHandler(socketHandler);
         }
 
-        LOGGER.setLevel(Level.ALL);
+        LOGGER.setLevel(Level.FINE);
         LOGGER.setUseParentHandlers(false);
 
 

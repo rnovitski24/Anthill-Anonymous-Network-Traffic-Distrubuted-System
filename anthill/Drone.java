@@ -120,7 +120,7 @@ public class Drone {
     /*
      * Generalized wrapper to send XML-RPC requests between nodes.
      */
-    private Object doExecute(String IP, String method, Object[] params) throws Exception {
+    private synchronized Object doExecute(String IP, String method, Object[] params) throws Exception {
         LOGGER.log(Level.FINE, "Executing " + method + " At " + IP);
         if (IP.equals(localIP)) {
             IP = "localhost";
@@ -142,7 +142,7 @@ public class Drone {
     /*
      * 
      */
-    private util.Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
+    private synchronized Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
         LOGGER.log(Level.INFO, "Sending Request to " + url);
         RequestParam request = new RequestParam(pathLength, url, method, parameters);
         url = colonyTable[rand.nextInt(COL_SIZE)];
@@ -176,10 +176,28 @@ public class Drone {
         }
     }
 
+    static class Updater extends Thread {
+        private final Drone ant;
+        public Updater(Drone ant) {
+            this.ant = ant;
+        }
+        public static void run(Drone ant) {
+            while (true) {
+                try {
+                    Thread.sleep(30000);
+                } catch (Exception e) {
+                    System.out.println("No Sleep");
+                }
+                ant.updateColony();
+
+            }
+        }
+    }
+
     /* ~~~~~~~~~~XML-RPC FUNCTIONS~~~~~~~~~~ */
 
 
-    public Response passRequest(RequestParam request){
+    public synchronized Response passRequest(RequestParam request){
         LOGGER.log(Level.INFO, "Passing Request");
         String url = "";
         //Calculate whether node should skip
@@ -238,7 +256,7 @@ public class Drone {
     /*
      * Gets the colonyTable value at specified index.
      */
-    public String getColonyMember(int index) {
+    public synchronized String getColonyMember(int index) {
         LOGGER.log(Level.FINE , "Gave Colony Member at Index " + index);
         // returns member of colony table at index
         return colonyTable[index];
@@ -373,19 +391,19 @@ public class Drone {
         boolean log = false;
         String boot = "";
         String logIP = "";
-        for(int i = 0; i < args.length; i++ ) {
+        for (int i = 0; i < args.length; i++) {
             if ("--initialize".equals(args[i])) {
                 init = true;
             } else if ("--join".equals(args[i])) {
                 join = true;
-                boot = args[i+1];
+                boot = args[i + 1];
                 i++;
                 // assuming the second argument is the IP address to join
             } else if ("--ping".equals(args[i])) {
                 ant.ping();
-            }else if ("--log".equals(args[i])){
+            } else if ("--log".equals(args[i])) {
                 log = true;
-                logIP = args[i+1];
+                logIP = args[i + 1];
                 i++;
             } else {
                 System.out.println("Invalid Parameter");
@@ -398,22 +416,22 @@ public class Drone {
         Handler socketHandler = null;
 
         try {
-             fileHandler = new FileHandler("logs/Drone%u.log", 0,10);
-             //System.out.println("Connecting to logServer on port 8809");
+            fileHandler = new FileHandler("logs/Drone%u.log", 0, 10);
+            //System.out.println("Connecting to logServer on port 8809");
 
-        } catch(Exception e ){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         fileHandler.setFormatter(new SimpleFormatter());
         fileHandler.setLevel(Level.ALL);
         LOGGER.addHandler(fileHandler);
 
-        if(log){
+        if (log) {
             try {
                 socketHandler = new SocketHandler(logIP, 8889);
-                System.out.println("Connecting to logServer at "+ logIP + "on port 8809");
+                System.out.println("Connecting to logServer at " + logIP + "on port 8809");
 
-            } catch(Exception e ){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             assert socketHandler != null;
@@ -426,31 +444,48 @@ public class Drone {
         LOGGER.setUseParentHandlers(false);
 
 
-
         try {
             localIP = util.getPublicIP();
-        } catch(Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unable to Get Local IP", e);
             System.exit(1);
         }
 
-        if(init) {
+        if (init) {
             ant.initializeNetwork();
         }
-        if(join){
+        if (join) {
             ant.joinNetwork(boot);
         }
 
         ant.dumpColony();
-
-        while(true){
-            try {
-                Thread.sleep(10000);
-            } catch (Exception e){
-                System.out.println("No Sleep");
+        Scanner scan = new Scanner(System.in);
+        Updater updater = new Updater(ant);
+        updater.start();
+        while (true) {
+            System.out.println("Send Request of Format: [path len], [url], [method], [parameter], [value], [parameter], [value]");
+            String command = scan.nextLine();
+            String[] reqArr = command.split(",");
+            int path = Integer.parseInt(reqArr[0]);
+            String url = reqArr[1];
+            String method = reqArr[2];
+            int i = 3;
+            HashMap<String,String> params = new HashMap<>();
+            while(i < reqArr.length){
+                params.put(args[i], args[i+1]);
+                i+=2;
             }
-            ant.updateColony();
-            ant.dumpColony();
+            Response rep = ant.sendRequest(path, url, method, params);
+            try {
+                PageDisplay.savePhoto(rep.dataType, rep.url, rep.data);
+            } catch(Exception e){
+                //do nothing
+            }
         }
+
+
+
+            //ant.dumpColony();
+
     }
 }

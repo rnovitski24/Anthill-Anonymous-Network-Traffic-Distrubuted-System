@@ -127,7 +127,7 @@ public class Drone {
         if (IP.equals(localIP)) {
             IP = "localhost";
         }
-        LOGGER.log(Level.FINE, "Sending request to localhost");
+        LOGGER.log(Level.FINEST, "Sending request to localhost");
         try {
             globalConfig.setServerURL(new URL("http://" + IP + ":" + PORT));
             globalClient.setConfig(globalConfig);
@@ -170,7 +170,7 @@ public class Drone {
      * Dumps colonyTable values
      */
     private void dumpColony() {
-        LOGGER.log(Level.FINE, "Dumped Colony");
+        LOGGER.log(Level.FINEST, "Dumped Colony");
         int nodeNumber = 1;
         for (int i = 0; i < colonyTable.length; i++) {
             System.out.println("Node " + nodeNumber + ":" + colonyTable[i]);
@@ -324,7 +324,7 @@ public class Drone {
      */
     public boolean joinNetwork(String bootstrapIP) {
         LOGGER.log(Level.FINE , "Joining Network at " + bootstrapIP);
-
+        /*
         if (!bootstrapIP.equals(localIP)) {
             try {
                 doExecute(bootstrapIP, "Drone.updateQueenTable", new Object[]{localIP});
@@ -332,6 +332,7 @@ public class Drone {
                 LOGGER.log(Level.SEVERE, "Unable to Update Queen Table", e);
             }
         }
+        */
 
         try {
             globalClient = new XmlRpcClient();

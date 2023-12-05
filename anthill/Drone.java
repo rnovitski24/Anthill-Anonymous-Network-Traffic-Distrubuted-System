@@ -108,9 +108,12 @@ public class Drone {
             }
 
             LOGGER.log(Level.FINE, "Updated Colony Table");
+            StringBuilder stB = new StringBuilder();
+            stB.append("Dumping Colony Table:\n");
             for(String s:colonyTable){
-                LOGGER.log(Level.FINEST, s);
+                stB.append(s + "\n");
             }
+            LOGGER.log(Level.FINEST, stB.toString().substring(0,stB.length()-1));
         }
     }
 

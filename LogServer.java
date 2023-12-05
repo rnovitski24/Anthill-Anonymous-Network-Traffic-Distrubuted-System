@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class LogServer {
-    private static final int PORT_NUM = 8809;
+    private static final int PORT_NUM = 8889;
     public static void main(String args[]) {
         ServerSocketFactory serverSocketFactory =
                 ServerSocketFactory.getDefault();

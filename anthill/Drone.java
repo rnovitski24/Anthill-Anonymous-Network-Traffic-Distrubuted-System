@@ -410,7 +410,7 @@ public class Drone {
 
         if(log){
             try {
-                socketHandler = new SocketHandler(logIP, 8809);
+                socketHandler = new SocketHandler(logIP, 8889);
                 System.out.println("Connecting to logServer at "+ logIP + "on port 8809");
 
             } catch(Exception e ){

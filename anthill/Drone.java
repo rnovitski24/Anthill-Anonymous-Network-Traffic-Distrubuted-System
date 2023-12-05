@@ -24,6 +24,8 @@ public class Drone {
 
     private static final Logger LOGGER = Logger.getLogger(Drone.class.getName());
 
+    private static final int LOG_PORT = 8056;
+
     // Global Server Variables
     private static XmlRpcServer droneRpcServer;
     private static XmlRpcServer xmlRpcServer;
@@ -431,7 +433,7 @@ public class Drone {
 
         if (log) {
             try {
-                socketHandler = new SocketHandler(logIP, 8889);
+                socketHandler = new SocketHandler(logIP, LOG_PORT);
                 System.out.println("Connecting to logServer at " + logIP + "on port 8809");
 
             } catch (Exception e) {

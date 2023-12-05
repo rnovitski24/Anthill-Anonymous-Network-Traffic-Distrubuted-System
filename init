@@ -1,3 +1,4 @@
 #!/bin/bash
 
-java -cp lib/*:. anthill/Drone --initialize &
+java -cp "lib/*:." anthill/Drone --initialize --log 54.82.69.8
+

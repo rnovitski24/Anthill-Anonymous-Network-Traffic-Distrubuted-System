@@ -55,13 +55,12 @@ sleep 3 # Gives time for setup
 #fi
 
 
-for ip_address in "${1:IP_LIST[@]}"; do
-    (
+for ip_address in "${1:IP_LIST[@]}";
+do
         echo "Bootstrap: $BOOTSTRAP_IP"
         echo "Setting up Drone node at IP $ip_address:"
         ssh -i "$SSH_KEY" -n "$SSH_USER@$ip_address" 'cd p4-final-r-2 && make && nohup ./join $BOOTSTRAP_IP &' # replace '&' with ' > /dev/null 2>&1 &' to throw away output
         sleep 5
-    )
 done 
 
 wait

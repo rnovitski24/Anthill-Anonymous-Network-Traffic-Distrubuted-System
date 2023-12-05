@@ -477,7 +477,7 @@ public class Drone {
             }
             Response rep = ant.sendRequest(path, url, method, params);
             try {
-                String name = rep.url.substring(rep.url.lastIndexOf('/'));
+                String name = rep.url.substring(rep.url.lastIndexOf('/')+1);
                 PageDisplay.savePhoto(rep.dataType, name, rep.data);
             } catch(Exception e){
                 //do nothing

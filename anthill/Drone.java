@@ -38,6 +38,9 @@ public class Drone {
     // Local IP Storage
     private static String localIP;
 
+    // List storing any down nodes currently in colonyTable
+    private static List downDrones = new ArrayList<String>();
+
     /*
      * Colony Table
      * Index 0: 2^0 nodes around ring
@@ -80,6 +83,41 @@ public class Drone {
         LOGGER.log(Level.SEVERE, "All Nodes Invalid. Reinitalize Network.");
         System.exit(0);
         return null;
+    }
+
+    /**
+     * Scans each node in colony table and returns any changes in status
+     * 
+     */
+    private synchronized scanTable() {
+        for (int i = 0; i < colonyTable; i++) {
+            try {
+                boolean ping_status = (boolean) doExecute(colonyTable[i], "Drone.ping", new Object[]{});
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Could not ping Colony Member " + (i), e);
+
+                // if last node in colonyTable, begin update sequence
+                if (i == (colonyTable.length - 1)) {
+                    remakeColony();
+                    // reset down nodes
+                    downDrones.clear();
+                }
+                else {
+                    downDrones.append(colonyTable[i]);
+                }
+            }
+            
+
+            // if no response, mark as down
+            if 
+        }
+    }
+
+    /**
+     * Remake colony
+     */
+    private synchronized void remakeColony() {
+        
     }
 
 
@@ -184,6 +222,7 @@ public class Drone {
                 } catch (Exception e) {
                     System.out.println("No Sleep");
                 }
+                ant.scanTable();
                 ant.updateColony();
 
             }
@@ -262,6 +301,61 @@ public class Drone {
         LOGGER.log(Level.FINEST , "Gave Colony Member at Index " + index);
         // returns member of colony table at index
         return colonyTable[index];
+    }
+
+    public Object syncTables(String downIP, int downIndex, String[] cTable) {
+        // Section of updated table that previous node needs
+        if (!downIndex == -1) {
+            String[] newTable = new String[COL_SIZE - downIndex];
+            for (int i = 0; i < COL_SIZE - downIndex; i++) {
+                newTable[i] = colonyTable[i + downIndex];
+            }
+        }
+
+        // checks to see if any of its nodes are the down IP
+        for (int i = 0; i < colonyTable; i++) {
+
+            // If down node is in table:
+            if (colonyTable[i].equals(downIP)) {
+                // sends message to its first successor from where it is down
+                try {
+                    String[] response = (String[]) doExecute(colonyTable[0], "Drone.syncTables", new Object[]{downIP, i, colonyTable});
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Recursive call to syncTable did not work as expected ", e);
+                }
+                if (response != null) {
+                    int s = i;
+                    int inc = 0;
+                    // repopulate table with new values from successor
+                    for (s; s < COL_SIZE; s++) {
+                        colonyTable[s] = response[inc];
+                        inc++;
+                   }
+                }
+                
+            } 
+            // If down node is not in table, check each value for duplicates and replace with first successor if needed
+            else {
+                for (int i = 0; i < COL_SIZE; i++) {
+                    if (colonyTable[i].equals(cTable[i])) {
+                        try {
+                            String newValue = (String) doExecute(colonyTable[i], "Drone.getFirst", new Object[]{});
+                        } catch (Exception e) {
+                            LOGGER.log(Level.SEVERE, "Could not find node in colonyTable ", e);
+                        }
+                        colonyTable[i] = newValue;  
+                    }
+                }
+            }
+        }
+
+    }
+
+    /**
+     * A method to grab the first value in colonyTable without pinging (to allow synchronicity of down node sweeping)
+     */
+    public String getFirst() {
+        return colonyTable[0];
     }
 
 

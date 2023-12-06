@@ -89,27 +89,27 @@ public class Drone {
      * Scans each node in colony table and returns any changes in status
      * 
      */
-    private synchronized scanTable() {
-        for (int i = 0; i < colonyTable; i++) {
+    private synchronized void scanTable() {
+        for (int i = 0; i < colonyTable.length; i++) {
             try {
                 boolean ping_status = (boolean) doExecute(colonyTable[i], "Drone.ping", new Object[]{});
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Could not ping Colony Member " + (i), e);
 
                 // if last node in colonyTable, begin update sequence
-                if (i == (colonyTable.length - 1)) {
+                if (i == (COL_SIZE - 1)) {
                     remakeColony();
                     // reset down nodes
                     downDrones.clear();
                 }
                 else {
-                    downDrones.append(colonyTable[i]);
+                    downDrones.add(colonyTable[i]);
                 }
             }
             
 
             // if no response, mark as down
-            if 
+            if
         }
     }
 
@@ -197,7 +197,7 @@ public class Drone {
     private void dumpColony() {
         LOGGER.log(Level.FINEST, "Dumped Colony");
         int nodeNumber = 1;
-        for (int i = 0; i < colonyTable.length; i++) {
+        for (int i = 0; i < COL_SIZE; i++) {
             System.out.println("Node " + nodeNumber + ":" + colonyTable[i]);
             nodeNumber *= 2;
         }
@@ -305,7 +305,7 @@ public class Drone {
 
     public Object syncTables(String downIP, int downIndex, String[] cTable) {
         // Section of updated table that previous node needs
-        if (!downIndex == -1) {
+        if (!(downIndex == -1)) {
             String[] newTable = new String[COL_SIZE - downIndex];
             for (int i = 0; i < COL_SIZE - downIndex; i++) {
                 newTable[i] = colonyTable[i + downIndex];
@@ -313,21 +313,21 @@ public class Drone {
         }
 
         // checks to see if any of its nodes are the down IP
-        for (int i = 0; i < colonyTable; i++) {
+        for (int i = 0; i < COL_SIZE; i++) {
 
+            String[] response = null;
             // If down node is in table:
             if (colonyTable[i].equals(downIP)) {
                 // sends message to its first successor from where it is down
                 try {
-                    String[] response = (String[]) doExecute(colonyTable[0], "Drone.syncTables", new Object[]{downIP, i, colonyTable});
+                    response = (String[]) doExecute(colonyTable[0], "Drone.syncTables", new Object[]{downIP, i, colonyTable});
                 } catch (Exception e) {
                     LOGGER.log(Level.SEVERE, "Recursive call to syncTable did not work as expected ", e);
                 }
                 if (response != null) {
-                    int s = i;
                     int inc = 0;
                     // repopulate table with new values from successor
-                    for (s; s < COL_SIZE; s++) {
+                    for (int s = i; s < COL_SIZE; s++) {
                         colonyTable[s] = response[inc];
                         inc++;
                    }
@@ -336,14 +336,15 @@ public class Drone {
             } 
             // If down node is not in table, check each value for duplicates and replace with first successor if needed
             else {
-                for (int i = 0; i < COL_SIZE; i++) {
-                    if (colonyTable[i].equals(cTable[i])) {
+                for (int j = 0; j < COL_SIZE; j++) {
+                    String newValue = null;
+                    if (colonyTable[j].equals(cTable[i])) {
                         try {
-                            String newValue = (String) doExecute(colonyTable[i], "Drone.getFirst", new Object[]{});
+                            newValue = (String) doExecute(colonyTable[j], "Drone.getFirst", new Object[]{});
                         } catch (Exception e) {
                             LOGGER.log(Level.SEVERE, "Could not find node in colonyTable ", e);
                         }
-                        colonyTable[i] = newValue;  
+                        colonyTable[j] = newValue;
                     }
                 }
             }
@@ -375,9 +376,7 @@ public class Drone {
             System.exit(1);
         }
         successor = IP;
-        for (int i = 0; i < colonyTable.length; i++) {
-            colonyTable[i] = IP;
-        }
+        Arrays.fill(colonyTable, IP);
         globalClient = new XmlRpcClient();
         globalConfig = new XmlRpcClientConfigImpl();
         globalConfig.setEnabledForExtensions(true);

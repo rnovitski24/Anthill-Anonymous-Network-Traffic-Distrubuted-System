@@ -74,7 +74,9 @@ public class util {
                 } catch (Exception e) {
                     System.out.println("No Sleep");
                 }
+                // Check for down nodes and update
                 ant.scanTable();
+                //Check for new nodes
                 ant.updateColony();
 
             }

@@ -51,6 +51,8 @@ public class Drone {
      */
     private static String[] colonyTable = new String[COL_SIZE];
 
+    private final int[][] definitions = util.alternateDef(COL_SIZE);
+
     /**
      * Constructor for Drone class
      */
@@ -89,7 +91,7 @@ public class Drone {
      * Scans each node in colony table and returns any changes in status
      * 
      */
-    private void scanTable() {
+    protected void scanTable() {
         for (int i = 0; i < colonyTable.length; i++) {
             try {
                 boolean ping_status = (boolean) doExecute(colonyTable[i], "Drone.ping", new Object[]{});
@@ -124,7 +126,7 @@ public class Drone {
     /**
     Update Colony
      */
-    private synchronized void updateColony() {
+    protected synchronized void updateColony() {
         LOGGER.log(Level.FINEST, "Updating Colony");
         for (int i = 0; i < COL_SIZE - 1; i++) {
             try {
@@ -206,28 +208,7 @@ public class Drone {
     /**
      * Runnable thread that updates the colony table in the background while the server is running
      */
-    private static class Updater implements Runnable {
-        private final Drone ant;
-        public Updater(Drone ant) {
-            this.ant = ant;
-        }
 
-        /**
-         * Updates the colony table every 30 secs
-         */
-        public void run() {
-            while (true) {
-                try {
-                    Thread.sleep(30000);
-                } catch (Exception e) {
-                    System.out.println("No Sleep");
-                }
-                ant.scanTable();
-                ant.updateColony();
-
-            }
-        }
-    }
 
     /* ~~~~~~~~~~XML-RPC FUNCTIONS~~~~~~~~~~ */
 
@@ -307,8 +288,39 @@ public class Drone {
         // Section of updated table that previous node needs
         if (!(downIndex == -1)) {
             String[] newTable = new String[COL_SIZE - downIndex];
-            for (int i = 0; i < COL_SIZE - downIndex; i++) {
-                newTable[i] = colonyTable[i + downIndex];
+            // if the down node is the first successor
+            if(downIndex == 0){
+                // copy the second successor
+                newTable[0] = colonyTable[1];
+                // Populate the rest of the successors
+                for(int i = 1; i < COL_SIZE; i++) {
+                    try {
+                        // new ith successor is the current ith successor's i-1th successor
+                        newTable[i] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i - 1});
+                    } catch(Exception e){
+                        LOGGER.log(Level.WARNING, "Node down when when repopulating syncing table", e);
+                        if(i>1) {
+                            try {
+                                String interIP = (String) doExecute(colonyTable[i - 2], "Drone.getColonyMember", new Object[]{i - 1});
+                                newTable[i] = (String) doExecute(interIP, "Drone.getColonyMember", new Object[]{i - 2});
+                            } catch (Exception f) {
+                                LOGGER.log(Level.SEVERE, "FATAL: Backup Node down when when repopulating syncing table", f);
+                                System.exit(1);
+                            }
+                        }else{
+                            LOGGER.log(Level.SEVERE, "FATAL: Second Node down when when repopulating syncing table", e);
+                            System.exit(1);
+                        }
+
+
+                    }
+                }
+
+            }
+            else{
+                for (int i = 0; i < COL_SIZE - downIndex; i++) {
+                    newTable[i] = colonyTable[i + downIndex];
+                }
             }
         }
 
@@ -358,6 +370,7 @@ public class Drone {
     public String getFirst() {
         return colonyTable[0];
     }
+
 
 
     /* ~~~~~~~~~~INITIALIZATION FUNCTIONS:~~~~~~~~~~ */
@@ -537,7 +550,7 @@ public class Drone {
         if(!background) ant.dumpColony();
 
         // Starts background updater
-        Updater updater = new Updater(ant);
+        util.Updater updater = new util.Updater(ant);
         new Thread(updater).start();
 
         Scanner scan = new Scanner(System.in);

@@ -58,6 +58,28 @@ public class util {
             this.parameters = parameters;
         }
     }
+    static class Updater implements Runnable {
+        private final Drone ant;
+        public Updater(Drone ant) {
+            this.ant = ant;
+        }
+
+        /**
+         * Updates the colony table every 30 secs
+         */
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(30000);
+                } catch (Exception e) {
+                    System.out.println("No Sleep");
+                }
+                ant.scanTable();
+                ant.updateColony();
+
+            }
+        }
+    }
 
     /**
      * Fullfills request and returns full Response object
@@ -136,6 +158,15 @@ public class util {
         URL url = new URL(urlString);
         BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
         return br.readLine();
+
+    }
+    public static int[][] alternateDef(int COL_SIZE){
+        int[][] defs = new int[COL_SIZE][4];
+        defs[0] = new int[]{0,1,-1,-1};
+        for(int i=2; i < COL_SIZE; i++){
+            defs[i] = new int[]{0, i, i-1, i-1};
+        }
+        return defs;
 
     }
 }

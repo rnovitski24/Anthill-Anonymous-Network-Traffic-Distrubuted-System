@@ -89,7 +89,7 @@ public class Drone {
      * Scans each node in colony table and returns any changes in status
      * 
      */
-    private synchronized void scanTable() {
+    private void scanTable() {
         for (int i = 0; i < colonyTable.length; i++) {
             try {
                 boolean ping_status = (boolean) doExecute(colonyTable[i], "Drone.ping", new Object[]{});
@@ -114,7 +114,7 @@ public class Drone {
     }
 
     /**
-     * Remake colony
+     * Remake colony if a node is down or if a new node joins
      */
     private synchronized void remakeColony() {
         

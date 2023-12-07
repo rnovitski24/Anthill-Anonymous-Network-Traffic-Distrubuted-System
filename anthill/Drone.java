@@ -116,7 +116,7 @@ public class Drone {
      */
     protected synchronized void updateColony() {
         LOGGER.log(Level.FINEST, "Updating Colony");
-        for (int i = 0; i < COL_SIZE - 1; i++) {
+        for (int i = 0; i < COL_SIZE - 2; i++) {
             try {
                 colonyTable[i + 1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
             } catch (Exception e) {
@@ -515,7 +515,7 @@ public class Drone {
             LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
             System.exit(1);
         }
-        updateColony();
+        //updateColony();
 
 
         return true;
@@ -534,6 +534,7 @@ public class Drone {
         boolean background = false;
         String boot = "";
         String logIP = "";
+        Level logLevel = Level.ALL;
         // Parse command line args
         for (int i = 0; i < args.length; i++) {
             if ("--initialize".equals(args[i])) {
@@ -585,7 +586,7 @@ public class Drone {
             socketHandler.setLevel(Level.ALL);
             LOGGER.addHandler(socketHandler);
         }
-        LOGGER.setLevel(Level.FINE);
+        LOGGER.setLevel(logLevel);
         LOGGER.setUseParentHandlers(false);
 
 

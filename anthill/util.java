@@ -6,9 +6,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
-
 import java.io.Serializable;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
@@ -77,7 +75,7 @@ public class util {
                 // Check for down nodes and update
                 ant.scanTable();
                 //Check for new nodes
-                ant.updateColony();
+                //ant.updateColony();
 
             }
         }

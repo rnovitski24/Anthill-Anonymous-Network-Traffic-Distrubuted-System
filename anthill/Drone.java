@@ -92,10 +92,9 @@ public class Drone {
     protected void scanTable() {
         for (int i = 0; i < colonyTable.length; i++) {
             try {
-                boolean ping_status = (boolean) doExecute(colonyTable[i], "Drone.ping", new Object[]{});
+                doExecute(colonyTable[i], "Drone.ping", new Object[]{});
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Could not ping Colony Member " + (i), e);
-
+                LOGGER.log(Level.WARNING, "Could not ping Colony Member at " + (colonyTable[i]), e);
                 // if last node in colonyTable, begin update sequence
                 if (i == (COL_SIZE - 1)) {
                     colonyTable = syncTables(colonyTable[i], i, colonyTable);
@@ -103,6 +102,7 @@ public class Drone {
                     downDrones.clear();
                 }
                 else {
+                    // If Down and Not Last, Add to list of Down
                     downDrones.add(colonyTable[i]);
                 }
             }
@@ -198,8 +198,6 @@ public class Drone {
        return response;
     }
 
-
-
     /**
      * Dumps colonyTable values
      */
@@ -212,31 +210,6 @@ public class Drone {
         }
     }
 
-    /**
-     * Runnable thread that updates the colony table in the background while the server is running
-     */
-    private static class Updater implements Runnable {
-        private final Drone ant;
-        public Updater(Drone ant) {
-            this.ant = ant;
-        }
-
-        /**
-         * Updates the colony table every 30 secs
-         */
-        public void run() {
-            while (true) {
-                try {
-                    Thread.sleep(30000);
-                } catch (Exception e) {
-                    System.out.println("No Sleep");
-                }
-                ant.scanTable();
-                ant.updateColony();
-
-            }
-        }
-    }
 
     /* ~~~~~~~~~~XML-RPC FUNCTIONS~~~~~~~~~~ */
 
@@ -318,15 +291,23 @@ public class Drone {
         return colonyTable[index];
     }
 
+    /**
+     * Recursive Function That Propagates Out The Dead Node
+     *
+     * @param downIP
+     * @param downIndex
+     * @param cTable
+     * @return
+     */
     public String[] syncTables(String downIP, int downIndex, String[] cTable) {
         // Section of updated table that previous node needs
-        // DownIndex of -1 mean not in table
+        // DownIndex of -1 means not in table
         String[] newTable = null;
+        // DownIndex of -1 means not in table
+        // If the down node is in the table.
         if (!(downIndex == -1)) {
-             newTable = new String[COL_SIZE - downIndex];
-            for (int i = 0; i < COL_SIZE - downIndex; i++) {
-                newTable[i] = colonyTable[i + downIndex];
-            }
+            // Create the new table to replace colony
+            newTable = new String[COL_SIZE - downIndex];
             // if the down node is the first successor
             if (downIndex == 0) {
                 // copy the second successor
@@ -337,9 +318,13 @@ public class Drone {
                         // new ith successor is the current ith successor's i-1th successor
                         newTable[i] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i - 1});
                     } catch (Exception e) {
+                        // Add to list of downed drones
+                        downDrones.add(colonyTable[i]);
                         LOGGER.log(Level.WARNING, "Node down when when repopulating syncing table", e);
+                        // if its not the second successor
                         if (i > 1) {
                             try {
+                                // Try to contact another node to get the same address
                                 String interIP = (String) doExecute(colonyTable[i - 2], "Drone.getColonyMember", new Object[]{i - 1});
                                 newTable[i] = (String) doExecute(interIP, "Drone.getColonyMember", new Object[]{i - 2});
                             } catch (Exception f) {
@@ -350,56 +335,65 @@ public class Drone {
                             LOGGER.log(Level.SEVERE, "FATAL: Second Node down when when repopulating syncing table", e);
                             System.exit(1);
                         }
-
-
                     }
                 }
 
             } else {
-                for (int i = 0; i < COL_SIZE - downIndex; i++) {
+                // Otherwise transfer the remainder of the table
+                for(int i = 0; i < COL_SIZE - downIndex; i++) {
                     newTable[i] = colonyTable[i + downIndex];
                 }
 
             }
         }
+        // For nodes that are not in the predecessors table
+        else {
+            // checks to see if any of its nodes are the down IP
+            for (int i = 0; i < COL_SIZE; i++) {
+                String[] response = null;
+                // If down node is in table:
+                if (colonyTable[i].equals(downIP)) {
+                    // sends message to its first successor from where it is down
+                    try {
+                        response = (String[]) doExecute(colonyTable[0], "Drone.syncTables", new Object[]{downIP, i, colonyTable});
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "FATAL: Recursive call to syncTable did not work as expected ", e);
+                        System.exit(1);
+                    }
+                    if (response != null) {
+                        int inc = 0;
+                        // repopulate table with new values from successor
+                        for (int s = i; s < COL_SIZE; s++) {
+                            colonyTable[s] = response[inc];
+                            inc++;
+                        }
+                        return null;
+                    }
 
-        // checks to see if any of its nodes are the down IP
-        for (int i = 0; i < COL_SIZE; i++) {
-            String[] response = null;
-            // If down node is in table:
-            if (colonyTable[i].equals(downIP)) {
-                // sends message to its first successor from where it is down
-                try {
-                    response = (String[]) doExecute(colonyTable[0], "Drone.syncTables", new Object[]{downIP, i, colonyTable});
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Recursive call to syncTable did not work as expected ", e);
                 }
-                if (response != null) {
-                    int inc = 0;
-                    // repopulate table with new values from successor
-                    for (int s = i; s < COL_SIZE; s++) {
-                        colonyTable[s] = response[inc];
-                        inc++;
-                   }
-                   return newTable;
-                }
-                
             }
-        }
 
-        // If down node is not in table, check each value for duplicates and replace with first successor if needed
-        for (int j = 0; j < COL_SIZE; j++) {
-            String newValue = null;
-            if (colonyTable[j].equals(cTable[j])) {
-                try {
-                    newValue = (String) doExecute(colonyTable[j], "Drone.getFirst", new Object[]{});
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Could not find node in colonyTable ", e);
+            // If down node is not in table, check each value for duplicates and replace with first successor if needed
+            for (int j = 0; j < COL_SIZE; j++) {
+                String newValue = null;
+                if (colonyTable[j].equals(cTable[j])) {
+                    try {
+                        newValue = (String) doExecute(colonyTable[j], "Drone.getFirst", new Object[]{});
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Could not find node in colonyTable ", e);
+                    }
+                    colonyTable[j] = newValue;
                 }
-                colonyTable[j] = newValue;
             }
+            try {
+                doExecute(colonyTable[0], "Drone.syncTables", new Object[]{downIP, -1, colonyTable});
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Recursive call to syncTable did not work as expected ", e);
+            }
+
+           
         }
-        return newTable;
+        return null;
     }
 
     /**
@@ -587,7 +581,7 @@ public class Drone {
         if(!background) ant.dumpColony();
 
         // Starts background updater
-        Updater updater = new Updater(ant);
+        util.Updater updater = new util.Updater(ant);
         new Thread(updater).start();
 
         Scanner scan = new Scanner(System.in);

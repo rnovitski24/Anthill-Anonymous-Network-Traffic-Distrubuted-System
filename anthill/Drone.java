@@ -161,7 +161,7 @@ public class Drone {
      */
     private String findLiveDrone(String url) {
         boolean alive = false;
-        List<String> liveNodes = List.of(colonyTable);
+        List<String> liveNodes = Arrays.asList(colonyTable);
         while (!alive) {
             if (downDrones.contains(url)) {
                 liveNodes.remove(url);

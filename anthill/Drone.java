@@ -320,9 +320,43 @@ public class Drone {
     public String[] syncTables(String downIP, int downIndex, String[] cTable) {
         // Section of updated table that previous node needs
         if (!(downIndex == -1)) {
+            String[] newTable = new String[COL_SIZE - downIndex];
             for (int i = 0; i < COL_SIZE - downIndex; i++) {
                 newTable[i] = colonyTable[i + downIndex];
             }
+            // if the down node is the first successor
+            if(downIndex == 0){
+                // copy the second successor
+                newTable[0] = colonyTable[1];
+                // Populate the rest of the successors
+                for(int i = 1; i < COL_SIZE; i++) {
+                    try {
+                        // new ith successor is the current ith successor's i-1th successor
+                        newTable[i] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i - 1});
+                    } catch(Exception e){
+                        LOGGER.log(Level.WARNING, "Node down when when repopulating syncing table", e);
+                        if(i>1) {
+                            try {
+                                String interIP = (String) doExecute(colonyTable[i - 2], "Drone.getColonyMember", new Object[]{i - 1});
+                                newTable[i] = (String) doExecute(interIP, "Drone.getColonyMember", new Object[]{i - 2});
+                            } catch (Exception f) {
+                                LOGGER.log(Level.SEVERE, "FATAL: Backup Node down when when repopulating syncing table", f);
+                                System.exit(1);
+                            }
+                        }else{
+                            LOGGER.log(Level.SEVERE, "FATAL: Second Node down when when repopulating syncing table", e);
+                            System.exit(1);
+                        }
+
+
+                    }
+                }
+
+            }
+            else{
+                for (int i = 0; i < COL_SIZE - downIndex; i++) {
+                    newTable[i] = colonyTable[i + downIndex];
+                }
         }
 
         // checks to see if any of its nodes are the down IP
@@ -344,7 +378,7 @@ public class Drone {
                         colonyTable[s] = response[inc];
                         inc++;
                    }
-                   return cTable;
+                   return newTable;
                 }
                 
             }
@@ -362,7 +396,7 @@ public class Drone {
                 colonyTable[j] = newValue;
             }
         }
-        return cTable;
+        return newTable;
     }
 
     /**
@@ -597,3 +631,4 @@ public class Drone {
 
     }
 }
+

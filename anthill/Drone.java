@@ -291,7 +291,7 @@ public class Drone {
         colonyTable[COL_SIZE - 1] = senderIP;
         // Propagate out change
         try {
-            doExecute(colonyTable[0], "Drone.addNodeAtIndex()", new Object[]{COL_SIZE - 1, senderIP});
+            doExecute(colonyTable[0], "Drone.addNodeAtIndex", new Object[]{COL_SIZE - 1, senderIP});
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Bootstrap Immediate successor down", e);
             return null;
@@ -307,7 +307,7 @@ public class Drone {
         }
         boolean success = false;
         try {
-            success = (boolean) doExecute(colonyTable[0], "Drone.addNodeAtIndex()", new Object[]{stepsLeft - 1, joiner});
+            success = (boolean) doExecute(colonyTable[0], "Drone.addNodeAtIndex", new Object[]{stepsLeft - 1, joiner});
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unable to add node " + joiner + " " + (COL_SIZE - stepsLeft) + " away from Bootstrap"
                     , e);

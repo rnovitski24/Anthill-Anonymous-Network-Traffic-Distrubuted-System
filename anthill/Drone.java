@@ -39,7 +39,7 @@ public class Drone {
     private static String localIP;
 
     // List storing any down nodes currently in colonyTable
-    private static List downDrones = new ArrayList<String>();
+    private static List<String> downDrones = new ArrayList<>();
 
     /*
      * Colony Table
@@ -89,7 +89,7 @@ public class Drone {
      * Scans each node in colony table and returns any changes in status
      * 
      */
-    private void scanTable() {
+    protected void scanTable() {
         for (int i = 0; i < colonyTable.length; i++) {
             try {
                 boolean ping_status = (boolean) doExecute(colonyTable[i], "Drone.ping", new Object[]{});
@@ -112,7 +112,7 @@ public class Drone {
     /**
     Update Colony
      */
-    private synchronized void updateColony() {
+    protected synchronized void updateColony(){
         LOGGER.log(Level.FINEST, "Updating Colony");
         for (int i = 0; i < COL_SIZE - 1; i++) {
             try {
@@ -159,16 +159,17 @@ public class Drone {
      */
     private String findLiveDrone(String url) {
         boolean alive = false;
-        List<String> liveNodes = colonyTable;
+        List<String> liveNodes = List.of(colonyTable);
         while(!alive) {
             if (downDrones.contains(url)) {
                 liveNodes.remove(url);
-                url = liveNodes[rand.nextInt(liveNodes.size())];
+                url = liveNodes.get(rand.nextInt(liveNodes.size()));
             }
             else {
                 return url;
             }
         }
+        return null;
     }
 
     /**
@@ -319,15 +320,15 @@ public class Drone {
 
     public String[] syncTables(String downIP, int downIndex, String[] cTable) {
         // Section of updated table that previous node needs
+        String[] newTable = new String[COL_SIZE];
+        // DownIndex of -1 mean not in table
         if (!(downIndex == -1)) {
-            for (int i = 0; i < COL_SIZE - downIndex; i++) {
-                newTable[i] = colonyTable[i + downIndex];
-            }
+            if (COL_SIZE - downIndex >= 0)
+                System.arraycopy(colonyTable, downIndex, newTable, 0, COL_SIZE - downIndex);
         }
 
         // checks to see if any of its nodes are the down IP
         for (int i = 0; i < COL_SIZE; i++) {
-
             String[] response = null;
             // If down node is in table:
             if (colonyTable[i].equals(downIP)) {
@@ -353,7 +354,7 @@ public class Drone {
         // If down node is not in table, check each value for duplicates and replace with first successor if needed
         for (int j = 0; j < COL_SIZE; j++) {
             String newValue = null;
-            if (colonyTable[j].equals(cTable[i])) {
+            if (colonyTable[j].equals(cTable[j])) {
                 try {
                     newValue = (String) doExecute(colonyTable[j], "Drone.getFirst", new Object[]{});
                 } catch (Exception e) {

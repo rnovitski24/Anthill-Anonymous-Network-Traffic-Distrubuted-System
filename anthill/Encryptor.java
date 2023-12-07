@@ -1,6 +1,7 @@
 package anthill;
+import java.security.*;
+import java.util.HashMap;
 
-// Imports HERE
 
 // Global/Instance vars HERE
 
@@ -8,6 +9,8 @@ package anthill;
  * Constructor for Encryptor class.
  */
 public class Encryptor {
+
+    protected HashMap<String, String>
 
     public Encryptor(){
     }

@@ -51,8 +51,6 @@ public class Drone {
      */
     private static String[] colonyTable = new String[COL_SIZE];
 
-    private final int[][] definitions = util.alternateDef(COL_SIZE);
-
     /**
      * Constructor for Drone class
      */
@@ -91,7 +89,7 @@ public class Drone {
      * Scans each node in colony table and returns any changes in status
      * 
      */
-    protected void scanTable() {
+    private void scanTable() {
         for (int i = 0; i < colonyTable.length; i++) {
             try {
                 boolean ping_status = (boolean) doExecute(colonyTable[i], "Drone.ping", new Object[]{});
@@ -100,7 +98,7 @@ public class Drone {
 
                 // if last node in colonyTable, begin update sequence
                 if (i == (COL_SIZE - 1)) {
-                    remakeColony();
+                    colonyTable = syncTables(colonyTable[i], i, colonyTable);
                     // reset down nodes
                     downDrones.clear();
                 }
@@ -108,25 +106,13 @@ public class Drone {
                     downDrones.add(colonyTable[i]);
                 }
             }
-            
-
-            // if no response, mark as down
-            if
         }
     }
 
     /**
-     * Remake colony if a node is down or if a new node joins
-     */
-    private synchronized void remakeColony() {
-        
-    }
-
-
-    /**
     Update Colony
      */
-    protected synchronized void updateColony() {
+    private synchronized void updateColony() {
         LOGGER.log(Level.FINEST, "Updating Colony");
         for (int i = 0; i < COL_SIZE - 1; i++) {
             try {
@@ -169,12 +155,32 @@ public class Drone {
     }
 
     /**
+     * Remake colony if a node is down or if a new node joins
+     */
+    private String findLiveDrone(String url) {
+        boolean alive = false;
+        List<String> liveNodes = colonyTable;
+        while(!alive) {
+            if (downDrones.contains(url)) {
+                liveNodes.remove(url);
+                url = liveNodes[rand.nextInt(liveNodes.size())];
+            }
+            else {
+                return url;
+            }
+        }
+    }
+
+    /**
      * Initiates sending a request through the AntHill Network
      */
     private synchronized Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
         LOGGER.log(Level.INFO, "Sending Request to " + url);
         RequestParam request = new RequestParam(pathLength, url, method, parameters);
         url = colonyTable[rand.nextInt(COL_SIZE)];
+        if (downDrones.contains(url)) {
+            url = findLiveDrone(url);
+        }
         util.Response response = null;
         try{
             // forward the request
@@ -208,7 +214,28 @@ public class Drone {
     /**
      * Runnable thread that updates the colony table in the background while the server is running
      */
+    private static class Updater implements Runnable {
+        private final Drone ant;
+        public Updater(Drone ant) {
+            this.ant = ant;
+        }
 
+        /**
+         * Updates the colony table every 30 secs
+         */
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(30000);
+                } catch (Exception e) {
+                    System.out.println("No Sleep");
+                }
+                ant.scanTable();
+                ant.updateColony();
+
+            }
+        }
+    }
 
     /* ~~~~~~~~~~XML-RPC FUNCTIONS~~~~~~~~~~ */
 
@@ -226,6 +253,9 @@ public class Drone {
         if(rand.nextInt() > 0.5){
             //Then select random next in table to return
             url = colonyTable[rand.nextInt(COL_SIZE)];
+            if (downDrones.contains(url)) {
+                url = findLiveDrone(url);
+            }
             return new Response(308, url, "text/IP", null);
         }
         //if there is still path length
@@ -234,6 +264,9 @@ public class Drone {
             request.pathLength -= 1;
             //Select random successor
             url = colonyTable[rand.nextInt(COL_SIZE)];
+            if (downDrones.contains(url)) {
+                url = findLiveDrone(url);
+            }
             try{
                 // forward the request
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
@@ -284,43 +317,11 @@ public class Drone {
         return colonyTable[index];
     }
 
-    public Object syncTables(String downIP, int downIndex, String[] cTable) {
+    public String[] syncTables(String downIP, int downIndex, String[] cTable) {
         // Section of updated table that previous node needs
         if (!(downIndex == -1)) {
-            String[] newTable = new String[COL_SIZE - downIndex];
-            // if the down node is the first successor
-            if(downIndex == 0){
-                // copy the second successor
-                newTable[0] = colonyTable[1];
-                // Populate the rest of the successors
-                for(int i = 1; i < COL_SIZE; i++) {
-                    try {
-                        // new ith successor is the current ith successor's i-1th successor
-                        newTable[i] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i - 1});
-                    } catch(Exception e){
-                        LOGGER.log(Level.WARNING, "Node down when when repopulating syncing table", e);
-                        if(i>1) {
-                            try {
-                                String interIP = (String) doExecute(colonyTable[i - 2], "Drone.getColonyMember", new Object[]{i - 1});
-                                newTable[i] = (String) doExecute(interIP, "Drone.getColonyMember", new Object[]{i - 2});
-                            } catch (Exception f) {
-                                LOGGER.log(Level.SEVERE, "FATAL: Backup Node down when when repopulating syncing table", f);
-                                System.exit(1);
-                            }
-                        }else{
-                            LOGGER.log(Level.SEVERE, "FATAL: Second Node down when when repopulating syncing table", e);
-                            System.exit(1);
-                        }
-
-
-                    }
-                }
-
-            }
-            else{
-                for (int i = 0; i < COL_SIZE - downIndex; i++) {
-                    newTable[i] = colonyTable[i + downIndex];
-                }
+            for (int i = 0; i < COL_SIZE - downIndex; i++) {
+                newTable[i] = colonyTable[i + downIndex];
             }
         }
 
@@ -343,25 +344,25 @@ public class Drone {
                         colonyTable[s] = response[inc];
                         inc++;
                    }
+                   return cTable;
                 }
                 
-            } 
-            // If down node is not in table, check each value for duplicates and replace with first successor if needed
-            else {
-                for (int j = 0; j < COL_SIZE; j++) {
-                    String newValue = null;
-                    if (colonyTable[j].equals(cTable[i])) {
-                        try {
-                            newValue = (String) doExecute(colonyTable[j], "Drone.getFirst", new Object[]{});
-                        } catch (Exception e) {
-                            LOGGER.log(Level.SEVERE, "Could not find node in colonyTable ", e);
-                        }
-                        colonyTable[j] = newValue;
-                    }
-                }
             }
         }
 
+        // If down node is not in table, check each value for duplicates and replace with first successor if needed
+        for (int j = 0; j < COL_SIZE; j++) {
+            String newValue = null;
+            if (colonyTable[j].equals(cTable[i])) {
+                try {
+                    newValue = (String) doExecute(colonyTable[j], "Drone.getFirst", new Object[]{});
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Could not find node in colonyTable ", e);
+                }
+                colonyTable[j] = newValue;
+            }
+        }
+        return cTable;
     }
 
     /**
@@ -370,7 +371,6 @@ public class Drone {
     public String getFirst() {
         return colonyTable[0];
     }
-
 
 
     /* ~~~~~~~~~~INITIALIZATION FUNCTIONS:~~~~~~~~~~ */
@@ -465,7 +465,7 @@ public class Drone {
 
         return true;
     }
-
+ 
 
 
     /* ~~~~~~~~~~MAIN METHOD:~~~~~~~~~~ */
@@ -550,7 +550,7 @@ public class Drone {
         if(!background) ant.dumpColony();
 
         // Starts background updater
-        util.Updater updater = new util.Updater(ant);
+        Updater updater = new Updater(ant);
         new Thread(updater).start();
 
         Scanner scan = new Scanner(System.in);

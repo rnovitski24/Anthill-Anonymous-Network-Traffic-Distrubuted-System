@@ -12,7 +12,7 @@ public class LogServer {
     /**
      * Port number that loggers communicate on
      */
-    private static final int PORT_NUM = 8056;
+    private static final int PORT_NUM = 8888;
 
     private static class ClientHandler implements Runnable {
         private final Socket socket;

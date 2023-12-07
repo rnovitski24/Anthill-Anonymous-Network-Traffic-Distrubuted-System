@@ -22,7 +22,7 @@ import java.net.URL;
 public class Drone {
     // Initialize Logger
     private static final Logger LOGGER = Logger.getLogger(Drone.class.getName());
-    private static final int LOG_PORT = 8056;
+    private static final int LOG_PORT = 8888;
 
     // Global Server Variables
     private static XmlRpcServer droneRpcServer;
@@ -516,7 +516,7 @@ public class Drone {
             System.exit(1);
         }
         updateColony();
-        
+
 
         return true;
     }

@@ -281,7 +281,7 @@ public class Drone {
         String[] succTable = new String[COL_SIZE];
         try {
             for (int i = 0; i < COL_SIZE; i++) {
-                succTable[i] = (String) doExecute(colonyTable[COL_SIZE - 1], "Drone.getColonyMember()", new Object[]{i});
+                succTable[i] = (String) doExecute(colonyTable[COL_SIZE - 1], "Drone.getColonyMember", new Object[]{i});
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Final Colony Table Node Down", e);

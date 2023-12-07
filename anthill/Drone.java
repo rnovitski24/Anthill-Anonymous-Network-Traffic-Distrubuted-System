@@ -272,14 +272,48 @@ public class Drone {
     }
 
     /**
-     * Gets first successor to respond and stores sender's IP as its own first
-     * successor.
+     *
      */
-    public String getSuccessor(String senderIP) {
-        LOGGER.log(Level.FINEST , "Gave Successor To" + senderIP);
-        String nextLiveSuccessor = getNextLiveSuccessor();
-        colonyTable[0] = senderIP;
-        return nextLiveSuccessor;
+    public String[] addNode(String senderIP) {
+        // Get Successor Table from Furthest Node in Colony Table;
+        String[] succTable = new String[COL_SIZE];
+        try {
+            for(int i = 0; i < COL_SIZE; i++) {
+                succTable[i] = (String) doExecute(colonyTable[COL_SIZE-1], "Drone.getColonyMember()", new Object[]{i});
+            }
+        }catch(Exception e){
+            LOGGER.log(Level.SEVERE, "Final Colony Table Node Down", e);
+            return null;
+        }
+        // Add new node as new furthest node
+        colonyTable[COL_SIZE-1] = senderIP;
+        // Propagate out change
+        try {
+            doExecute(colonyTable[0], "Drone.addNodeAtIndex()", new Object[]{COL_SIZE - 1, senderIP});
+        } catch(Exception e){
+            LOGGER.log(Level.SEVERE, "Bootstrap Immediate successor down", e);
+            return null;
+        }
+        return succTable;
+
+    }
+
+    public boolean addNodeAtIndex(int stepsLeft, String joiner){
+        boolean isPowerOfTwo = (Math.log(stepsLeft)/Math.log(2)) % 1 == 0;
+        if(isPowerOfTwo){
+            colonyTable[stepsLeft] = joiner;
+        }
+        boolean success = false;
+        try{
+            success = (boolean)doExecute(colonyTable[0], "Drone.addNodeAtIndex()", new Object[]{stepsLeft-1, joiner});
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unable to add node "+joiner+" "+(COL_SIZE-stepsLeft)+" away from Bootstrap"
+                    , e);
+            return false;
+        }
+        return success;
+
+
     }
 
     /**
@@ -391,9 +425,9 @@ public class Drone {
                 LOGGER.log(Level.SEVERE, "Recursive call to syncTable did not work as expected ", e);
             }
 
-           
+
         }
-        return null;
+        return newTable;
     }
 
     /**

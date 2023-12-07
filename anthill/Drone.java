@@ -1,14 +1,18 @@
 package anthill;
+
 import anthill.util.Response;
 import anthill.util.RequestParam;
+
 import java.util.logging.Level;
 import java.util.logging.*;
+
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
+
 import java.util.*;
 import java.net.URL;
 
@@ -39,7 +43,7 @@ public class Drone {
     private static String localIP;
 
     // List storing any down nodes currently in colonyTable
-    private static List<String> downDrones = new ArrayList<>();
+    private static final List<String> downDrones = new ArrayList<>();
 
     /*
      * Colony Table
@@ -87,7 +91,6 @@ public class Drone {
 
     /**
      * Scans each node in colony table and returns any changes in status
-     * 
      */
     protected void scanTable() {
         for (int i = 0; i < colonyTable.length; i++) {
@@ -100,8 +103,7 @@ public class Drone {
                     colonyTable = syncTables(colonyTable[i], i, colonyTable);
                     // reset down nodes
                     downDrones.clear();
-                }
-                else {
+                } else {
                     // If Down and Not Last, Add to list of Down
                     downDrones.add(colonyTable[i]);
                 }
@@ -110,9 +112,9 @@ public class Drone {
     }
 
     /**
-    Update Colony
+     * Update Colony
      */
-    protected synchronized void updateColony(){
+    protected synchronized void updateColony() {
         LOGGER.log(Level.FINEST, "Updating Colony");
         for (int i = 0; i < COL_SIZE - 1; i++) {
             try {
@@ -125,10 +127,10 @@ public class Drone {
             LOGGER.log(Level.FINEST, "Updated Colony Table");
             StringBuilder stB = new StringBuilder();
             stB.append("Dumping Colony Table:\n");
-            for(String s:colonyTable){
+            for (String s : colonyTable) {
                 stB.append(s + "\n");
             }
-            LOGGER.log(Level.FINEST, stB.toString().substring(0,stB.length()-1));
+            LOGGER.log(Level.FINEST, stB.substring(0, stB.length() - 1));
         }
     }
 
@@ -148,7 +150,7 @@ public class Drone {
             return response;
 
         } catch (Exception ex) {
-            LOGGER.log(Level.WARNING, "Failed to Execute "+ method + " At " + IP, ex);
+            LOGGER.log(Level.WARNING, "Failed to Execute " + method + " At " + IP, ex);
             throw ex;
         }
 
@@ -160,12 +162,11 @@ public class Drone {
     private String findLiveDrone(String url) {
         boolean alive = false;
         List<String> liveNodes = List.of(colonyTable);
-        while(!alive) {
+        while (!alive) {
             if (downDrones.contains(url)) {
                 liveNodes.remove(url);
                 url = liveNodes.get(rand.nextInt(liveNodes.size()));
-            }
-            else {
+            } else {
                 return url;
             }
         }
@@ -175,7 +176,7 @@ public class Drone {
     /**
      * Initiates sending a request through the AntHill Network
      */
-    private synchronized Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters){
+    private synchronized Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters) {
         LOGGER.log(Level.INFO, "Sending Request to " + url);
         RequestParam request = new RequestParam(pathLength, url, method, parameters);
         url = colonyTable[rand.nextInt(COL_SIZE)];
@@ -183,7 +184,7 @@ public class Drone {
             url = findLiveDrone(url);
         }
         util.Response response = null;
-        try{
+        try {
             // forward the request
             response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
             // if the response is "skip me"
@@ -192,10 +193,10 @@ public class Drone {
                 response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
             }
             return response;
-        } catch( Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in sendRequest", e);
         }
-       return response;
+        return response;
     }
 
     /**
@@ -217,14 +218,15 @@ public class Drone {
      * Receives request and either responds with the response in form Response or returns IP that request should be sent to
      * instead. When the request is actually processed, the server can either pass the request or fullfill it depending
      * on path length
+     *
      * @param request
      * @return Response
      */
-    public synchronized Response passRequest(RequestParam request){
+    public synchronized Response passRequest(RequestParam request) {
         LOGGER.log(Level.INFO, "Passing Request");
         String url = "";
         //Calculate whether node should skip
-        if(rand.nextInt() > 0.5){
+        if (rand.nextInt() > 0.5) {
             //Then select random next in table to return
             url = colonyTable[rand.nextInt(COL_SIZE)];
             if (downDrones.contains(url)) {
@@ -233,7 +235,7 @@ public class Drone {
             return new Response(308, url, "text/IP", null);
         }
         //if there is still path length
-        if(request.pathLength > 0){
+        if (request.pathLength > 0) {
             //Decriment it
             request.pathLength -= 1;
             //Select random successor
@@ -241,7 +243,7 @@ public class Drone {
             if (downDrones.contains(url)) {
                 url = findLiveDrone(url);
             }
-            try{
+            try {
                 // forward the request
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
@@ -250,19 +252,19 @@ public class Drone {
                     response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
                 }
                 return response;
-            } catch( Exception e){
+            } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Unable to Forward Request", e);
             }
-        }
-        else{
+        } else {
             try {
                 return util.fullfillHttpReq(request);
-            } catch(Exception e){
+            } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Unable to Complete Request", e);
             }
         }
         return null;
     }
+
     /**
      * Server up confirmation function.
      */
@@ -278,19 +280,19 @@ public class Drone {
         // Get Successor Table from Furthest Node in Colony Table;
         String[] succTable = new String[COL_SIZE];
         try {
-            for(int i = 0; i < COL_SIZE; i++) {
-                succTable[i] = (String) doExecute(colonyTable[COL_SIZE-1], "Drone.getColonyMember()", new Object[]{i});
+            for (int i = 0; i < COL_SIZE; i++) {
+                succTable[i] = (String) doExecute(colonyTable[COL_SIZE - 1], "Drone.getColonyMember()", new Object[]{i});
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Final Colony Table Node Down", e);
             return null;
         }
         // Add new node as new furthest node
-        colonyTable[COL_SIZE-1] = senderIP;
+        colonyTable[COL_SIZE - 1] = senderIP;
         // Propagate out change
         try {
             doExecute(colonyTable[0], "Drone.addNodeAtIndex()", new Object[]{COL_SIZE - 1, senderIP});
-        } catch(Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Bootstrap Immediate successor down", e);
             return null;
         }
@@ -298,16 +300,16 @@ public class Drone {
 
     }
 
-    public boolean addNodeAtIndex(int stepsLeft, String joiner){
-        boolean isPowerOfTwo = (Math.log(stepsLeft)/Math.log(2)) % 1 == 0;
-        if(isPowerOfTwo){
+    public boolean addNodeAtIndex(int stepsLeft, String joiner) {
+        boolean isPowerOfTwo = (Math.log(stepsLeft) / Math.log(2)) % 1 == 0;
+        if (isPowerOfTwo) {
             colonyTable[stepsLeft] = joiner;
         }
         boolean success = false;
-        try{
-            success = (boolean)doExecute(colonyTable[0], "Drone.addNodeAtIndex()", new Object[]{stepsLeft-1, joiner});
+        try {
+            success = (boolean) doExecute(colonyTable[0], "Drone.addNodeAtIndex()", new Object[]{stepsLeft - 1, joiner});
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unable to add node "+joiner+" "+(COL_SIZE-stepsLeft)+" away from Bootstrap"
+            LOGGER.log(Level.SEVERE, "Unable to add node " + joiner + " " + (COL_SIZE - stepsLeft) + " away from Bootstrap"
                     , e);
             return false;
         }
@@ -320,7 +322,7 @@ public class Drone {
      * Gets the colonyTable value at specified index.
      */
     public synchronized String getColonyMember(int index) {
-        LOGGER.log(Level.FINEST , "Gave Colony Member at Index " + index);
+        LOGGER.log(Level.FINEST, "Gave Colony Member at Index " + index);
         // returns member of colony table at index
         return colonyTable[index];
     }
@@ -374,9 +376,8 @@ public class Drone {
 
             } else {
                 // Otherwise transfer the remainder of the table
-                for(int i = 0; i < COL_SIZE - downIndex; i++) {
-                    newTable[i] = colonyTable[i + downIndex];
-                }
+                if (COL_SIZE - downIndex >= 0)
+                    System.arraycopy(colonyTable, 0 + downIndex, newTable, 0, COL_SIZE - downIndex);
 
             }
         }
@@ -445,11 +446,11 @@ public class Drone {
      */
     private boolean initializeNetwork() {
         // Load successor and colony table with own IP addr
-        LOGGER.log(Level.INFO , "Initializing Network");
+        LOGGER.log(Level.INFO, "Initializing Network");
         String IP = null;
-        try{
+        try {
             IP = util.getPublicIP();
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unable to Obtain Local IP", e);
             System.exit(1);
         }
@@ -482,55 +483,44 @@ public class Drone {
      * Starts server and populates colonyTable when system has > 1 client.
      */
     public boolean joinNetwork(String bootstrapIP) {
-        LOGGER.log(Level.FINE , "Joining Network at " + bootstrapIP);
+        LOGGER.log(Level.FINE, "Joining Network at " + bootstrapIP);
         try {
             globalClient = new XmlRpcClient();
             globalConfig = new XmlRpcClientConfigImpl();
             globalConfig.setEnabledForExtensions(true);
             globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
             globalClient.setConfig(globalConfig);
-            successor = (String) doExecute(bootstrapIP, "Drone.getSuccessor", new Object[]{localIP});
-            LOGGER.log(Level.FINE , "Got Successor " + successor);
-            colonyTable[0] = successor;
+            colonyTable = (String[]) doExecute(bootstrapIP, "Drone.addNode", new Object[]{localIP});
+            LOGGER.log(Level.FINE, "Got Successor " + colonyTable[0]);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Bootstrap Client Exception" , e);
+            LOGGER.log(Level.SEVERE, "Bootstrap Client Exception", e);
             System.exit(1);
-        }
-        // populate colonyTable with bootstrap's table
-        try{
-            for (int i = 1; i < COL_SIZE; i++) {
-                colonyTable[i] = (String) doExecute(bootstrapIP, "Drone.getColonyMember", new Object[]{i});
-            }
-        }catch (Exception e){
-            LOGGER.log(Level.SEVERE, "Bootstrap Transfer Error", e );
         }
 
         // ask successor for their succesor (Index 0)
         // ask Index 0 for their 2 successor (Index 1)
-        if (bootstrapIP == null) {
-            initializeNetwork();
-        } else {
-            // Start up xml server.
-            try {
-                PropertyHandlerMapping phm = new PropertyHandlerMapping();
-                WebServer server = new WebServer(PORT); // may have to change port
-                droneRpcServer = server.getXmlRpcServer();
-                XmlRpcServerConfigImpl droneServerConfig = (XmlRpcServerConfigImpl) droneRpcServer.getConfig();
-                droneServerConfig.setEnabledForExtensions(true);
-                phm.addHandler("Drone", Drone.class);
-                droneRpcServer.setHandlerMapping(phm);
-                server.start();
-            } catch (Exception e) {
-                // Handle any exceptions during server setup
-                LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
-                System.exit(1);
-            }
-            updateColony();
+
+        // Start up xml server.
+        try {
+            PropertyHandlerMapping phm = new PropertyHandlerMapping();
+            WebServer server = new WebServer(PORT); // may have to change port
+            droneRpcServer = server.getXmlRpcServer();
+            XmlRpcServerConfigImpl droneServerConfig = (XmlRpcServerConfigImpl) droneRpcServer.getConfig();
+            droneServerConfig.setEnabledForExtensions(true);
+            phm.addHandler("Drone", Drone.class);
+            droneRpcServer.setHandlerMapping(phm);
+            server.start();
+        } catch (Exception e) {
+            // Handle any exceptions during server setup
+            LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
+            System.exit(1);
         }
+        updateColony();
+        
 
         return true;
     }
- 
+
 
 
     /* ~~~~~~~~~~MAIN METHOD:~~~~~~~~~~ */
@@ -612,7 +602,7 @@ public class Drone {
         if (join) {
             ant.joinNetwork(boot);
         }
-        if(!background) ant.dumpColony();
+        if (!background) ant.dumpColony();
 
         // Starts background updater
         util.Updater updater = new util.Updater(ant);
@@ -624,12 +614,12 @@ public class Drone {
             String command;
             try {
                 command = scan.nextLine();
-            } catch(Exception e){
+            } catch (Exception e) {
                 LOGGER.log(Level.INFO, "Running in Background");
-                while(true){
+                while (true) {
                     try {
                         Thread.sleep(1000);
-                    } catch(Exception y){
+                    } catch (Exception y) {
                         y.printStackTrace();
                     }
                 }
@@ -639,23 +629,23 @@ public class Drone {
             String url = reqArr[1];
             String method = reqArr[2];
             int i = 3;
-            HashMap<String,String> params = new HashMap<>();
-            while(i < reqArr.length){
-                params.put(args[i], args[i+1]);
-                i+=2;
+            HashMap<String, String> params = new HashMap<>();
+            while (i < reqArr.length) {
+                params.put(args[i], args[i + 1]);
+                i += 2;
             }
             Response rep = ant.sendRequest(path, url, method, params);
             try {
-                String name = rep.url.substring(rep.url.lastIndexOf('/')+1);
+                String name = rep.url.substring(rep.url.lastIndexOf('/') + 1);
                 PageDisplay.savePhoto(rep.dataType, name, rep.data);
-            } catch(Exception e){
+            } catch (Exception e) {
                 //do nothing
             }
         }
-        while(true){
+        while (true) {
             try {
                 Thread.sleep(1000);
-            } catch(Exception y){
+            } catch (Exception y) {
                 y.printStackTrace();
             }
         }

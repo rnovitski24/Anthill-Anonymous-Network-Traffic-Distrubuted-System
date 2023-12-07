@@ -33,7 +33,7 @@ public class LogServer {
             try {
                 InputStream is = socket.getInputStream();
                 String host = socket.getInetAddress().getHostName();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is, "US-ASCII"));
+                BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII));
 
                 FileWriter fw = new FileWriter("ServerLogs/" + host + ".log", true);
                 BufferedWriter writer = new BufferedWriter(fw);
@@ -63,7 +63,7 @@ public class LogServer {
 
         }
     }
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         ServerSocketFactory serverSocketFactory =
                 ServerSocketFactory.getDefault();
         ServerSocket serverSocket = null;

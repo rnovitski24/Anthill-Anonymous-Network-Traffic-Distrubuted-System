@@ -276,44 +276,52 @@ public class Drone {
     /**
      *
      */
-    public String[] addNode(String senderIP) {
-        // Get Successor Table from Furthest Node in Colony Table;
-        String[] succTable = new String[COL_SIZE];
-        try {
-            for (int i = 0; i < COL_SIZE; i++) {
-                succTable[i] = (String) doExecute(colonyTable[COL_SIZE - 1], "Drone.getColonyMember", new Object[]{i});
+    public boolean addNode(String senderIP) {
+        try{
+            for(int i = 0; i < COL_SIZE; i++){
+                colonyTable[i] = (String) doExecute(colonyTable[COL_SIZE-1], "Drone.replaceNode",
+                        new Object[]{i});
             }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Final Colony Table Node Down", e);
-            return null;
+        } catch(Exception e){
+            LOGGER.log(Level.SEVERE, "Final Node of BS Down", e);
+            System.exit(1);
         }
-        // Add new node as new furthest node
-        colonyTable[COL_SIZE - 1] = senderIP;
-        // Propagate out change
-        try {
-            doExecute(colonyTable[0], "Drone.addNodeAtIndex", new Object[]{COL_SIZE - 1, senderIP});
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Bootstrap Immediate successor down", e);
-            return null;
-        }
-        return succTable;
-
+        String[] replace = new String[]{};
+        Arrays.fill(replace, "");
+        return replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE-1], senderIP);
     }
 
-    public boolean addNodeAtIndex(int stepsLeft, String joiner) {
-        boolean isPowerOfTwo = (Math.log(stepsLeft) / Math.log(2)) % 1 == 0;
-        if (isPowerOfTwo) {
-            colonyTable[stepsLeft] = joiner;
+    public boolean replaceNode(int iter, String[] replace, String current, String replacement) {
+        LOGGER.log(Level.INFO, "Propagating node replacement " + replacement);
+        // If it's the end of propagation, make sure it is correct;
+        if(iter == 0) {
+            if (localIP.equals(replacement)) {
+                LOGGER.log(Level.INFO, "Finished Prop");
+                return true;
+            }else{
+                LOGGER.log(Level.SEVERE, "Propagation Error. FATAL");
+                System.exit(1);
+            }
         }
-        boolean success = false;
-        try {
-            success = (boolean) doExecute(colonyTable[0], "Drone.addNodeAtIndex", new Object[]{stepsLeft - 1, joiner});
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unable to add node " + joiner + " " + (COL_SIZE - stepsLeft) + " away from Bootstrap"
-                    , e);
+        for( int i = 0; i<COL_SIZE; i++){
+            // If its supposed to be replaced swap the value
+            if(!replace[i].isEmpty()){
+                String temp = colonyTable[i];
+                colonyTable[i] = replace[i];
+                replace[i] = temp;
+            }
+            // If it's the node being replaced
+            else if(colonyTable[i].equals(current)){
+                replace[i] = colonyTable[i];
+                colonyTable[i] = replacement;
+            }
+        }
+        try{
+            return (boolean) doExecute(colonyTable[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
+        } catch(Exception e){
+            LOGGER.log(Level.SEVERE, "Unable to propagate replacement further nodes down");
             return false;
         }
-        return success;
 
 
     }
@@ -515,7 +523,7 @@ public class Drone {
             LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
             System.exit(1);
         }
-        //updateColony();
+
 
 
         return true;
@@ -585,9 +593,12 @@ public class Drone {
             socketHandler.setFormatter(new SimpleFormatter());
             socketHandler.setLevel(Level.ALL);
             LOGGER.addHandler(socketHandler);
+            LOGGER.setUseParentHandlers(false);
         }
         LOGGER.setLevel(logLevel);
-        LOGGER.setUseParentHandlers(false);
+        if (background) {
+            LOGGER.setUseParentHandlers(false);
+        }
 
 
         try {
@@ -603,8 +614,9 @@ public class Drone {
         if (join) {
             ant.joinNetwork(boot);
         }
-        if (!background) ant.dumpColony();
-
+        if (!background) {
+            ant.dumpColony();
+        }
         // Starts background updater
         util.Updater updater = new util.Updater(ant);
         new Thread(updater).start();

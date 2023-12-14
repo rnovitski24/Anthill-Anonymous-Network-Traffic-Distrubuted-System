@@ -10,7 +10,7 @@ import java.util.HashMap;
  */
 public class Encryptor {
 
-    protected HashMap<String, String>
+    //protected HashMap<String, String>
 
     public Encryptor(){
     }

@@ -276,7 +276,7 @@ public class Drone {
     /**
      *
      */
-    public synchronized boolean addNode(String senderIP) {
+    public synchronized boolean addNode(String senderIP) throws Exception {
         try{
             for(int i = 0; i < COL_SIZE; i++){
                 colonyTable[i] = (String) doExecute(colonyTable[COL_SIZE-1], "Drone.getColonyMember",
@@ -288,11 +288,11 @@ public class Drone {
         }
         String[] replace = new String[COL_SIZE];
         Arrays.fill(replace, "");
-        return replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE-1], senderIP);
 
+        return replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE - 1], senderIP);
     }
 
-    public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) {
+    public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) throws Exception {
         String[] replace = Arrays.stream(rep).toArray(String[]::new);
         String[] oldCol = colonyTable.clone();
         LOGGER.log(Level.INFO, "Propagating node replacement " + replacement);
@@ -313,17 +313,18 @@ public class Drone {
                 colonyTable[i] = replace[i];
                 replace[i] = temp;
             }
-            // If it's the node being replaced
-            else if(colonyTable[i].equals(current)){
+            // If it's the node being replaced and make sure its only one at a time
+            else if(colonyTable[i].equals(current) && iter - 1 == Math.pow(2, i)){
                 replace[i] = colonyTable[i];
                 colonyTable[i] = replacement;
             }
         }
         try{
-            return (boolean) doExecute(oldCol[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
+            return (boolean) doExecute(colonyTable[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
         } catch(Exception e){
             LOGGER.log(Level.SEVERE, "Unable to propagate replacement further at node:" + oldCol[0]);
-            return false;
+            throw e;
+
         }
 
 
@@ -415,7 +416,6 @@ public class Drone {
                         }
                         return null;
                     }
-
                 }
             }
 
@@ -452,6 +452,33 @@ public class Drone {
 
     /* ~~~~~~~~~~INITIALIZATION FUNCTIONS:~~~~~~~~~~ */
 
+
+    private boolean startClient(){
+        globalClient = new XmlRpcClient();
+        globalConfig = new XmlRpcClientConfigImpl();
+        globalConfig.setEnabledForExtensions(true);
+        globalClient.setConfig(globalConfig);
+        return true;
+    }
+    private boolean startServer(){
+        try {
+            PropertyHandlerMapping phm = new PropertyHandlerMapping();
+            WebServer server = new WebServer(PORT); // may have to change port
+            xmlRpcServer = server.getXmlRpcServer();
+            XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
+            serverConfig.setEnabledForExtensions(true);
+            phm.addHandler("Drone", Drone.class);
+            xmlRpcServer.setHandlerMapping(phm);
+            server.start();
+            return true;
+
+        } catch (Exception e) {
+            // Handle any exceptions during server setup
+            LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
+            System.exit(1);
+            return false;
+        }
+    }
     /**
      * Starts server when system has no current clients.
      */
@@ -467,27 +494,7 @@ public class Drone {
         }
         successor = IP;
         Arrays.fill(colonyTable, IP);
-        globalClient = new XmlRpcClient();
-        globalConfig = new XmlRpcClientConfigImpl();
-        globalConfig.setEnabledForExtensions(true);
-        globalClient.setConfig(globalConfig);
-        try {
-            PropertyHandlerMapping phm = new PropertyHandlerMapping();
-            WebServer server = new WebServer(PORT); // may have to change port
-            xmlRpcServer = server.getXmlRpcServer();
-            XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
-            serverConfig.setEnabledForExtensions(true);
-            phm.addHandler("Drone", Drone.class);
-            xmlRpcServer.setHandlerMapping(phm);
-            server.start();
-
-        } catch (Exception e) {
-            // Handle any exceptions during server setup
-            LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
-            System.exit(1);
-        }
-
-        return false;
+        return startServer() && startClient();
     }
 
     /**
@@ -496,11 +503,9 @@ public class Drone {
     public boolean joinNetwork(String bootstrapIP) {
         LOGGER.log(Level.FINE, "Joining Network at " + bootstrapIP);
         try {
-            globalClient = new XmlRpcClient();
-            globalConfig = new XmlRpcClientConfigImpl();
-            globalConfig.setEnabledForExtensions(true);
+            startClient();
+            startServer();
             globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
-            globalClient.setConfig(globalConfig);
             if(!(boolean)doExecute(bootstrapIP, "Drone.addNode", new Object[]{localIP})){
                 throw new RuntimeException("Failed to propagate");
             }
@@ -509,28 +514,7 @@ public class Drone {
             LOGGER.log(Level.SEVERE, "Bootstrap Client Exception", e);
             System.exit(1);
         }
-
-        // ask successor for their succesor (Index 0)
-        // ask Index 0 for their 2 successor (Index 1)
-
         // Start up xml server.
-        try {
-            PropertyHandlerMapping phm = new PropertyHandlerMapping();
-            WebServer server = new WebServer(PORT); // may have to change port
-            droneRpcServer = server.getXmlRpcServer();
-            XmlRpcServerConfigImpl droneServerConfig = (XmlRpcServerConfigImpl) droneRpcServer.getConfig();
-            droneServerConfig.setEnabledForExtensions(true);
-            phm.addHandler("Drone", Drone.class);
-            droneRpcServer.setHandlerMapping(phm);
-            server.start();
-        } catch (Exception e) {
-            // Handle any exceptions during server setup
-            LOGGER.log(Level.SEVERE, "Server Initialization Exception", e);
-            System.exit(1);
-        }
-
-
-
         return true;
     }
 

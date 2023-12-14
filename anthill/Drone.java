@@ -303,6 +303,7 @@ public class Drone {
                 return true;
             }else{
                 LOGGER.log(Level.SEVERE, "Propagation Error. FATAL");
+                dumpColony();
                 System.exit(1);
             }
         }

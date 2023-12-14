@@ -294,7 +294,7 @@ public class Drone {
 
     public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) {
         String[] replace = Arrays.stream(rep).toArray(String[]::new);
-        String[] oldCol = colonyTable;
+        String[] oldCol = colonyTable.clone();
         LOGGER.log(Level.INFO, "Propagating node replacement " + replacement);
         // If it's the end of propagation, make sure it is correct;
         if(iter == 0) {
@@ -322,7 +322,7 @@ public class Drone {
         try{
             return (boolean) doExecute(oldCol[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
         } catch(Exception e){
-            LOGGER.log(Level.SEVERE, "Unable to propagate replacement further nodes down");
+            LOGGER.log(Level.SEVERE, "Unable to propagate replacement further at node:" + oldCol[0]);
             return false;
         }
 

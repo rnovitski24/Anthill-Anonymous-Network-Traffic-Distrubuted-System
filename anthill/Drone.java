@@ -22,7 +22,7 @@ import java.net.URL;
 public class Drone {
     // Initialize Logger
     private static final Logger LOGGER = Logger.getLogger(Drone.class.getName());
-    private static final int LOG_PORT = 8888;
+    private static int LOG_PORT = 8888;
 
     // Global Server Variables
     private static XmlRpcServer droneRpcServer;
@@ -33,7 +33,7 @@ public class Drone {
     public static Random rand = new Random();
 
     // Constants
-    private static final int PORT = 8560;
+    private static int PORT = 8560;
     private static final int COL_SIZE = 5;
 
     // Variable that holds next link in chain
@@ -276,7 +276,7 @@ public class Drone {
     /**
      *
      */
-    public boolean addNode(String senderIP) {
+    public synchronized boolean addNode(String senderIP) {
         try{
             for(int i = 0; i < COL_SIZE; i++){
                 colonyTable[i] = (String) doExecute(colonyTable[COL_SIZE-1], "Drone.getColonyMember",
@@ -292,8 +292,9 @@ public class Drone {
 
     }
 
-    public boolean replaceNode(int iter, Object[] rep, String current, String replacement) {
+    public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) {
         String[] replace = Arrays.stream(rep).toArray(String[]::new);
+        String[] oldCol = colonyTable;
         LOGGER.log(Level.INFO, "Propagating node replacement " + replacement);
         // If it's the end of propagation, make sure it is correct;
         if(iter == 0) {
@@ -319,7 +320,7 @@ public class Drone {
             }
         }
         try{
-            return (boolean) doExecute(colonyTable[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
+            return (boolean) doExecute(oldCol[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
         } catch(Exception e){
             LOGGER.log(Level.SEVERE, "Unable to propagate replacement further nodes down");
             return false;
@@ -564,6 +565,9 @@ public class Drone {
                 i++;
             } else if ("--background".equals(args[i])) {
                 background = true;
+            }else if ("-p".equals(args[i])){
+                PORT = Integer.parseInt(args[i+1]);
+                i++;
             } else {
                 System.out.println("Invalid Parameters");
                 System.exit(0);

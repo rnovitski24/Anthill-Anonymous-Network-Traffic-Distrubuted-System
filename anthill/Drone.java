@@ -278,7 +278,9 @@ public class Drone {
         String[] replace = new String[COL_SIZE];
         Arrays.fill(replace, "");
 
-        replaceNode((int) Math.pow(2, colonyTable.length)-1, replace, colonyTable[COL_SIZE - 1], senderIP);
+
+        //This should immediately begin the replacement policy
+        replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE - 1], senderIP);
         return newCol;
 
 
@@ -288,7 +290,7 @@ public class Drone {
     public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) throws Exception {
         String[] replace = Arrays.stream(rep).toArray(String[]::new);
         String[] oldCol = colonyTable.clone();
-        LOGGER.log(Level.INFO, "Propagating node replacement " + replacement);
+        LOGGER.log(Level.INFO, "Propagating node replacement " + replacement + " iter: " + iter );
         // If it's the end of propagation, make sure it is correct;
         if(iter == 0) {
             LOGGER.log(Level.INFO, "Finished Prop");
@@ -311,7 +313,7 @@ public class Drone {
                 replace[i] = temp;
             }
             // If it's the node being replaced and make sure its only one at a time
-            else if(colonyTable[i].equals(current) && iter - 1 == Math.pow(2, i)){
+            else if(colonyTable[i].equals(current) && iter == Math.pow(2, i)){
                 LOGGER.info("Starting the replacing node "+ colonyTable[i] + " with " + replace[i]);
                 replace[i] = colonyTable[i];
                 colonyTable[i] = replacement;

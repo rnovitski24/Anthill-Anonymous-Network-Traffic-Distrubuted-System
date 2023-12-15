@@ -22,10 +22,9 @@ import java.net.URL;
 public class Drone {
     // Initialize Logger
     private static final Logger LOGGER = Logger.getLogger(Drone.class.getName());
-    private static int LOG_PORT = 8888;
+    private static final int LOG_PORT = 8888;
 
     // Global Server Variables
-    private static XmlRpcServer droneRpcServer;
     private static XmlRpcServer xmlRpcServer;
     private static XmlRpcClient globalClient;
     private static XmlRpcClientConfigImpl globalConfig;
@@ -47,6 +46,8 @@ public class Drone {
 
     private static List<String> members = new ArrayList<>();
 
+    private static int[] downCount = new int[COL_SIZE];
+
     /*
      * Colony Table
      * Index 0: 2^0 nodes around ring
@@ -61,7 +62,8 @@ public class Drone {
      * Constructor for Drone class
      */
     public Drone() {
-        // default
+        // Sets down ticker to 0 (avoids NPE)
+        Arrays.fill(downCount, 0);
     }
 
     /* ~~~~~~~~~~HELPER FUNCTIONS:~~~~~~~~~~ */
@@ -86,7 +88,7 @@ public class Drone {
                 }
             }
         }
-        LOGGER.log(Level.SEVERE, "All Nodes Invalid. Reinitalize Network.");
+        LOGGER.log(Level.SEVERE, "All Nodes Invalid. Reinitialize Network.");
         System.exit(0);
         return null;
     }
@@ -100,12 +102,22 @@ public class Drone {
                 doExecute(colonyTable[i], "Drone.ping", new Object[]{});
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Could not ping Colony Member at " + (colonyTable[i]));
+                // Increment down count for node
+                downCount[i] += 1;
                 // if last node in colonyTable, begin update sequence
                 if (i == (COL_SIZE - 1)) {
                     LOGGER.log(Level.INFO, "Replacing Member " + (colonyTable[i]));
                     colonyTable = syncTables(colonyTable[i], i, colonyTable);
                     // reset down nodes
                     downDrones.clear();
+                    Arrays.fill(downCount, 0);
+                } else if (downCount[i] >= COL_SIZE - i) {
+                    // If Down and has been scanned as Down colSize - i times, begin replacement
+                    LOGGER.log(Level.INFO, "Replacing Member " + (colonyTable[i]));
+                    colonyTable = syncTables(colonyTable[i], i, colonyTable);
+                    // reset down nodes
+                    downDrones.clear();
+                    Arrays.fill(downCount, 0);
                 } else {
                     // If Down and Not Last, Add to list of Down
                     downDrones.add(colonyTable[i]);
@@ -186,10 +198,12 @@ public class Drone {
     void dumpColony() {
         LOGGER.log(Level.INFO, "Dumped Colony");
         int nodeNumber = 1;
+        StringBuilder build = new StringBuilder();
         for (int i = 0; i < COL_SIZE; i++) {
-            System.out.println("Node: " + nodeNumber + ":" + colonyTable[i]);
+            build.append("Node: " + nodeNumber + ":" + colonyTable[i] + "\n");
             nodeNumber *= 2;
         }
+        LOGGER.info(build.toString());
     }
 
 
@@ -260,7 +274,7 @@ public class Drone {
         String[] newCol = new String[COL_SIZE];
         if(members.size() < Math.pow(2,COL_SIZE)){
             // Add to member registry
-            members.add(senderIP); 
+            members.add(senderIP);
             // Regen all colony tables
             for(int j = 0; j < members.size(); j++) {
                 // Make individual table
@@ -659,14 +673,15 @@ public class Drone {
                     }
                 }
             }
-            switch(command) {
-                case "q":
+            switch(command.toLowerCase().charAt(0)) {
+                case 'q':
                     System.exit(0);
                     break;
-                case "i":
+                case 'i':
                     ant.dumpColony();
+                    System.out.println(members);
                     break;
-                case "s":
+                case 's':
                     System.out.println("Send Request of Format: [path len], [url], " +
                             "[method], [parameter], [value], [parameter], [value]");
                     try {

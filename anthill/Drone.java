@@ -45,6 +45,8 @@ public class Drone {
     // List storing any down nodes currently in colonyTable
     private static final List<String> downDrones = new ArrayList<>();
 
+    private static List<String> members = new ArrayList<>();
+
     /*
      * Colony Table
      * Index 0: 2^0 nodes around ring
@@ -256,32 +258,52 @@ public class Drone {
      */
     public synchronized String[] addNode(String senderIP) throws Exception {
         String[] newCol = new String[COL_SIZE];
-        if(Arrays.stream(colonyTable).distinct().count() <= 1){
-            colonyTable[0] = senderIP;
-            Arrays.fill(newCol, senderIP);
-            newCol[0] = localIP;
+        if(members.size() < Math.pow(2,COL_SIZE)){
+            // Add to member registry
+            members.add(senderIP);
+            // Regen all colony tables
+            for(int j = 0; j < members.size(); j++) {
+                // Make individual table
+                for (int i = 0; i < COL_SIZE - 1; i++) {
+                    // how many successors ahead is it
+                    int succesors = (int) Math.pow(2, i);
+                    int succInd = Math.floorMod(succesors, members.size());
+                    // set member in table
+                    newCol[i] = members.get(succInd);
+                }
+                // Give new colTable
+                doExecute(members.get(j), "Drone.swapTable", new Object[]{newCol});
+            }
+        }
+        else {
+
+            if (Arrays.stream(colonyTable).distinct().count() <= 1) {
+                colonyTable[0] = senderIP;
+                Arrays.fill(newCol, senderIP);
+                newCol[0] = localIP;
+                return newCol;
+            }
+
+            try {
+                //Get IP of Predecessor of end of col table
+                String tailIP = (String) doExecute(colonyTable[2], "Drone.getColonyMember", new Object[]{COL_SIZE - 2});
+                //take colony from the final member
+                for (int i = 0; i < COL_SIZE; i++) {
+                    newCol[i] = (String) doExecute(tailIP, "Drone.getColonyMember",
+                            new Object[]{i});
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Final Node of BS Down", e);
+                System.exit(1);
+            }
+            String[] replace = new String[COL_SIZE];
+            Arrays.fill(replace, "");
+
+
+            //This should immediately begin the replacement policy
+            replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE - 1], senderIP);
             return newCol;
         }
-
-        try{
-            //Get IP of Predecessor of end of col table
-            String tailIP = (String) doExecute(colonyTable[2], "Drone.getColonyMember", new Object[]{COL_SIZE-2});
-            //take colony from the final member
-            for(int i = 0; i < COL_SIZE; i++){
-                newCol[i] = (String) doExecute(tailIP, "Drone.getColonyMember",
-                        new Object[]{i});
-            }
-        } catch(Exception e){
-            LOGGER.log(Level.SEVERE, "Final Node of BS Down", e);
-            System.exit(1);
-        }
-        String[] replace = new String[COL_SIZE];
-        Arrays.fill(replace, "");
-
-
-        //This should immediately begin the replacement policy
-        replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE - 1], senderIP);
-        return newCol;
 
 
 
@@ -486,6 +508,7 @@ public class Drone {
     private boolean initializeNetwork() {
         // Load successor and colony table with own IP addr
         LOGGER.log(Level.INFO, "Initializing Network");
+
         String IP = null;
         try {
             IP = util.getPublicIP();
@@ -493,6 +516,7 @@ public class Drone {
             LOGGER.log(Level.SEVERE, "Unable to Obtain Local IP", e);
             System.exit(1);
         }
+        members.add(IP);
         successor = IP;
         Arrays.fill(colonyTable, IP);
         return startServer() && startClient();

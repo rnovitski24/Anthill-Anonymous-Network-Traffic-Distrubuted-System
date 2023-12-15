@@ -276,10 +276,13 @@ public class Drone {
     /**
      *
      */
-    public synchronized boolean addNode(String senderIP) throws Exception {
+    public synchronized String[] addNode(String senderIP) throws Exception {
+        String[] newCol = new String[COL_SIZE];
         try{
+            String tailIP = (String) doExecute(colonyTable[0], "Drone.getColonyMember", new Object[]{COL_SIZE-1});
+            //take colony from the final member
             for(int i = 0; i < COL_SIZE; i++){
-                colonyTable[i] = (String) doExecute(colonyTable[COL_SIZE-1], "Drone.getColonyMember",
+                newCol[i] = (String) doExecute(tailIP, "Drone.getColonyMember",
                         new Object[]{i});
                 //dumpColony();
             }
@@ -289,8 +292,13 @@ public class Drone {
         }
         String[] replace = new String[COL_SIZE];
         Arrays.fill(replace, "");
+        //replace[COL_SIZE-1] =
 
-        return replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE - 1], senderIP);
+        replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE - 1], senderIP);
+        return newCol;
+
+
+
     }
 
     public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) throws Exception {
@@ -313,6 +321,7 @@ public class Drone {
         for( int i = 0; i<COL_SIZE; i++){
             // If its supposed to be replaced swap the value
             if(!replace[i].isEmpty()){
+                LOGGER.finest("Replacing node "+ colonyTable[i] + " with " + replace[i]);
                 String temp = colonyTable[i];
                 colonyTable[i] = replace[i];
                 replace[i] = temp;
@@ -511,9 +520,8 @@ public class Drone {
             startClient();
             startServer();
             globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
-            if(!(boolean)doExecute(bootstrapIP, "Drone.addNode", new Object[]{localIP})){
-                throw new RuntimeException("Failed to propagate");
-            }
+            colonyTable = (String[]) doExecute(bootstrapIP, "Drone.addNode", new Object[]{localIP});
+
             LOGGER.log(Level.FINE, "Got Successor " + colonyTable[0]);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Bootstrap Client Exception", e);

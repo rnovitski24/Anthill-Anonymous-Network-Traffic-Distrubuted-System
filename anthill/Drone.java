@@ -183,10 +183,9 @@ public class Drone {
      */
     void dumpColony() {
         LOGGER.log(Level.INFO, "Dumped Colony");
-        int nodeNumber = 0;
+        int nodeNumber = 1;
         for (int i = 0; i < COL_SIZE; i++) {
-            System.out.println(colonyTable.length);
-            LOGGER.log(Level.INFO, "Node: " + nodeNumber + ":" + colonyTable[i]);
+            System.out.println("Node: " + nodeNumber + ":" + colonyTable[i]);
             nodeNumber *= 2;
         }
     }

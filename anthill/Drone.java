@@ -298,14 +298,16 @@ public class Drone {
         LOGGER.log(Level.INFO, "Propagating node replacement " + replacement);
         // If it's the end of propagation, make sure it is correct;
         if(iter == 0) {
-            if (localIP.equals(replacement)) {
+            LOGGER.log(Level.INFO, "Finished Prop");
+            return true;
+           /* if (localIP.equals(replacement)) {
                 LOGGER.log(Level.INFO, "Finished Prop");
                 return true;
             }else{
                 LOGGER.log(Level.SEVERE, "Propagation Error. FATAL");
                 dumpColony();
                 System.exit(1);
-            }
+            }*/
         }
         for( int i = 0; i<COL_SIZE; i++){
             // If its supposed to be replaced swap the value

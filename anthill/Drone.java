@@ -274,6 +274,7 @@ public class Drone {
                 // Give new colTable
                 doExecute(members.get(j), "Drone.swapTable", new Object[]{newCol});
             }
+            return newCol;
         }
         else {
 

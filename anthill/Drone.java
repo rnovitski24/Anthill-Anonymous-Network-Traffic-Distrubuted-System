@@ -34,7 +34,7 @@ public class Drone {
 
     // Constants
     private static int PORT = 8560;
-    private static final int COL_SIZE = 5;
+    private static final int COL_SIZE = 4;
 
     // Variable that holds next link in chain
     private static String successor;

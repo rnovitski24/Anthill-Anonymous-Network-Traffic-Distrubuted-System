@@ -266,7 +266,7 @@ public class Drone {
                 // Make individual table
                 for (int i = 0; i < COL_SIZE; i++) {
                     // how many successors ahead is it
-                    int succesors = (int) Math.pow(2, i);
+                    int succesors = (int) Math.pow(2, i) + j;
                     int succInd = Math.floorMod(succesors, members.size());
                     // set member in table
                     newCol[i] = members.get(succInd);

@@ -281,6 +281,7 @@ public class Drone {
             for(int i = 0; i < COL_SIZE; i++){
                 colonyTable[i] = (String) doExecute(colonyTable[COL_SIZE-1], "Drone.getColonyMember",
                         new Object[]{i});
+                //dumpColony();
             }
         } catch(Exception e){
             LOGGER.log(Level.SEVERE, "Final Node of BS Down", e);
@@ -322,6 +323,7 @@ public class Drone {
                 colonyTable[i] = replacement;
             }
         }
+        dumpColony();
         try{
             return (boolean) doExecute(colonyTable[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
         } catch(Exception e){

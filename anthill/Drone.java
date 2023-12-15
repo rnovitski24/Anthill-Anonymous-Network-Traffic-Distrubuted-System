@@ -323,18 +323,19 @@ public class Drone {
         for( int i = 0; i<COL_SIZE; i++){
             // If its supposed to be replaced swap the value
             if(!replace[i].isEmpty()){
-                LOGGER.finest("Replacing node "+ colonyTable[i] + " with " + replace[i]);
+                LOGGER.info("Replacing node "+ colonyTable[i] + " with " + replace[i]);
                 String temp = colonyTable[i];
                 colonyTable[i] = replace[i];
                 replace[i] = temp;
             }
             // If it's the node being replaced and make sure its only one at a time
             else if(colonyTable[i].equals(current) && iter - 1 == Math.pow(2, i)){
+                LOGGER.info("Starting the replacing node "+ colonyTable[i] + " with " + replace[i]);
                 replace[i] = colonyTable[i];
                 colonyTable[i] = replacement;
             }
         }
-        dumpColony();
+        //dumpColony();
         try{
             return (boolean) doExecute(colonyTable[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
         } catch(Exception e){

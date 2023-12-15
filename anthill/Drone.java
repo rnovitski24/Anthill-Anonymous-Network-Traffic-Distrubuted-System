@@ -614,8 +614,10 @@ public class Drone {
 
         Scanner scan = new Scanner(System.in);
         while (!background) {
-            System.out.println("Send Request of Format: [path len], [url], [method], [parameter], [value], [parameter], [value]");
+            System.out.println("Send, Info, or Quit");
             String command;
+
+
             try {
                 command = scan.nextLine();
             } catch (Exception e) {
@@ -628,22 +630,40 @@ public class Drone {
                     }
                 }
             }
-            String[] reqArr = command.split(",");
-            int path = Integer.parseInt(reqArr[0]);
-            String url = reqArr[1];
-            String method = reqArr[2];
-            int i = 3;
-            HashMap<String, String> params = new HashMap<>();
-            while (i < reqArr.length) {
-                params.put(args[i], args[i + 1]);
-                i += 2;
-            }
-            Response rep = ant.sendRequest(path, url, method, params);
-            try {
-                String name = rep.url.substring(rep.url.lastIndexOf('/') + 1);
-                PageDisplay.savePhoto(rep.dataType, name, rep.data);
-            } catch (Exception e) {
-                //do nothing
+            switch(command) {
+                case "q":
+                    System.exit(0);
+                    break;
+                case "i":
+                    ant.dumpColony();
+                    break;
+                case "s":
+                    System.out.println("Send Request of Format: [path len], [url], " +
+                            "[method], [parameter], [value], [parameter], [value]");
+                    try {
+                        command = scan.nextLine();
+                    } catch (Exception e) {
+                     //do nothing
+                    }
+                    String[] reqArr = command.split(",");
+                    int path = Integer.parseInt(reqArr[0]);
+                    String url = reqArr[1];
+                    String method = reqArr[2];
+                    int i = 3;
+                    HashMap<String, String> params = new HashMap<>();
+                    while (i < reqArr.length) {
+                        params.put(args[i], args[i + 1]);
+                        i += 2;
+                    }
+                    Response rep = ant.sendRequest(path, url, method, params);
+                    try {
+                        String name = rep.url.substring(rep.url.lastIndexOf('/') + 1);
+                        PageDisplay.savePhoto(rep.dataType, name, rep.data);
+                    } catch (Exception e) {
+                        LOGGER.info("Photo Save Failure");
+                        //do nothing
+                    }
+                    break;
             }
         }
         while (true) {

@@ -113,29 +113,6 @@ public class Drone {
     }
 
     /**
-     * Update Colony
-     */
-    protected synchronized void updateColony() {
-        LOGGER.log(Level.FINEST, "Updating Colony");
-        for (int i = 0; i < COL_SIZE - 2; i++) {
-            try {
-                colonyTable[i + 1] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i});
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Error Updating Colony Member " + (i + 1), e);
-                // Do replacement
-            }
-
-            LOGGER.log(Level.FINEST, "Updated Colony Table");
-            StringBuilder stB = new StringBuilder();
-            stB.append("Dumping Colony Table:\n");
-            for (String s : colonyTable) {
-                stB.append(s + "\n");
-            }
-            LOGGER.log(Level.FINEST, stB.substring(0, stB.length() - 1));
-        }
-    }
-
-    /**
      * Generalized wrapper to send XML-RPC requests between nodes.
      **/
     private synchronized Object doExecute(String IP, String method, Object[] params) throws Exception {
@@ -273,7 +250,6 @@ public class Drone {
      */
     public boolean ping() {
         return true;
-
     }
 
     /**
@@ -288,7 +264,6 @@ public class Drone {
             for(int i = 0; i < COL_SIZE; i++){
                 newCol[i] = (String) doExecute(tailIP, "Drone.getColonyMember",
                         new Object[]{i});
-                //dumpColony();
             }
         } catch(Exception e){
             LOGGER.log(Level.SEVERE, "Final Node of BS Down", e);
@@ -296,7 +271,6 @@ public class Drone {
         }
         String[] replace = new String[COL_SIZE];
         Arrays.fill(replace, "");
-        //replace[COL_SIZE-1] =
 
         replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE - 1], senderIP);
         return newCol;

@@ -298,7 +298,6 @@ public class Drone {
                 newCol[0] = localIP;
                 return newCol;
             }
-
             try {
                 //Get IP of Predecessor of end of col table
                 String tailIP = (String) doExecute(colonyTable[2], "Drone.getColonyMember", new Object[]{COL_SIZE - 2});
@@ -334,16 +333,16 @@ public class Drone {
         LOGGER.log(Level.INFO, "Propagating node replacement " + replacement + " iter: " + iter );
         // If it's the end of propagation, make sure it is correct;
         if(iter == 0) {
-            LOGGER.log(Level.INFO, "Finished Prop");
-            return true;
-           /*if (localIP.equals(replacement)) {
+            //LOGGER.log(Level.INFO, "Finished Prop");
+            //return true;
+           if (localIP.equals(replacement)) {
                 LOGGER.log(Level.INFO, "Finished Prop");
                 return true;
             }else{
                 LOGGER.log(Level.SEVERE, "Propagation Error. FATAL");
                 dumpColony();
                 System.exit(1);
-            }*/
+            }
         }
         for( int i = 0; i<COL_SIZE; i++){
             // If its supposed to be replaced swap the value

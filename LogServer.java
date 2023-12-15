@@ -32,7 +32,7 @@ public class LogServer {
             PrintWriter pw = null;
             try {
                 InputStream is = socket.getInputStream();
-                String host = socket.getInetAddress().getHostName();
+                String host = socket.getInetAddress().getHostAddress();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII));
 
                 FileWriter fw = new FileWriter("ServerLogs/" + host + ".log", true);

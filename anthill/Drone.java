@@ -100,6 +100,7 @@ public class Drone {
                 LOGGER.log(Level.WARNING, "Could not ping Colony Member at " + (colonyTable[i]));
                 // if last node in colonyTable, begin update sequence
                 if (i == (COL_SIZE - 1)) {
+                    LOGGER.log(Level.INFO, "Replacing Member " + (colonyTable[i]));
                     colonyTable = syncTables(colonyTable[i], i, colonyTable);
                     // reset down nodes
                     downDrones.clear();
@@ -207,6 +208,7 @@ public class Drone {
         LOGGER.log(Level.INFO, "Dumped Colony");
         int nodeNumber = 0;
         for (int i = 0; i < COL_SIZE; i++) {
+            System.out.println(colonyTable.length);
             LOGGER.log(Level.INFO, "Node: " + nodeNumber + ":" + colonyTable[i]);
             nodeNumber *= 2;
         }

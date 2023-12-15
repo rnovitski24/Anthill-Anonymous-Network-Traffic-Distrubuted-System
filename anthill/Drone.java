@@ -97,7 +97,7 @@ public class Drone {
             try {
                 doExecute(colonyTable[i], "Drone.ping", new Object[]{});
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Could not ping Colony Member at " + (colonyTable[i]), e);
+                LOGGER.log(Level.WARNING, "Could not ping Colony Member at " + (colonyTable[i]));
                 // if last node in colonyTable, begin update sequence
                 if (i == (COL_SIZE - 1)) {
                     colonyTable = syncTables(colonyTable[i], i, colonyTable);
@@ -150,7 +150,8 @@ public class Drone {
             return response;
 
         } catch (Exception ex) {
-            LOGGER.log(Level.WARNING, "Failed to Execute " + method + " At " + IP, ex);
+            LOGGER.log(Level.WARNING, "Failed to Execute " + method + " At " + IP);
+
             throw ex;
         }
 
@@ -202,11 +203,11 @@ public class Drone {
     /**
      * Dumps colonyTable values
      */
-    private void dumpColony() {
-        LOGGER.log(Level.FINEST, "Dumped Colony");
-        int nodeNumber = 1;
+    void dumpColony() {
+        LOGGER.log(Level.INFO, "Dumped Colony");
+        int nodeNumber = 0;
         for (int i = 0; i < COL_SIZE; i++) {
-            System.out.println("Node " + nodeNumber + ":" + colonyTable[i]);
+            LOGGER.log(Level.INFO, "Node: " + nodeNumber + ":" + colonyTable[i]);
             nodeNumber *= 2;
         }
     }
@@ -583,7 +584,7 @@ public class Drone {
             e.printStackTrace();
         }
         fileHandler.setFormatter(new SimpleFormatter());
-        fileHandler.setLevel(Level.ALL);
+        fileHandler.setLevel(logLevel);
         LOGGER.addHandler(fileHandler);
 
         if (log) {
@@ -596,7 +597,7 @@ public class Drone {
                 System.exit(1);
             }
             socketHandler.setFormatter(new SimpleFormatter());
-            socketHandler.setLevel(Level.ALL);
+            socketHandler.setLevel(logLevel);
             LOGGER.addHandler(socketHandler);
             LOGGER.setUseParentHandlers(false);
         }

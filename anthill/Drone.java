@@ -272,7 +272,7 @@ public class Drone {
                     newCol[i] = members.get(succInd);
                 }
                 // Give new colTable
-                doExecute(members.get(j), "Drone.swapTable", new Object[]{newCol});
+                doExecute(members.get(j), "Drone.setTable", new Object[]{newCol});
             }
             return newCol;
         }

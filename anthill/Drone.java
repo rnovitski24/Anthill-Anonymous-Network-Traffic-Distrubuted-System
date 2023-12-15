@@ -309,8 +309,9 @@ public class Drone {
 
 
     }
-    public void swapTable (Object[] col){
+    public boolean setTable (Object[] col){
         colonyTable = Arrays.stream(col).toArray(String[]::new);
+        return true;
     }
 
     public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) throws Exception {
@@ -345,7 +346,6 @@ public class Drone {
                 colonyTable[i] = replacement;
             }
         }
-        //dumpColony();
         try{
             return (boolean) doExecute(colonyTable[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
         } catch(Exception e){

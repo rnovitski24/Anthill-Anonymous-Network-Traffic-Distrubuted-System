@@ -573,7 +573,7 @@ public class Drone {
         boolean background = false;
         String boot = "";
         String logIP = "";
-        Level logLevel = Level.ALL;
+        Level logLevel = Level.INFO;
         // Parse command line args
         for (int i = 0; i < args.length; i++) {
             if ("--initialize".equals(args[i])) {

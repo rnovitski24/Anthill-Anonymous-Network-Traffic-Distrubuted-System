@@ -280,7 +280,8 @@ public class Drone {
     public synchronized String[] addNode(String senderIP) throws Exception {
         String[] newCol = new String[COL_SIZE];
         try{
-            String tailIP = (String) doExecute(colonyTable[0], "Drone.getColonyMember", new Object[]{COL_SIZE-1});
+            //Get IP of Predecessor of end of col table
+            String tailIP = (String) doExecute(colonyTable[2], "Drone.getColonyMember", new Object[]{COL_SIZE-2});
             //take colony from the final member
             for(int i = 0; i < COL_SIZE; i++){
                 newCol[i] = (String) doExecute(tailIP, "Drone.getColonyMember",
@@ -310,7 +311,7 @@ public class Drone {
         if(iter == 0) {
             LOGGER.log(Level.INFO, "Finished Prop");
             return true;
-           /* if (localIP.equals(replacement)) {
+           /*if (localIP.equals(replacement)) {
                 LOGGER.log(Level.INFO, "Finished Prop");
                 return true;
             }else{

@@ -257,7 +257,7 @@ public class Drone {
      */
     public synchronized String[] addNode(String senderIP) throws Exception {
         String[] newCol = new String[COL_SIZE];
-        if(new HashSet<String>(Arrays.stream(colonyTable).toList()).size() <= 1){
+        if(Arrays.stream(colonyTable).distinct().count() <= 1){
             colonyTable[0] = senderIP;
             Arrays.fill(newCol, senderIP);
             newCol[0] = localIP;

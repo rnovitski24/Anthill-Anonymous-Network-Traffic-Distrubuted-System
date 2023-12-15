@@ -257,6 +257,13 @@ public class Drone {
      */
     public synchronized String[] addNode(String senderIP) throws Exception {
         String[] newCol = new String[COL_SIZE];
+        if(new HashSet<String>(Arrays.stream(colonyTable).toList()).size() <= 1){
+            colonyTable[0] = senderIP;
+            Arrays.fill(newCol, senderIP);
+            newCol[0] = localIP;
+            return newCol;
+        }
+
         try{
             //Get IP of Predecessor of end of col table
             String tailIP = (String) doExecute(colonyTable[2], "Drone.getColonyMember", new Object[]{COL_SIZE-2});

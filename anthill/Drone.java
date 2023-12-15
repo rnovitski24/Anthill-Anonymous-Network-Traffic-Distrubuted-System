@@ -260,7 +260,7 @@ public class Drone {
         String[] newCol = new String[COL_SIZE];
         if(members.size() < Math.pow(2,COL_SIZE)){
             // Add to member registry
-            members.add(senderIP);
+            members.add(senderIP); 
             // Regen all colony tables
             for(int j = 0; j < members.size(); j++) {
                 // Make individual table

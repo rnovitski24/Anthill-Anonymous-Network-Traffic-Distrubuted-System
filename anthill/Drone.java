@@ -264,7 +264,7 @@ public class Drone {
             // Regen all colony tables
             for(int j = 0; j < members.size(); j++) {
                 // Make individual table
-                for (int i = 0; i < COL_SIZE - 1; i++) {
+                for (int i = 0; i < COL_SIZE; i++) {
                     // how many successors ahead is it
                     int succesors = (int) Math.pow(2, i);
                     int succInd = Math.floorMod(succesors, members.size());

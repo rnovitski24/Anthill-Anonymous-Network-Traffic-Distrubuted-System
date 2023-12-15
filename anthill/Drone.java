@@ -520,8 +520,8 @@ public class Drone {
             startClient();
             startServer();
             globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
-            colonyTable = (String[]) doExecute(bootstrapIP, "Drone.addNode", new Object[]{localIP});
-
+            Object[] temp = (String[]) doExecute(bootstrapIP, "Drone.addNode", new Object[]{localIP});
+            colonyTable = Arrays.stream(temp).toArray(String[]::new);
             LOGGER.log(Level.FINE, "Got Successor " + colonyTable[0]);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Bootstrap Client Exception", e);

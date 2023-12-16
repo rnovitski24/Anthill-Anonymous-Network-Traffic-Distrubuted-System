@@ -244,7 +244,7 @@ public class Drone {
      * @param request
      * @return Response
      */
-    public synchronized Response passRequest(RequestParam request) {
+    public Response passRequest(RequestParam request) {
         LOGGER.log(Level.INFO, "Passing Request");
         String url = "";
         //Calculate whether node should skip

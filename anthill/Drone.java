@@ -680,6 +680,7 @@ public class Drone {
 
         try {
             localIP = util.getPublicIP();
+            LOGGER.log(Level.INFO, "Public IP: " + localIP);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unable to Get Local IP", e);
             System.exit(1);
@@ -689,6 +690,7 @@ public class Drone {
             ant.initializeNetwork();
         }
         if (join) {
+            LOGGER.log(Level.INFO, "Joining network at boostrap node " + boot);
             ant.joinNetwork(boot);
         }
         if (!background) {

@@ -154,10 +154,11 @@ public class Drone {
      * Generalized wrapper to send XML-RPC requests between nodes.
      **/
     private synchronized Object doExecute(String IP, String method, Object[] params) throws Exception {
+
         try {
             LOGGER.log(Level.FINEST, "Executing " + method + " At " + IP);
-            IP.getClass();
-            localIP.getClass();
+            //IP.getClass();
+            assert IP != null;
             if (IP.equals(localIP)) {
                 IP = "localhost";
                 LOGGER.log(Level.FINEST, "Sending request to localhost");
@@ -280,16 +281,17 @@ public class Drone {
                 assert url != null;
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
-                if(response.url == null) return null;
+                //if(response.url == null) return null;
                 while (response.code == 308) {
                     //Send to responder IP
-
+                    assert response.url != null;
                     response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
-                    if(response.url == null) return null;
+
                 }
                 return response;
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Unable to Forward Request", e);
+                return null;
             }
         } else {
             try {

@@ -211,7 +211,7 @@ public class Drone {
             }
             long end = System.currentTimeMillis();
             long duration = end - start;
-            LOGGER.log(Level.INFO, + duration + ", " + response.data.length);
+            LOGGER.log(Level.INFO, "Data:("+ duration + ", " + response.data.length+")");
             return response;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in sendRequest", e);

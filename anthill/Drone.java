@@ -155,17 +155,15 @@ public class Drone {
      **/
     private synchronized Object doExecute(String IP, String method, Object[] params) throws Exception {
         LOGGER.log(Level.FINEST, "Executing " + method + " At " + IP);
-        assert localIP != null;
         if (IP.equals(localIP)) {
             IP = "localhost";
         }
         LOGGER.log(Level.FINEST, "Sending request to localhost");
         try {
+            assert params != null;
             globalConfig.setServerURL(new URL("http://" + IP + ":" + PORT));
             globalClient.setConfig(globalConfig);
-            Object response = globalClient.execute(method, params);
-            return response;
-
+            return globalClient.execute(method, params);
         } catch (Exception ex) {
             LOGGER.log(Level.WARNING, "Failed to Execute " + method + " At " + IP);
             throw ex;
@@ -273,7 +271,7 @@ public class Drone {
             try {
                 // forward the request
 
-                assert url != null;
+                assert request != null;
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
                 if(response == null) return null;

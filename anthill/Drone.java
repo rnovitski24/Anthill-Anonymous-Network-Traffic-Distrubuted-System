@@ -245,7 +245,7 @@ public class Drone {
      * @return Response
      */
     public Response passRequest(RequestParam request) {
-        LOGGER.log(Level.INFO, "Passing Request");
+        LOGGER.log(Level.FINEST, "Passing Request");
         String url = "";
         //Calculate whether node should skip
         if (rand.nextInt() > 0.5) {

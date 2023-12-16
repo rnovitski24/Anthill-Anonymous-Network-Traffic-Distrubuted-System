@@ -373,8 +373,10 @@ public class Drone {
     }
 
     public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) throws Exception {
+        assert replacement != null;
         String[] replace = Arrays.stream(rep).toArray(String[]::new);
         String[] oldCol = colonyTable.clone();
+
         LOGGER.log(Level.INFO, "Propagating node replacement " + replacement + " iter: " + iter );
         // If it's the end of propagation, make sure it is correct;
         if(iter == 0) {

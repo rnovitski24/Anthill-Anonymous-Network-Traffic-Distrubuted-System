@@ -272,7 +272,7 @@ public class Drone {
             try {
                 // forward the request
 
-                //assert url != null;
+                assert url != null;
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
                 if(response == null) return null;

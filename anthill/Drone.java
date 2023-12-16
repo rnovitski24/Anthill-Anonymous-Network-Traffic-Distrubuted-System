@@ -167,7 +167,6 @@ public class Drone {
 
         } catch (Exception ex) {
             LOGGER.log(Level.WARNING, "Failed to Execute " + method + " At " + IP);
-
             throw ex;
         }
 
@@ -336,7 +335,8 @@ public class Drone {
                 }
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Final Node of BS Down", e);
-                System.exit(1);
+                return null;
+                //System.exit(1);
             }
             String[] replace = new String[COL_SIZE];
             Arrays.fill(replace, "");
@@ -589,6 +589,10 @@ public class Drone {
             startServer();
             globalConfig.setServerURL(new URL("http://" + bootstrapIP + ":" + PORT));
             Object[] temp = (Object[]) doExecute(bootstrapIP, "Drone.addNode", new Object[]{localIP});
+            if(temp == null){
+                LOGGER.log(Level.SEVERE, "Bootstrap server error. Retry");
+                System.exit(1);
+            }
             colonyTable = Arrays.stream(temp).toArray(String[]::new);
             LOGGER.log(Level.FINE, "Got Successor " + colonyTable[0]);
         } catch (Exception e) {

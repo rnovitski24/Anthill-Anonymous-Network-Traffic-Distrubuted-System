@@ -729,6 +729,22 @@ public class Drone {
                     ant.dumpColony();
                     System.out.println(members);
                     break;
+                case 'x':
+                    System.out.println("Enter address to spam");
+                    try {
+                        command = scan.nextLine();
+                    } catch (Exception e) {
+                        //do nothing
+                    }
+                    while(true) {
+                        ant.sendRequest(4, command, "get", new HashMap<>());
+                        try {
+                            Thread.sleep(100);
+                        }catch(Exception e){
+                            //do nothing
+                        }
+                    }
+
                 case 's':
                     System.out.println("Send Request of Format: [path len], [url], " +
                             "[method], [parameter], [value], [parameter], [value]");

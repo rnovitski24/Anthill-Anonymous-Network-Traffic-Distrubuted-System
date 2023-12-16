@@ -204,6 +204,7 @@ public class Drone {
         try {
             // forward the request
             response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
+            if(response == null) return null;
             // if the response is "skip me"
             while (response.code == 308) {
                 //Send to responder IP
@@ -280,6 +281,7 @@ public class Drone {
             }
         } else {
             try {
+                LOGGER.log(Level.INFO, "Sent");
                 return util.fullfillHttpReq(request);
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Unable to Complete Request", e);

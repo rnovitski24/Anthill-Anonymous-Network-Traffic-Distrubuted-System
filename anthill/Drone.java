@@ -106,7 +106,7 @@ public class Drone {
                 downCount[i] += 1;
                 // if last node in colonyTable, begin update sequence
                 if (i == (COL_SIZE - 1)) {
-                    LOGGER.log(Level.INFO, "Replacing Member " + (colonyTable[i]));
+                    LOGGER.log(Level.FINER, "Replacing Member " + (colonyTable[i]));
                     try{
                         String replacement = (String) doExecute(colonyTable[0], "Drone.getColonyMember",
                                 new Object[]{COL_SIZE - 1});
@@ -125,7 +125,7 @@ public class Drone {
                     // reset down nodes
                 } else if (downCount[i] >= COL_SIZE - i) {
                     // If Down and has been scanned as Down colSize - i times, begin replacement
-                    LOGGER.log(Level.INFO, "Replacing Member " + (colonyTable[i]));
+                    LOGGER.log(Level.FINER, "Replacing Member " + (colonyTable[i]));
                     try {
                         String replacement = (String) doExecute(colonyTable[0], "Drone.getColonyMember",
                                 new Object[]{i});
@@ -193,7 +193,7 @@ public class Drone {
      * Initiates sending a request through the AntHill Network
      */
     private synchronized Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters) {
-        LOGGER.log(Level.INFO, "Sending Request to " + url);
+        LOGGER.log(Level.FINEST, "Sending Request to " + url);
         RequestParam request = new RequestParam(pathLength, url, method, parameters);
         url = colonyTable[rand.nextInt(COL_SIZE)];
         if (downDrones.contains(url)) {
@@ -211,7 +211,7 @@ public class Drone {
             }
             long end = System.currentTimeMillis();
             long duration = end - start;
-            LOGGER.log(Level.INFO, "Request Duration: " + duration + "ms, Size: " + response.data.length + " bytes");
+            LOGGER.log(Level.INFO, + duration + ", " + response.data.length);
             return response;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in sendRequest", e);
@@ -782,7 +782,7 @@ public class Drone {
         }
         while (true) {
             try {
-                ant.sendRequest(4, "https://course-reviews.students.bowdoin.edu/login", "get", new HashMap<>());
+                ant.sendRequest(4, "https://tildesites.bowdoin.edu/~sbarker/teaching/courses/distributed/23fall/p4.php", "get", new HashMap<>());
                 Thread.sleep(500);
             } catch (Exception y) {
                 y.printStackTrace();

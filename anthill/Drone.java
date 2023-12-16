@@ -163,7 +163,7 @@ public class Drone {
                 LOGGER.log(Level.FINEST, "Sending request to localhost");
             }
         }catch (NullPointerException e){
-            LOGGER.log(Level.WARNING, "Null Pointer exception");
+            LOGGER.log(Level.WARNING, "Null Pointer Exception" + IP + localIP);
             throw e;
         }
 
@@ -281,7 +281,7 @@ public class Drone {
                 if(response == null) return null;
                 while (response.code == 308) {
                     //Send to responder IP
-                    if(response.url == null) break;
+                    if(response.url.isEmpty()) break;
                     response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
                     //if(response == null) return null;
                 }

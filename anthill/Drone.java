@@ -300,7 +300,7 @@ public class Drone {
      */
     public synchronized String[] addNode(String senderIP) throws Exception {
         String[] newCol = new String[COL_SIZE];
-        if(members.size() < Math.pow(2,COL_SIZE)){
+        if(members.size() < Math.pow(2,COL_SIZE-1)){
             // Add to member registry
             members.add(senderIP);
             // Regen all colony tables

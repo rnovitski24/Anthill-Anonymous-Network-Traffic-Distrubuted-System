@@ -269,6 +269,7 @@ public class Drone {
                 // forward the request
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
+                if(response == null) return null;
                 while (response.code == 308) {
                     //Send to responder IP
                     response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});

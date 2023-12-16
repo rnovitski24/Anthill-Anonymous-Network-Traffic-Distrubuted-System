@@ -808,7 +808,7 @@ public class Drone {
         }
         while (true) {
             try {
-                ant.sendRequest(4, "https://github.com/yourkin/fileupload-fastapi/raw/a85a697cab2f887780b3278059a0dd52847d80f3/tests/data/test-5mb.bin", "get", new HashMap<>());
+                ant.sendRequest(4, "https://www.gutenberg.org/cache/epub/72428/pg72428-images.html", "get", new HashMap<>());
                 Thread.sleep(500);
             } catch (Exception y) {
                 y.printStackTrace();

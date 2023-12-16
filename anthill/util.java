@@ -74,7 +74,7 @@ public class util {
                 }
                 // Check for down nodes and update
                 ant.scanTable();
-                ant.dumpColony();
+                //ant.dumpColony();
                 //Check for new nodes
                 //ant.updateColony();
 

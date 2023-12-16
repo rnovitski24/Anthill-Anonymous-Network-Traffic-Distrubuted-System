@@ -200,7 +200,7 @@ public class Drone {
      * Initiates sending a request through the AntHill Network
      */
     private synchronized Response sendRequest(int pathLength, String url, String method, HashMap<String, String> parameters) {
-        LOGGER.log(Level.FINEST, "Sending Request to " + url);
+        LOGGER.log(Level.INFO, "Sending Request to " + url);
         RequestParam request = new RequestParam(pathLength, url, method, parameters);
         url = colonyTable[rand.nextInt(COL_SIZE)];
         if (downDrones.contains(url)) {
@@ -256,7 +256,7 @@ public class Drone {
      * @return Response
      */
     public Response passRequest(RequestParam request) {
-        LOGGER.log(Level.FINEST, "Passing Request");
+        LOGGER.log(Level.INFO, "Passing Request");
         String url = "";
         //Calculate whether node should skip
         if (rand.nextInt() > 0.5) {

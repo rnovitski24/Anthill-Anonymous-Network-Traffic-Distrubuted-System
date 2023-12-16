@@ -262,13 +262,17 @@ public class Drone {
             //Decriment it
             request.pathLength -= 1;
             //Select random successor
-            url = colonyTable[rand.nextInt(COL_SIZE)];
-            if (downDrones.contains(url)) {
-                url = findLiveDrone(url);
-            }
+            //while(url == null) {
+                url = colonyTable[rand.nextInt(COL_SIZE)];
+            //}
+
+            //if (downDrones.contains(url)) {
+              //  url = findLiveDrone(url);
+            //}
             try {
                 // forward the request
-                assert request != null;
+
+                //assert url != null;
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
                 if(response == null) return null;

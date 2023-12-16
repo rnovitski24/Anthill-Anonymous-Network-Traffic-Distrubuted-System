@@ -373,7 +373,7 @@ public class Drone {
     }
 
     public synchronized boolean replaceNode(int iter, Object[] rep, String current, String replacement) throws Exception {
-        assert replacement != null;
+        assert replacement != null && !replacement.isEmpty();
         String[] replace = Arrays.stream(rep).toArray(String[]::new);
         String[] oldCol = colonyTable.clone();
 
@@ -808,7 +808,7 @@ public class Drone {
         }
         while (true) {
             try {
-                ant.sendRequest(10, "https://tildesites.bowdoin.edu/~sbarker/teaching/courses/distributed/23fall/p4.php", "get", new HashMap<>());
+                ant.sendRequest(15, "https://tildesites.bowdoin.edu/~sbarker/teaching/courses/distributed/23fall/p4.php", "get", new HashMap<>());
                 Thread.sleep(500);
             } catch (Exception y) {
                 y.printStackTrace();

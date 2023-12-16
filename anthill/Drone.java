@@ -343,7 +343,7 @@ public class Drone {
 
 
             //This should immediately begin the replacement policy
-            replaceNode((int) Math.pow(2, colonyTable.length), replace, colonyTable[COL_SIZE - 1], senderIP);
+            replaceNode((int) Math.pow(2, colonyTable.length-1), replace, colonyTable[COL_SIZE - 1], senderIP);
             return newCol;
         }
 

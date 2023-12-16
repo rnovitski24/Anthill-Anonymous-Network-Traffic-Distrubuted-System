@@ -389,10 +389,10 @@ public class Drone {
                 colonyTable[i] = replacement;
                 try {
                     downDrones.remove(i);
-                    downCount[i] = 0;
                 }catch (Exception e){
                     //do nothing
                 }
+                downCount[i] = 0;
             }
         }
         try{

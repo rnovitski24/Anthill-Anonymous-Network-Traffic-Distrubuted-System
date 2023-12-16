@@ -206,7 +206,7 @@ public class Drone {
         if (downDrones.contains(url)) {
             url = findLiveDrone(url);
         }
-        util.Response response = null;
+        Response response = null;
         long start = System.currentTimeMillis();
         try {
             // forward the request
@@ -216,6 +216,7 @@ public class Drone {
             while (response.code == 308) {
                 //Send to responder IP
                 response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
+                if(response == null) return null;
             }
             long end = System.currentTimeMillis();
             long duration = end - start;
@@ -274,14 +275,15 @@ public class Drone {
             try {
                 // forward the request
 
-                assert request != null;
+                //assert request != null;
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
                 if(response == null) return null;
                 while (response.code == 308) {
                     //Send to responder IP
+                    if(response.url == null) break;
                     response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
-                    if(response == null) return null;
+                    //if(response == null) return null;
                 }
                 return response;
             } catch (Exception e) {

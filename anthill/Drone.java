@@ -403,7 +403,9 @@ public class Drone {
             return (boolean) doExecute(colonyTable[0], "Drone.replaceNode", new Object[]{iter-1, replace, current, replacement});
         } catch(Exception e){
             LOGGER.log(Level.SEVERE, "Unable to propagate replacement further at node:" + oldCol[0]);
-            throw e;
+            return false;
+            //throw e;
+
         }
 
 

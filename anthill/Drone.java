@@ -784,7 +784,7 @@ public class Drone {
         }
         while (true) {
             try {
-                ant.sendRequest(3, "https://tildesites.bowdoin.edu/~sbarker/teaching/courses/distributed/23fall/p4.php", "get", new HashMap<>());
+                ant.sendRequest(5, "https://tildesites.bowdoin.edu/~sbarker/teaching/courses/distributed/23fall/p4.php", "get", new HashMap<>());
                 Thread.sleep(500);
             } catch (Exception y) {
                 y.printStackTrace();

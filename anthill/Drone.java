@@ -154,10 +154,17 @@ public class Drone {
      * Generalized wrapper to send XML-RPC requests between nodes.
      **/
     private synchronized Object doExecute(String IP, String method, Object[] params) throws Exception {
-        LOGGER.log(Level.FINEST, "Executing " + method + " At " + IP);
-        if (IP.equals(localIP)) {
-            IP = "localhost";
-            LOGGER.log(Level.FINEST, "Sending request to localhost");
+        try {
+            LOGGER.log(Level.FINEST, "Executing " + method + " At " + IP);
+            IP.getClass();
+            localIP.getClass();
+            if (IP.equals(localIP)) {
+                IP = "localhost";
+                LOGGER.log(Level.FINEST, "Sending request to localhost");
+            }
+        }catch (NullPointerException e){
+            LOGGER.log(Level.WARNING, "Null Pointer exception");
+            throw e;
         }
 
         try {
@@ -274,6 +281,7 @@ public class Drone {
                 while (response.code == 308) {
                     //Send to responder IP
                     response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
+                    if(response == null) return null;
                 }
                 return response;
             } catch (Exception e) {

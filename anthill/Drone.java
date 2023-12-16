@@ -155,6 +155,7 @@ public class Drone {
      **/
     private synchronized Object doExecute(String IP, String method, Object[] params) throws Exception {
         LOGGER.log(Level.FINEST, "Executing " + method + " At " + IP);
+        assert localIP != null;
         if (IP.equals(localIP)) {
             IP = "localhost";
         }

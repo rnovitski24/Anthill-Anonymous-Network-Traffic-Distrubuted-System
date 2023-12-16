@@ -379,7 +379,11 @@ public class Drone {
                 String temp = colonyTable[i];
                 colonyTable[i] = replace[i];
                 replace[i] = temp;
-                downDrones.remove(i);
+                try {
+                    downDrones.remove(i);
+                }catch (Exception e){
+                    //do nothing
+                }
                 downCount[i] = 0;
             }
             // If it's the node being replaced and make sure its only one at a time

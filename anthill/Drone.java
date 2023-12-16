@@ -387,8 +387,12 @@ public class Drone {
                 LOGGER.info("Starting the replacing node "+ colonyTable[i] + " with " + replace[i]);
                 replace[i] = colonyTable[i];
                 colonyTable[i] = replacement;
-                downDrones.remove(i);
-                downCount[i] = 0;
+                try {
+                    downDrones.remove(i);
+                    downCount[i] = 0;
+                }catch (Exception e){
+                    //do nothing
+                }
             }
         }
         try{

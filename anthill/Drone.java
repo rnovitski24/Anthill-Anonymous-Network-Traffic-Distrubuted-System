@@ -210,13 +210,15 @@ public class Drone {
         long start = System.currentTimeMillis();
         try {
             // forward the request
+            assert url != null;
             response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
             if(response == null) return null;
             // if the response is "skip me"
             while (response.code == 308) {
                 //Send to responder IP
+                assert url != null;
                 response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
-                if(response == null) return null;
+                if(response.url == null) return null;
             }
             long end = System.currentTimeMillis();
             long duration = end - start;
@@ -275,15 +277,15 @@ public class Drone {
             try {
                 // forward the request
 
-                //assert request != null;
+                assert url != null;
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
-                if(response == null) return null;
+                if(response.url == null) return null;
                 while (response.code == 308) {
                     //Send to responder IP
-                    if(response.url.isEmpty()) break;
+
                     response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
-                    //if(response == null) return null;
+                    if(response.url == null) return null;
                 }
                 return response;
             } catch (Exception e) {

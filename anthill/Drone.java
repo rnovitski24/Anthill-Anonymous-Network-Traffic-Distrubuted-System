@@ -597,6 +597,12 @@ public class Drone {
                 System.exit(1);
             }
             colonyTable = Arrays.stream(temp).toArray(String[]::new);
+            //Catchall incase of error, ensures looping
+            for(int i = 0; i<COL_SIZE; i++){
+                if(colonyTable[i] == null){
+                    colonyTable[i] = bootstrapIP;
+                }
+            }
             LOGGER.log(Level.FINE, "Got Successor " + colonyTable[0]);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Bootstrap Client Exception", e);

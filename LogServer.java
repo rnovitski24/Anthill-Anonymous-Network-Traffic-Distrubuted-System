@@ -42,6 +42,7 @@ public class LogServer {
 
                 String line = null;
                 while ((line = br.readLine()) != null) {
+                    System.out.println(Thread.activeCount() + " Hosts Currently Connected");
                     System.out.println(host + ":" + "[" + line + "]");
                     pw.println(host + ":" + "[" + line + "]");
                 }
@@ -78,7 +79,7 @@ public class LogServer {
         while (true) {
             Socket socket = null;
             try {
-                System.out.println(Thread.activeCount() + " Hosts Currently Connected");
+
                 socket = serverSocket.accept();
                 ClientHandler handle = new ClientHandler(socket);
                 new Thread(handle).start();

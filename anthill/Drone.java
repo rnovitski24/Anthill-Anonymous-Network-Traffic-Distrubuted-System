@@ -3,6 +3,7 @@ package anthill;
 import anthill.util.Response;
 import anthill.util.RequestParam;
 
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.*;
 
@@ -35,8 +36,6 @@ public class Drone {
     private static int PORT = 8560;
     private static final int COL_SIZE = 4;
 
-    // Variable that holds next link in chain
-    private static String successor;
 
     // Local IP Storage
     private static String localIP;
@@ -249,8 +248,8 @@ public class Drone {
     /* ~~~~~~~~~~XML-RPC FUNCTIONS~~~~~~~~~~ */
 
     /**
-     * Receives request and either responds with the response in form Response or returns IP that request should be sent to
-     * instead. When the request is actually processed, the server can either pass the request or fullfill it depending
+     * Receives request and either responds with the response in form Response or returns IP that request should be sent
+     * instead. When the request is actually processed, the server can either pass the request or fulfill it depending
      * on path length
      *
      * @param request
@@ -270,7 +269,7 @@ public class Drone {
         }
         //if there is still path length
         if (request.pathLength > 0) {
-            //Decriment it
+            //Decrement it
             request.pathLength -= 1;
             //Select random successor
                 url = colonyTable[rand.nextInt(COL_SIZE)];
@@ -281,7 +280,6 @@ public class Drone {
                 assert url != null;
                 Response response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
                 // if the response is "skip me"
-                //if(response.url == null) return null;
                 while (response.code == 308) {
                     //Send to responder IP
                     assert response.url != null;
@@ -324,8 +322,8 @@ public class Drone {
                 // Make individual table
                 for (int i = 0; i < COL_SIZE; i++) {
                     // how many successors ahead is it
-                    int succesors = (int) Math.pow(2, i) + j;
-                    int succInd = Math.floorMod(succesors, members.size());
+                    int successors = (int) Math.pow(2, i) + j;
+                    int succInd = Math.floorMod(successors, members.size());
                     // set member in table
                     newCol[i] = members.get(succInd);
                 }
@@ -380,19 +378,11 @@ public class Drone {
         LOGGER.log(Level.INFO, "Propagating node replacement " + replacement + " iter: " + iter );
         // If it's the end of propagation, make sure it is correct;
         if(iter == 0) {
-            //LOGGER.log(Level.INFO, "Finished Prop");
-            //return true;
-           //if (localIP.equals(replacement)) {
                 LOGGER.log(Level.INFO, "Finished Prop");
                 return true;
-            /*}else{
-                LOGGER.log(Level.SEVERE, "Propagation Error. FATAL");
-                dumpColony();
-                System.exit(1);
-            }*/
         }
         for( int i = 0; i<COL_SIZE; i++){
-            // If its supposed to be replaced swap the value
+            // If it's supposed to be replaced swap the value
             if(!replace[i].isEmpty()){
                 LOGGER.info("Replacing node "+ colonyTable[i] + " with " + replace[i]);
                 String temp = colonyTable[i];
@@ -439,109 +429,6 @@ public class Drone {
         return colonyTable[index];
     }
 
-    /**
-     * Recursive Function That Propagates Out The Dead Node
-     *
-     * @param downIP
-     * @param downIndex
-     * @param cTable
-     * @return
-     */
-    //public String[] syncTables(String downIP, int downIndex, String[] cTable) {
-        // Section of updated table that previous node needs
-        // DownIndex of -1 means not in table
-        /*String[] newTable = null;
-        // DownIndex of -1 means not in table
-        // If the down node is in the table.
-        if (!(downIndex == -1)) {
-            // Create the new table to replace colony
-            newTable = new String[COL_SIZE - downIndex];
-            // if the down node is the first successor
-            if (downIndex == 0) {
-                // copy the second successor
-                newTable[0] = colonyTable[1];
-                // Populate the rest of the successors
-                for (int i = 1; i < COL_SIZE; i++) {
-                    try {
-                        // new ith successor is the current ith successor's i-1th successor
-                        newTable[i] = (String) doExecute(colonyTable[i], "Drone.getColonyMember", new Object[]{i - 1});
-                    } catch (Exception e) {
-                        // Add to list of downed drones
-                        downDrones.add(colonyTable[i]);
-                        LOGGER.log(Level.WARNING, "Node down when when repopulating syncing table", e);
-                        // if its not the second successor
-                        if (i > 1) {
-                            try {
-                                // Try to contact another node to get the same address
-                                String interIP = (String) doExecute(colonyTable[i - 2], "Drone.getColonyMember", new Object[]{i - 1});
-                                newTable[i] = (String) doExecute(interIP, "Drone.getColonyMember", new Object[]{i - 2});
-                            } catch (Exception f) {
-                                LOGGER.log(Level.SEVERE, "FATAL: Backup Node down when when repopulating syncing table", f);
-                                System.exit(1);
-                            }
-                        } else {
-                            LOGGER.log(Level.SEVERE, "FATAL: Second Node down when when repopulating syncing table", e);
-                            System.exit(1);
-                        }
-                    }
-                }
-
-            } else {
-                // Otherwise transfer the remainder of the table
-                if (COL_SIZE - downIndex >= 0)
-                    System.arraycopy(colonyTable, 0 + downIndex, newTable, 0, COL_SIZE - downIndex);
-
-            }
-        }
-        // For nodes that are not in the predecessors table
-        else {
-            // checks to see if any of its nodes are the down IP
-            for (int i = 0; i < COL_SIZE; i++) {
-                String[] response = null;
-                // If down node is in table:
-                if (colonyTable[i].equals(downIP)) {
-                    // sends message to its first successor from where it is down
-                    try {
-                        response = (String[]) doExecute(colonyTable[0], "Drone.syncTables", new Object[]{downIP, i, colonyTable});
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "FATAL: Recursive call to syncTable did not work as expected ", e);
-                        System.exit(1);
-                    }
-                    if (response != null) {
-                        int inc = 0;
-                        // repopulate table with new values from successor
-                        for (int s = i; s < COL_SIZE; s++) {
-                            colonyTable[s] = response[inc];
-                            inc++;
-                        }
-                        return null;
-                    }
-                }
-            }
-
-            // If down node is not in table, check each value for duplicates and replace with first successor if needed
-            for (int j = 0; j < COL_SIZE; j++) {
-                String newValue = null;
-                if (colonyTable[j].equals(cTable[j])) {
-                    try {
-                        newValue = (String) doExecute(colonyTable[j], "Drone.getFirst", new Object[]{});
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, "Could not find node in colonyTable ", e);
-                    }
-                    colonyTable[j] = newValue;
-                }
-            }
-            try {
-                doExecute(colonyTable[0], "Drone.syncTables", new Object[]{downIP, -1, colonyTable});
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Recursive call to syncTable did not work as expected ", e);
-            }
-
-
-        }
-        return newTable;*/
-
-   // }
 
     /**
      * A method to grab the first value in colonyTable without pinging (to allow synchronicity of down node sweeping)
@@ -595,7 +482,6 @@ public class Drone {
             System.exit(1);
         }
         members.add(IP);
-        successor = IP;
         Arrays.fill(colonyTable, IP);
         return startServer() && startClient();
     }
@@ -615,7 +501,7 @@ public class Drone {
                 System.exit(1);
             }
             colonyTable = Arrays.stream(temp).toArray(String[]::new);
-            //Catchall incase of error, ensures looping
+            //Catchall in case of error, ensures looping
             for(int i = 0; i<COL_SIZE; i++){
                 if(colonyTable[i] == null){
                     colonyTable[i] = bootstrapIP;
@@ -790,25 +676,49 @@ public class Drone {
                         params.put(args[i], args[i + 1]);
                         i += 2;
                     }
-                    Response rep = ant.sendRequest(path, url, method, params);
+                    System.out.println("Enter Type: [text, image]");
                     try {
-                        String name = rep.url.substring(rep.url.lastIndexOf('/') + 1);
-                        PageDisplay.savePhoto(rep.dataType, name, rep.data);
-                    } catch (Exception e) {
-                        LOGGER.info("Photo Save Failure");
+                        command = scan.nextLine();
+                    }catch(Exception e){
                         //do nothing
+                    }
+                    Response rep = ant.sendRequest(path, url, method, params);
+                    int param = rep.url.indexOf('?');
+                    String name;
+                    if(param > 0){
+                        name = rep.url.substring(rep.url.lastIndexOf('/') + 1, param);
+                    }else{
+                        name = rep.url.substring(rep.url.lastIndexOf('/') + 1);
+                    }
+
+                    if(command.toLowerCase().equals("text")){
+                        try {
+                            PageDisplay.saveHtml(name, rep.data);
+                            PageDisplay.createWindow(name, name);
+                            File temp = new File(name);
+                            temp.delete();
+                        } catch(Exception e){
+                            System.out.println("Failed to Save and Display HTML");
+                        }
+                    }
+                    else if (command.toLowerCase().equals("image")){
+                        try {
+                            PageDisplay.savePhoto(rep.dataType, name, rep.data);
+                        } catch (Exception e) {
+                            LOGGER.info("Photo Save Failure");
+                        }
                     }
                     break;
             }
         }
         try {
-            Thread.sleep(300000);
+            //Thread.sleep(300000);
         } catch (Exception e){
             //do nothing
         }
         while (true) {
             try {
-                ant.sendRequest(4, "https://course-reviews.students.bowdoin.edu/login", "get", new HashMap<>());
+                //ant.sendRequest(4, "https://course-reviews.students.bowdoin.edu/login", "get", new HashMap<>());
                 Thread.sleep(500);
             } catch (Exception y) {
                 y.printStackTrace();

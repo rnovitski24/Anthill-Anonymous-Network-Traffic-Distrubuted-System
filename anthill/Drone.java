@@ -802,7 +802,7 @@ public class Drone {
             }
         }
         try {
-            Thread.sleep(10000);
+            Thread.sleep(300000);
         } catch (Exception e){
             //do nothing
         }

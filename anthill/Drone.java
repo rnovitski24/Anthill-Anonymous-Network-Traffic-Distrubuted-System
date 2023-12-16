@@ -107,17 +107,41 @@ public class Drone {
                 // if last node in colonyTable, begin update sequence
                 if (i == (COL_SIZE - 1)) {
                     LOGGER.log(Level.INFO, "Replacing Member " + (colonyTable[i]));
-                    colonyTable = syncTables(colonyTable[i], i, colonyTable);
+                    try{
+                        String replacement = (String) doExecute(colonyTable[0], "Drone.getColonyMember",
+                                new Object[]{COL_SIZE - 1});
+                        replaceNode((int) Math.pow(2, COL_SIZE), new Object[]{}, colonyTable[COL_SIZE - 1], replacement);
+                    } catch(Exception f){
+                        try {
+                            LOGGER.warning("Successor to Down Node is Also Down");
+                            String replacement = (String) doExecute(colonyTable[1], "Drone.getColonyMember",
+                                    new Object[]{COL_SIZE - 1});
+                            replaceNode((int) Math.pow(2, COL_SIZE), new Object[]{}, colonyTable[COL_SIZE - 1], replacement);
+                        } catch (Exception g){
+                            LOGGER.severe("Three Sequential Nodes Down. Disconnecting.");
+                            System.exit(1);
+                        }
+                    }
                     // reset down nodes
-                    downDrones.clear();
-                    Arrays.fill(downCount, 0);
                 } else if (downCount[i] >= COL_SIZE - i) {
                     // If Down and has been scanned as Down colSize - i times, begin replacement
                     LOGGER.log(Level.INFO, "Replacing Member " + (colonyTable[i]));
-                    colonyTable = syncTables(colonyTable[i], i, colonyTable);
-                    // reset down nodes
-                    downDrones.clear();
-                    Arrays.fill(downCount, 0);
+                    try {
+                        String replacement = (String) doExecute(colonyTable[0], "Drone.getColonyMember",
+                                new Object[]{i});
+                        replaceNode((int)Math.pow(2, i), new Object[COL_SIZE], colonyTable[i], replacement);
+                    }catch (Exception f){
+                        try {
+                            LOGGER.warning("Successor to Down Node is Also Down");
+                            String replacement = (String) doExecute(colonyTable[1], "Drone.getColonyMember",
+                                    new Object[]{i});
+                            replaceNode((int) Math.pow(2, i), new Object[COL_SIZE], colonyTable[i], replacement);
+                        } catch (Exception g){
+                            LOGGER.severe("Three Sequential Nodes Down. Disconnecting.");
+                            System.exit(1);
+                        }
+                    }
+
                 } else {
                     // If Down and Not Last, Add to list of Down
                     downDrones.add(colonyTable[i]);
@@ -177,6 +201,7 @@ public class Drone {
             url = findLiveDrone(url);
         }
         util.Response response = null;
+        long start = System.currentTimeMillis();
         try {
             // forward the request
             response = (Response) doExecute(url, "Drone.passRequest", new Object[]{request});
@@ -185,6 +210,9 @@ public class Drone {
                 //Send to responder IP
                 response = (Response) doExecute(response.url, "Drone.passRequest", new Object[]{request});
             }
+            long end = System.currentTimeMillis();
+            long duration = end - start;
+            LOGGER.log(Level.INFO, "Request Duration: " + duration + "ms, Size: " + response.data.length + " bytes");
             return response;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error in sendRequest", e);
@@ -351,12 +379,16 @@ public class Drone {
                 String temp = colonyTable[i];
                 colonyTable[i] = replace[i];
                 replace[i] = temp;
+                downDrones.remove(i);
+                downCount[i] = 0;
             }
             // If it's the node being replaced and make sure its only one at a time
             else if(colonyTable[i].equals(current) && iter == Math.pow(2, i)){
                 LOGGER.info("Starting the replacing node "+ colonyTable[i] + " with " + replace[i]);
                 replace[i] = colonyTable[i];
                 colonyTable[i] = replacement;
+                downDrones.remove(i);
+                downCount[i] = 0;
             }
         }
         try{
@@ -364,7 +396,6 @@ public class Drone {
         } catch(Exception e){
             LOGGER.log(Level.SEVERE, "Unable to propagate replacement further at node:" + oldCol[0]);
             throw e;
-
         }
 
 
@@ -387,10 +418,10 @@ public class Drone {
      * @param cTable
      * @return
      */
-    public String[] syncTables(String downIP, int downIndex, String[] cTable) {
+    //public String[] syncTables(String downIP, int downIndex, String[] cTable) {
         // Section of updated table that previous node needs
         // DownIndex of -1 means not in table
-        String[] newTable = null;
+        /*String[] newTable = null;
         // DownIndex of -1 means not in table
         // If the down node is in the table.
         if (!(downIndex == -1)) {
@@ -479,8 +510,9 @@ public class Drone {
 
 
         }
-        return newTable;
-    }
+        return newTable;*/
+
+   // }
 
     /**
      * A method to grab the first value in colonyTable without pinging (to allow synchronicity of down node sweeping)

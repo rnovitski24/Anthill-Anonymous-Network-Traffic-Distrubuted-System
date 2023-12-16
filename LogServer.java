@@ -78,6 +78,7 @@ public class LogServer {
         while (true) {
             Socket socket = null;
             try {
+                System.out.println(Thread.activeCount() + " Hosts Currently Connected");
                 socket = serverSocket.accept();
                 ClientHandler handle = new ClientHandler(socket);
                 new Thread(handle).start();

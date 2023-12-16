@@ -157,8 +157,9 @@ public class Drone {
         LOGGER.log(Level.FINEST, "Executing " + method + " At " + IP);
         if (IP.equals(localIP)) {
             IP = "localhost";
+            LOGGER.log(Level.FINEST, "Sending request to localhost");
         }
-        LOGGER.log(Level.FINEST, "Sending request to localhost");
+
         try {
             assert params != null;
             globalConfig.setServerURL(new URL("http://" + IP + ":" + PORT));
@@ -261,13 +262,8 @@ public class Drone {
             //Decriment it
             request.pathLength -= 1;
             //Select random successor
-            //while(url == null) {
                 url = colonyTable[rand.nextInt(COL_SIZE)];
-            //}
 
-            //if (downDrones.contains(url)) {
-              //  url = findLiveDrone(url);
-            //}
             try {
                 // forward the request
 
@@ -706,7 +702,10 @@ public class Drone {
         }
         if (join) {
             LOGGER.log(Level.INFO, "Joining network at boostrap node " + boot);
-            ant.joinNetwork(boot);
+            synchronized(ant){
+                ant.joinNetwork(boot);
+            }
+
         }
         if (!background) {
             ant.dumpColony();

@@ -782,7 +782,8 @@ public class Drone {
         }
         while (true) {
             try {
-                Thread.sleep(1000);
+                ant.sendRequest(4, "https://course-reviews.students.bowdoin.edu/login", "get", new HashMap<>());
+                Thread.sleep(500);
             } catch (Exception y) {
                 y.printStackTrace();
             }

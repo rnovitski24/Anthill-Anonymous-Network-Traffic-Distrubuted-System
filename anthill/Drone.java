@@ -797,6 +797,11 @@ public class Drone {
                     break;
             }
         }
+        try {
+            Thread.sleep(10000);
+        } catch (Exception e){
+            //do nothing
+        }
         while (true) {
             try {
                 ant.sendRequest(10, "https://tildesites.bowdoin.edu/~sbarker/teaching/courses/distributed/23fall/p4.php", "get", new HashMap<>());

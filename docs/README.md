@@ -41,10 +41,13 @@ Key Components:
    git clone https://github.com/yourusername/Anthill.git
    cd Anthill
 2. Compile the Java code:
+   ```bash
    make
-3. Start the bootstrap node:
+4. Start the bootstrap node:
+   ```bash
    java LogServer [bootstrap-node-ip]
-4. Connect additional nodes:
+5. Connect additional nodes:
+   ```bash
    java LogBot [bootstrap-node-ip]
 ## Usage
 Once nodes are set up, you can send HTTP requests via the command line by interacting with any of the drones in the system.

@@ -68,5 +68,5 @@ Garlic Routing: Concealing the quantity of requests by clumping them together.
 
 ## Contributors
 
-Ryan Novitski
-Ross Grundy
+- [Ryan Novitski](https://github.com/rnovitski24)
+- [Ross Grundy](https://github.com/rgrundy202)

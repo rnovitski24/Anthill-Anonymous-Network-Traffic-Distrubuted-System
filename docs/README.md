@@ -54,17 +54,19 @@ Once nodes are set up, you can send HTTP requests via the command line by intera
 
 ### Commands
 
-Send: Send an HTTP request through the network.
-Info: View the current colony table for a node.
-Quit: Exit the network.
-Performance and Evaluation
+- **Send:** Send an HTTP request through the network.
+- **Info:** View the current colony table for a node.
+- **Quit:** Exit the network.
 
-Latency: As the path length increases, latency grows exponentially, making paths longer than 10 nodes impractical for fast transfers.
-Fault Tolerance: The system maintains communication even as nodes join or leave, dynamically updating colony tables for stability.
-Future Improvements
+## Performance and Evaluation
 
-Encryption: Integration of onion-routing and public-key encryption for added security.
-Garlic Routing: Concealing the quantity of requests by clumping them together.
+- **Latency:** As the path length increases, latency grows exponentially, making paths longer than 10 nodes impractical for fast transfers.
+- **Fault Tolerance:** The system maintains communication even as nodes join or leave, dynamically updating colony tables for stability.
+
+## Future Improvements
+
+- **Encryption:** Integration of onion-routing and public-key encryption for added security.
+- **Garlic Routing:** Concealing the quantity of requests by clumping them together.
 
 ## Contributors
 
